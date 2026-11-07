@@ -1,0 +1,14 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "jsx": "react-jsx",
+    "types": ["chrome", "node"],
+    "skipLibCheck": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker.ImportScripts"]
+  },
+  "include": [".wxt/wxt.d.ts", "src", "tests", "scripts", "wxt.config.ts", "vitest.config.ts", "playwright.config.ts"]
+}

@@ -1,0 +1,4 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Image heavy fixture</title>
+<link rel="stylesheet" href="style.css"><style>.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px} .grid img{width:100%;height:220px;object-fit:cover;display:block}</style></head>
+<body><div class="grid" id="g"></div>
+<script>var g=document.getElementById('g'); for (var i=0;i<48;i++){var img=document.createElement('img'); img.src='/img/'+i+'.svg'; img.alt=''; g.appendChild(img);}</script></body></html>

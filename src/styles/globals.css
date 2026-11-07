@@ -1,0 +1,198 @@
+@import '@fontsource-variable/inter/wght.css';
+@import 'tailwindcss';
+
+/* Dark mode is driven by a `.dark` class on <html> (set from the theme setting). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Frameora design tokens. Components only use these semantic tokens, never raw
+ * palette values, so light/dark themes stay consistent.
+ */
+:root {
+  color-scheme: light;
+  --fr-bg: #f7f7f8;
+  --fr-surface: #ffffff;
+  --fr-surface-2: #f4f4f5;
+  --fr-surface-3: #e9e9ec;
+  --fr-border: #e4e4e7;
+  --fr-border-strong: #d4d4d8;
+  --fr-fg: #18181b;
+  --fr-fg-muted: #52525b;
+  --fr-fg-subtle: #71717a;
+  --fr-primary: #4f46e5;
+  --fr-primary-hover: #4338ca;
+  --fr-primary-soft: #eef2ff;
+  --fr-primary-soft-fg: #3730a3;
+  --fr-primary-fg: #ffffff;
+  --fr-danger: #dc2626;
+  --fr-danger-hover: #b91c1c;
+  --fr-danger-soft: #fef2f2;
+  --fr-danger-soft-fg: #991b1b;
+  --fr-success: #15803d;
+  --fr-success-soft: #f0fdf4;
+  --fr-warning: #b45309;
+  --fr-warning-soft: #fffbeb;
+  --fr-ring: #6366f1;
+  --fr-canvas: #e7e7ea;
+  --fr-overlay: rgb(9 9 11 / 0.45);
+  --fr-shadow: 0 1px 2px rgb(16 16 24 / 0.06), 0 1px 3px rgb(16 16 24 / 0.08);
+  --fr-shadow-lg: 0 12px 32px -8px rgb(16 16 24 / 0.18), 0 2px 6px rgb(16 16 24 / 0.06);
+}
+
+:root.dark {
+  color-scheme: dark;
+  --fr-bg: #0c0c0f;
+  --fr-surface: #151518;
+  --fr-surface-2: #1c1c20;
+  --fr-surface-3: #26262b;
+  --fr-border: #27272a;
+  --fr-border-strong: #3f3f46;
+  --fr-fg: #f4f4f5;
+  --fr-fg-muted: #b4b4bb;
+  --fr-fg-subtle: #8b8b94;
+  --fr-primary: #6d67f0;
+  --fr-primary-hover: #7f7af3;
+  --fr-primary-soft: #1e1b4b;
+  --fr-primary-soft-fg: #c7d2fe;
+  --fr-primary-fg: #ffffff;
+  --fr-danger: #ef4444;
+  --fr-danger-hover: #f87171;
+  --fr-danger-soft: #2a1212;
+  --fr-danger-soft-fg: #fecaca;
+  --fr-success: #4ade80;
+  --fr-success-soft: #0f2418;
+  --fr-warning: #fbbf24;
+  --fr-warning-soft: #2a2010;
+  --fr-ring: #818cf8;
+  --fr-canvas: #09090b;
+  --fr-overlay: rgb(0 0 0 / 0.6);
+  --fr-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  --fr-shadow-lg: 0 16px 40px -8px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --color-bg: var(--fr-bg);
+  --color-surface: var(--fr-surface);
+  --color-surface-2: var(--fr-surface-2);
+  --color-surface-3: var(--fr-surface-3);
+  --color-border: var(--fr-border);
+  --color-border-strong: var(--fr-border-strong);
+  --color-fg: var(--fr-fg);
+  --color-fg-muted: var(--fr-fg-muted);
+  --color-fg-subtle: var(--fr-fg-subtle);
+  --color-primary: var(--fr-primary);
+  --color-primary-hover: var(--fr-primary-hover);
+  --color-primary-soft: var(--fr-primary-soft);
+  --color-primary-soft-fg: var(--fr-primary-soft-fg);
+  --color-primary-fg: var(--fr-primary-fg);
+  --color-danger: var(--fr-danger);
+  --color-danger-hover: var(--fr-danger-hover);
+  --color-danger-soft: var(--fr-danger-soft);
+  --color-danger-soft-fg: var(--fr-danger-soft-fg);
+  --color-success: var(--fr-success);
+  --color-success-soft: var(--fr-success-soft);
+  --color-warning: var(--fr-warning);
+  --color-warning-soft: var(--fr-warning-soft);
+  --color-ring: var(--fr-ring);
+  --color-canvas: var(--fr-canvas);
+  --color-overlay: var(--fr-overlay);
+  --shadow-card: var(--fr-shadow);
+  --shadow-pop: var(--fr-shadow-lg);
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+}
+
+@layer base {
+  html,
+  body {
+    background: var(--fr-bg);
+    color: var(--fr-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  /* One consistent, clearly visible focus ring for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--fr-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--fr-primary) 25%, transparent);
+  }
+
+  input[type='range'] {
+    accent-color: var(--fr-primary);
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--fr-primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Checkerboard used behind transparent images. */
+.fr-checker {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, #e5e5e8 25%, transparent 25%),
+    linear-gradient(-45deg, #e5e5e8 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e5e5e8 75%),
+    linear-gradient(-45deg, transparent 75%, #e5e5e8 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.dark .fr-checker {
+  background-color: #1c1c20;
+  background-image:
+    linear-gradient(45deg, #26262b 25%, transparent 25%),
+    linear-gradient(-45deg, #26262b 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #26262b 75%),
+    linear-gradient(-45deg, transparent 75%, #26262b 75%);
+}
+
+/* Thin, unobtrusive scrollbars inside the app chrome. */
+.fr-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--fr-border-strong) transparent;
+}
+
+@keyframes fr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fr-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fr-animate-in {
+  animation: fr-fade-in 140ms ease-out;
+}

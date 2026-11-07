@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Infinite scroll fixture</title>
+<link rel="stylesheet" href="style.css"><script src="bands.js"></script></head>
+<body><main id="bands"></main><div id="sentinel" style="height:1px"></div>
+<script>
+  var main = document.getElementById('bands'), n = 0, MAX = 45;
+  function more() { if (n >= MAX) return; renderBands(main, 15, 120, n); n += 15; }
+  more();
+  new IntersectionObserver(function (e) { if (e[0].isIntersecting) setTimeout(more, 50); }).observe(document.getElementById('sentinel'));
+</script></body></html>

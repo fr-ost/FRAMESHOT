@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Nested scroll fixture</title>
+<link rel="stylesheet" href="style.css"><script src="bands.js"></script>
+<style>
+  .intro { height: 120px; background: rgb(245,245,245); padding: 16px; box-sizing: border-box; }
+  #panel { width: 600px; height: 400px; overflow-y: auto; margin: 20px; border: 2px solid rgb(30,30,30); }
+  #card { width: 300px; height: 180px; margin: 20px; background: rgb(0,255,255); border: 6px solid rgb(255,0,255); box-sizing: border-box; }
+</style></head>
+<body><div class="intro">Nested scroll containers</div><div id="panel"></div><div id="card">Element</div><div style="height:1500px"></div>
+<script>renderBands(document.getElementById('panel'), 30, 100);</script></body></html>
