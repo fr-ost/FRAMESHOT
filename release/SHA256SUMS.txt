@@ -1,0 +1,1 @@
+66c2a659507b65653b220eef18c91a0ea545e13ccb79f5a58058d1102dcba680  release/frameora-1.0.0-chrome.zip

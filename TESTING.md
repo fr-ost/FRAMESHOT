@@ -98,4 +98,25 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 
 ## Final verification run
 
-TO BE FILLED BY RELEASE RUN
+Run on 2026-11-07 against commit `3c834da`+ (Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
+
+| Suite | Result |
+|---|---|
+| Unit (`npm test`, 7 files) | **89 / 89 passed** |
+| E2E `capture.spec.ts` | **21 / 21 passed** |
+| E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
+| E2E `editor.spec.ts` | **7 / 7 passed** (also passed 3 consecutive repeats) |
+| E2E `app.spec.ts` (library, composer, popup, shortcuts, settings, import) | **8 / 8 passed** |
+| E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
+| **E2E total** | **41 / 41 passed** (2.2 min) |
+| Production bundle audit (`npm run check:bundle`) | **passed** — MV3, 6 permissions, no host permissions, strict CSP, no remote URLs/code, no eval, no test hooks, no source maps |
+| Packaged ZIP smoke test (`.output/frameora-1.0.0-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
+
+Defects found by these suites and fixed during development (each now covered by a test):
+- 1-device-pixel stitching seam at fractional device scales (e.g. 125% zoom) — planner now tracks coverage in output pixels.
+- App-shell pages: the scrolling panel itself is `position: fixed` and was hidden after the first frame.
+- Area selection handles were not detectable through the closed shadow root.
+- Text tool lost focus (and occasionally the first keystroke) right after clicking.
+- Library thumbnail was not refreshed when leaving the editor within ~1 s of an edit.
+
+Still requires a manual check before store submission: the real toolbar-icon click and popup, physical keyboard shortcuts, right-click menu items, Windows/macOS classic scrollbars and fonts, real displays at 125%/150% zoom, and very long real-world sites.
