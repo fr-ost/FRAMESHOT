@@ -134,16 +134,14 @@ function TextEditor({ store, text }: { store: EditorStore; text: TextObject }) {
   const [value, setValue] = useState(text.text);
   const done = useRef(false);
 
-  const ready = useRef(false);
-  useEffect(() => {
+  const mountedAt = useRef(0);
+  // Focus synchronously so no keystroke typed right after the click is lost.
+  // (Canvas pointerdown already cancels the browser's default focus change.)
+  useLayoutEffect(() => {
     const el = ref.current!;
-    // Focus after the current pointer event has fully finished.
-    const raf = requestAnimationFrame(() => {
-      el.focus();
-      el.select();
-      ready.current = true;
-    });
-    return () => cancelAnimationFrame(raf);
+    mountedAt.current = performance.now();
+    el.focus();
+    el.select();
   }, []);
 
   const finish = (save: boolean) => {
@@ -175,7 +173,15 @@ function TextEditor({ store, text }: { store: EditorStore; text: TextObject }) {
       aria-label="Edit text"
       spellCheck={false}
       onChange={(e) => setValue(e.target.value)}
-      onBlur={() => ready.current && finish(true)}
+      onBlur={(e) => {
+        // A blur caused by the very click that opened the editor: keep editing.
+        if (performance.now() - mountedAt.current < 250) {
+          const el = e.currentTarget;
+          requestAnimationFrame(() => el.focus());
+          return;
+        }
+        finish(true);
+      }}
       onKeyDown={(e) => {
         e.stopPropagation();
         if (e.key === 'Escape') {
