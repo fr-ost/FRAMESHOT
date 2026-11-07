@@ -19,9 +19,12 @@ export function lineHeight(size: number): number {
 let measureCtx: OffscreenCanvasRenderingContext2D | null = null;
 /** Precise text box measurement (content area, without background padding). */
 export function measureText(t: TextObject): { width: number; height: number } {
-  measureCtx ??= new OffscreenCanvas(1, 1).getContext('2d');
+  if (!measureCtx && typeof OffscreenCanvas !== 'undefined') measureCtx = new OffscreenCanvas(1, 1).getContext('2d');
   const lines = (t.text || ' ').split('\n');
-  if (!measureCtx) return { width: lines.length * t.size, height: lines.length * lineHeight(t.size) };
+  if (!measureCtx) {
+    const longest = Math.max(1, ...lines.map((l) => l.length));
+    return { width: longest * t.size * 0.56, height: lines.length * lineHeight(t.size) };
+  }
   measureCtx.font = fontFor(t);
   const width = Math.max(t.size * 0.3, ...lines.map((l) => measureCtx!.measureText(l || ' ').width));
   return { width, height: lines.length * lineHeight(t.size) };

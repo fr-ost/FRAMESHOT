@@ -31,6 +31,8 @@ const CSP = [
 export default defineConfig({
   srcDir: 'src',
   outDir: '.output',
+  // E2E builds use production mode (same React build as shipped) in their own folder.
+  ...(E2E ? { outDirTemplate: '{{browser}}-mv{{manifestVersion}}-e2e' } : {}),
   imports: false,
   modules: ['@wxt-dev/module-react'],
   zip: {

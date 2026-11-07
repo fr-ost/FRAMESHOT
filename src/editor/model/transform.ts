@@ -16,8 +16,13 @@ export const FLIP_H: Orientation = [-1, 0, 0, 1];
 export const FLIP_V: Orientation = [1, 0, 0, -1];
 
 export function multiplyOrientation(m: Orientation, n: Orientation): Orientation {
-  // (m · n): apply n first, then m.
-  return [m[0] * n[0] + m[1] * n[2], m[0] * n[1] + m[1] * n[3], m[2] * n[0] + m[3] * n[2], m[2] * n[1] + m[3] * n[3]];
+  // (m · n): apply n first, then m. (`+ 0` normalizes -0 to 0.)
+  return [
+    m[0] * n[0] + m[1] * n[2] + 0,
+    m[0] * n[1] + m[1] * n[3] + 0,
+    m[2] * n[0] + m[3] * n[2] + 0,
+    m[2] * n[1] + m[3] * n[3] + 0,
+  ];
 }
 
 export function swapsAxes(o: Orientation): boolean {

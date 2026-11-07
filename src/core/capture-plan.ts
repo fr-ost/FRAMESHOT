@@ -104,10 +104,13 @@ export interface DrawOp {
 }
 
 /**
- * Tracks which parts of the region have been painted and converts each frame
- * into a draw operation that contributes only new pixels. Earlier frames win in
- * overlaps, except that the last row may re-paint the area occupied by
- * bottom-anchored fixed elements (e.g. a fixed footer shown only once).
+ * Converts frames into draw operations that contribute only new pixels.
+ *
+ * Coverage is tracked in *output device pixels*, after rounding and clamping
+ * to the captured frame, so fractional device scales (e.g. 125% zoom) can
+ * never leave 1px seams. Earlier frames win in overlaps, except that the last
+ * row may re-paint the strip occupied by bottom-anchored fixed elements (e.g.
+ * a fixed footer shown only once at the end).
  */
 export class StitchPlanner {
   private painted: Rect[] = [];
@@ -141,75 +144,70 @@ export class StitchPlanner {
     return maxBottom;
   }
 
-  addFrame(frame: FrameInput, imageSize: { width: number; height: number }): DrawOp | null {
+  /**
+   * The output rect a frame can paint (clamped to the frame image and the
+   * region), plus a function mapping output rects to source rects.
+   */
+  private available(frame: FrameInput, imageSize: { width: number; height: number }) {
     const visible = intersect(frame.content, this.region);
     if (isEmpty(visible)) return null;
+    const os = this.outputScale;
+    const cs = this.captureScale;
+    const same = Math.abs(os - cs) < 1e-9;
+    const offX = Math.round((this.region.x - frame.content.x + frame.viewport.x) * cs);
+    const offY = Math.round((this.region.y - frame.content.y + frame.viewport.y) * cs);
+    // Output px → source px.
+    const toSrcX = (dx: number) => (same ? dx + offX : (dx / os + this.region.x - frame.content.x + frame.viewport.x) * cs);
+    const toSrcY = (dy: number) => (same ? dy + offY : (dy / os + this.region.y - frame.content.y + frame.viewport.y) * cs);
+    // Source px → output px (inverse), used to clamp to the image bounds.
+    const toDstX = (sx: number) => (same ? sx - offX : (sx / cs - this.region.x + frame.content.x - frame.viewport.x) * os);
+    const toDstY = (sy: number) => (same ? sy - offY : (sy / cs - this.region.y + frame.content.y - frame.viewport.y) * os);
+    let x0 = Math.round((visible.x - this.region.x) * os);
+    let y0 = Math.round((visible.y - this.region.y) * os);
+    let x1 = Math.round((right(visible) - this.region.x) * os);
+    let y1 = Math.round((bottom(visible) - this.region.y) * os);
+    x0 = Math.max(x0, Math.ceil(toDstX(0) - 1e-6));
+    y0 = Math.max(y0, Math.ceil(toDstY(0) - 1e-6));
+    x1 = Math.min(x1, Math.floor(toDstX(imageSize.width) + 1e-6));
+    y1 = Math.min(y1, Math.floor(toDstY(imageSize.height) + 1e-6));
+    if (x1 <= x0 || y1 <= y0) return null;
+    const toSrc = (d: Rect): Rect => {
+      if (same) return { x: d.x + offX, y: d.y + offY, w: d.w, h: d.h };
+      const sx0 = toSrcX(d.x);
+      const sy0 = toSrcY(d.y);
+      return { x: sx0, y: sy0, w: toSrcX(d.x + d.w) - sx0, h: toSrcY(d.y + d.h) - sy0 };
+    };
+    return { rect: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, toSrc };
+  }
 
-    let top = visible.y;
+  private toContent(d: Rect): Rect {
+    const os = this.outputScale;
+    return { x: this.region.x + d.x / os, y: this.region.y + d.y / os, w: d.w / os, h: d.h / os };
+  }
+
+  addFrame(frame: FrameInput, imageSize: { width: number; height: number }): DrawOp | null {
+    const avail = this.available(frame, imageSize);
+    if (!avail) return null;
+    const a = avail.rect;
+    let top = a.y;
     const prevBottom = this.coveredBottomBefore(frame.row);
     if (Number.isFinite(prevBottom)) top = Math.max(top, prevBottom);
     if (frame.isLastRow && frame.bottomFixedHeight && frame.bottomFixedHeight > 0) {
       // Re-paint the strip where a bottom-anchored fixed element now appears.
-      top = Math.min(top, Math.max(visible.y, bottom(visible) - frame.bottomFixedHeight));
+      const strip = Math.round(frame.bottomFixedHeight * this.outputScale);
+      top = Math.min(top, Math.max(a.y, a.y + a.h - strip));
     }
-    let left = visible.x;
+    let left = a.x;
     const prevRight = this.rowRight.get(frame.row);
     if (prevRight !== undefined) left = Math.max(left, prevRight);
 
-    this.rowBottoms.set(frame.row, Math.max(this.rowBottoms.get(frame.row) ?? -Infinity, bottom(visible)));
-    this.rowRight.set(frame.row, Math.max(prevRight ?? -Infinity, right(visible)));
+    this.rowBottoms.set(frame.row, Math.max(this.rowBottoms.get(frame.row) ?? -Infinity, a.y + a.h));
+    this.rowRight.set(frame.row, Math.max(prevRight ?? -Infinity, a.x + a.w));
 
-    const content: Rect = { x: left, y: top, w: right(visible) - left, h: bottom(visible) - top };
-    if (content.w <= 0 || content.h <= 0) return null;
-    this.painted.push(content);
-
-    const os = this.outputScale;
-    const cs = this.captureScale;
-    const dx0 = Math.round((content.x - this.region.x) * os);
-    const dy0 = Math.round((content.y - this.region.y) * os);
-    const dx1 = Math.round((right(content) - this.region.x) * os);
-    const dy1 = Math.round((bottom(content) - this.region.y) * os);
-
-    // Image px = (contentPoint - frame.content.origin + frame.viewport.origin) * captureScale
-    let sx0: number;
-    let sy0: number;
-    let sx1: number;
-    let sy1: number;
-    if (Math.abs(os - cs) < 1e-9) {
-      // Same scale: use one rounded translation so src/dest sizes match exactly.
-      const offX = Math.round((this.region.x - frame.content.x + frame.viewport.x) * cs);
-      const offY = Math.round((this.region.y - frame.content.y + frame.viewport.y) * cs);
-      sx0 = dx0 + offX;
-      sy0 = dy0 + offY;
-      sx1 = dx1 + offX;
-      sy1 = dy1 + offY;
-    } else {
-      sx0 = Math.round((content.x - frame.content.x + frame.viewport.x) * cs);
-      sy0 = Math.round((content.y - frame.content.y + frame.viewport.y) * cs);
-      sx1 = Math.round((right(content) - frame.content.x + frame.viewport.x) * cs);
-      sy1 = Math.round((bottom(content) - frame.content.y + frame.viewport.y) * cs);
-    }
-
-    // Clamp to the captured image (guards against off-by-one at the edges).
-    const clipLeft = Math.max(0, -sx0);
-    const clipTop = Math.max(0, -sy0);
-    const clipRight = Math.max(0, sx1 - imageSize.width);
-    const clipBottom = Math.max(0, sy1 - imageSize.height);
-    const ratio = os / cs;
-    sx0 += clipLeft;
-    sy0 += clipTop;
-    sx1 -= clipRight;
-    sy1 -= clipBottom;
-    const destClip = (v: number) => Math.round(v * ratio);
-    const dest: Rect = {
-      x: dx0 + destClip(clipLeft),
-      y: dy0 + destClip(clipTop),
-      w: dx1 - destClip(clipRight) - (dx0 + destClip(clipLeft)),
-      h: dy1 - destClip(clipBottom) - (dy0 + destClip(clipTop)),
-    };
-    const src: Rect = { x: sx0, y: sy0, w: sx1 - sx0, h: sy1 - sy0 };
-    if (src.w <= 0 || src.h <= 0 || dest.w <= 0 || dest.h <= 0) return null;
-    return { src, dest, content };
+    const dest: Rect = { x: left, y: top, w: a.x + a.w - left, h: a.y + a.h - top };
+    if (dest.w <= 0 || dest.h <= 0) return null;
+    this.painted.push(dest);
+    return { src: avail.toSrc(dest), dest, content: this.toContent(dest) };
   }
 
   /**
@@ -217,32 +215,32 @@ export class StitchPlanner {
    * retry frames after a page scrolled somewhere other than requested.
    */
   addGapFill(frame: FrameInput, imageSize: { width: number; height: number }): DrawOp[] {
+    const avail = this.available(frame, imageSize);
+    if (!avail) return [];
     const ops: DrawOp[] = [];
-    for (const gap of this.gaps()) {
-      const visible = intersect(intersect(frame.content, this.region), gap);
-      if (isEmpty(visible)) continue;
-      const sub = new StitchPlanner(visible, this.captureScale, this.outputScale);
-      const op = sub.addFrame({ ...frame, row: 0, col: 0, isLastRow: false, bottomFixedHeight: 0 }, imageSize);
-      if (!op) continue;
-      // Re-base the destination from the sub-region to this region.
-      const ox = Math.round((visible.x - this.region.x) * this.outputScale);
-      const oy = Math.round((visible.y - this.region.y) * this.outputScale);
-      ops.push({ ...op, dest: { ...op.dest, x: op.dest.x + ox, y: op.dest.y + oy } });
-      this.painted.push(op.content);
+    for (const gap of this.outputGaps()) {
+      const d = intersect(avail.rect, gap);
+      if (isEmpty(d)) continue;
+      this.painted.push(d);
+      ops.push({ src: avail.toSrc(d), dest: d, content: this.toContent(d) });
     }
     return ops;
   }
 
+  private outputGaps(): Rect[] {
+    return uncovered({ x: 0, y: 0, w: this.outputWidth, h: this.outputHeight }, this.painted, 0.5);
+  }
+
   /** Content-space gaps that no frame painted. Empty means the capture is complete. */
   gaps(): Rect[] {
-    return uncovered(this.region, this.painted);
+    return this.outputGaps().map((g) => this.toContent(g));
   }
 
   /** Height (from the region top, CSS px) that is contiguously painted. */
   contiguousHeight(): number {
-    const gaps = this.gaps();
+    const gaps = this.outputGaps();
     if (gaps.length === 0) return this.region.h;
-    return Math.max(0, Math.min(...gaps.map((g) => g.y)) - this.region.y);
+    return Math.max(0, Math.min(...gaps.map((g) => g.y)) / this.outputScale);
   }
 }
 

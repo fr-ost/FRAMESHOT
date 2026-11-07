@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { LibraryPage } from '../library/LibraryPage';
 import { bootstrapTheme, useRoute, useSettings, useThemeSync } from '../ui/hooks';
 import { ConfirmProvider, ToastProvider } from '../ui/overlays';
@@ -27,7 +27,10 @@ export function StudioApp() {
     compare: 'Compare',
     test: 'Studio',
   };
-  document.title = `${titles[route.name] ?? 'Studio'} — Frameora`;
+  const title = `${titles[route.name] ?? 'Studio'} — Frameora`;
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
 
   let page;
   switch (route.name) {
