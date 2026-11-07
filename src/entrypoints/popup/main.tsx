@@ -1,1 +1,10 @@
-import '../../styles/globals.css'; document.getElementById('root')!.textContent = 'popup';
+import '../../styles/globals.css';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { PopupApp } from '../../popup/PopupApp';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <PopupApp />
+  </StrictMode>,
+);
