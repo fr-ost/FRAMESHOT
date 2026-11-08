@@ -137,7 +137,7 @@ Run on 2026-11-08 for release 1.0.0, the first public release, after the interfa
 | Suite | Result |
 |---|---|
 | Type check (`npm run compile`) | **passed** |
-| Unit (`npm test`, 11 files, including the GIF encoder checked by an independent decoder, a 4,000-item duplicate-detection benchmark and the donation addresses) | **141 / 141 passed** |
+| Unit (`npm test`, 13 files, including the GIF encoder checked by an independent decoder, a 4,000-item duplicate-detection benchmark, the donation addresses, the store kit and the sound guidance) | **146 / 146 passed** |
 | E2E `capture.spec.ts` | **23 / 23 passed** |
 | E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
 | E2E `fractional-dpi.spec.ts` (real 1.25× / 1.5× / 1.75× device scale) | **9 / 9 passed** |
@@ -147,8 +147,9 @@ Run on 2026-11-08 for release 1.0.0, the first public release, after the interfa
 | E2E `recorder.spec.ts` (recorder, GIF export, sounds under Chrome's real autoplay rule) | **21 / 21 passed** |
 | E2E `review.spec.ts` (review prompt, clickable stars, sidebar link) | **6 / 6 passed** |
 | E2E `donate.spec.ts` (Support FrameShot page, developer credit) | **2 / 2 passed** |
+| E2E `system-audio.spec.ts` (the shared tab's sound in MP4 and WebM; sound hint, meter and no-sound banner) | **3 / 3 passed** |
 | E2E `ux.spec.ts` (new in this release) | **5 / 5 passed** |
-| **E2E total** | **86 / 86 passed** (5.8 min) |
+| **E2E total** | **89 / 89 passed** (6.1 min) |
 | Production bundle audit (`npm run check:bundle`) | **passed**: MV3, the 7 expected permissions (the earlier six plus `offscreen`), no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
 | Packaged ZIP smoke test (`frameshot-1.0.0-chrome.zip`, unzipped and loaded unpacked, Chrome's real autoplay rule, fake media devices) | **passed**: name, version and permissions as expected; welcome page on install; context menus and all 9 commands including `toggle-recording`; no test hooks in the service worker or pages; the offscreen document loads from the package and accepts a sound; no review prompt on a fresh install; Studio, Settings, Popup (with the sound toggle), Options and Recorder render with zero console errors; "?" opens the shortcut sheet; a recording made through the UI (3 s countdown with sounds) saved and played as MP4 (H.264 · Opus, 3.5 s) with the `REC` badge during and none after; **Export as GIF** from the shipped build produced a valid GIF89a (320×206, 65 KB) |
 | Store assets | Generated from the real UI by `npm run store:assets` and reviewed by eye: 6 screenshots (1280×800) and 2 promotional tiles, all 24-bit PNG without alpha |

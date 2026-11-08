@@ -47,7 +47,7 @@ export function soundHint(surface: DisplaySurfaceKind, platform: Platform, chrom
     }
     return { tone: 'ok', text: 'In Chrome’s picker, turn on “Also share system audio” (needs macOS 14.2 or later). If it isn’t offered, choose Tab to record a tab’s sound.' };
   }
-  return { tone: 'warn', text: 'Chrome can’t share system sound on this system. Choose Tab to record a tab’s sound.' };
+  return { tone: 'ok', text: 'In Chrome’s picker, turn on “Also share system audio” if it’s offered (not every system has it). Otherwise choose Tab to record a tab’s sound.' };
 }
 
 /** Shown while recording when sound was requested but Chrome shared none. */
@@ -61,7 +61,7 @@ export function missingSoundMessage(surface: DisplaySurfaceKind | undefined, pla
         ? `The screen was shared without sound: recording your Mac’s sound needs Chrome ${MAC_SYSTEM_AUDIO_CHROME} or later and macOS 14.2 or later. You can share a tab instead to record its sound.`
         : 'The screen was shared without sound. Turn on “Also share system audio” in Chrome’s picker (needs macOS 14.2 or later), or share a tab to record its sound.';
     }
-    return 'Chrome can’t share system sound on this system. Share a tab to record its sound.';
+    return 'The screen was shared without sound. Turn on “Also share system audio” in Chrome’s picker if it’s offered (not every system has it), or share a tab to record its sound.';
   }
   return 'What you shared came without sound. Share a tab (with “Also share tab audio” on) or your screen with system audio.';
 }

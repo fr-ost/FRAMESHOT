@@ -18,7 +18,7 @@ describe('sound guidance for screen recording', () => {
     expect(soundHint('monitor', 'chromeos', 120).tone).toBe('ok');
     expect(soundHint('monitor', 'mac', MAC_SYSTEM_AUDIO_CHROME - 1)).toMatchObject({ tone: 'warn', text: expect.stringContaining(`Chrome ${MAC_SYSTEM_AUDIO_CHROME}`) });
     expect(soundHint('monitor', 'mac', MAC_SYSTEM_AUDIO_CHROME)).toMatchObject({ tone: 'ok', text: expect.stringContaining('macOS 14.2') });
-    expect(soundHint('monitor', 'linux', 141).tone).toBe('warn');
+    expect(soundHint('monitor', 'linux', 141)).toMatchObject({ tone: 'ok', text: expect.stringContaining('if it’s offered') });
   });
 
   it('explains missing sound for each surface', () => {
