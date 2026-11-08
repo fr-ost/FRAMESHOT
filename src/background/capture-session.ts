@@ -72,7 +72,8 @@ export function isBusy(): boolean {
 
 export function cancelCapture(): boolean {
   if (!active) {
-    void clearPendingPick();
+    // Possibly waiting for the user to pick an area/element: abandon that.
+    void abandonPendingPick();
     return false;
   }
   active.cancelled = true;
@@ -191,6 +192,20 @@ export async function onSelection(
   setStatus({ phase: 'preparing', mode: capture.mode, message: 'Preparing capture…' });
   void runCapture(capture, selection);
   return true;
+}
+
+/**
+ * Abandons a pending area/element pick (cancel button, or the tab closed or
+ * navigated away while the selection UI was showing). Without this the
+ * status would stay on "selecting" forever.
+ */
+export async function abandonPendingPick(tabId?: number): Promise<void> {
+  const all = (await chrome.storage.session.get(PENDING_KEY).catch(() => ({}))) as Record<string, unknown>;
+  const stored = all[PENDING_KEY] as PendingPick | undefined;
+  if (!stored || (tabId !== undefined && stored.tabId !== tabId)) return;
+  await clearPendingPick();
+  if (tabId === undefined) void callAgent(stored.tabId, { kind: 'agent.cancelPick' }, 1000).catch(() => {});
+  setStatus({ phase: 'cancelled', mode: stored.mode, message: 'Capture cancelled.' });
 }
 
 export async function onPickCancelled(sessionId: string): Promise<void> {

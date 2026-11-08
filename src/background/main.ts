@@ -8,6 +8,7 @@ import { friendlyCaptureError } from '../core/restricted';
 import type { CaptureMode } from '../core/types';
 import {
   CaptureError,
+  abandonPendingPick,
   cancelCapture,
   onEscape,
   onPickCancelled,
@@ -159,6 +160,14 @@ export function registerBackground(): void {
     const item = MENU_ITEMS.find((m) => m.id === info.menuItemId);
     if (!item) return;
     beginCapture(item.mode, tab?.id).catch((err) => reportStartError(err, item.mode));
+  });
+
+  // A pending area/element pick ends if its tab closes or loads a new page.
+  chrome.tabs.onRemoved.addListener((tabId) => {
+    void abandonPendingPick(tabId);
+  });
+  chrome.tabs.onUpdated.addListener((tabId, info) => {
+    if (info.status === 'loading') void abandonPendingPick(tabId);
   });
 
   chrome.runtime.onInstalled.addListener((details) => {

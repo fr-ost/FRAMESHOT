@@ -352,6 +352,25 @@ test('image-heavy pages are captured with every image loaded', async ({ ext }) =
   await page.close();
 });
 
+test('closing the tab while picking an element resets the capture status', async ({ ext }) => {
+  const { page, tabId } = await openFixture(ext, 'nested.html');
+  await startCapture(ext.sw, tabId, 'element');
+  expect((await getStatus(ext.sw)).phase).toBe('selecting');
+  await page.close();
+  await expect.poll(async () => (await getStatus(ext.sw)).phase).toBe('cancelled');
+});
+
+test('cancel from the popup ends a pending selection', async ({ ext }) => {
+  const { page, tabId } = await openFixture(ext, 'long.html');
+  await startCapture(ext.sw, tabId, 'area');
+  expect((await getStatus(ext.sw)).phase).toBe('selecting');
+  await ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { cancel(): void } }).__frameshotTest.cancel());
+  await expect.poll(async () => (await getStatus(ext.sw)).phase).toBe('cancelled');
+  // The selection overlay is gone from the page.
+  await expect.poll(() => page.evaluate(() => document.querySelectorAll('[data-frameshot-overlay]').length)).toBe(0);
+  await page.close();
+});
+
 test('browser pages are refused with a clear message', async ({ ext }) => {
   const page = await ext.context.newPage();
   await page.goto('chrome://version');

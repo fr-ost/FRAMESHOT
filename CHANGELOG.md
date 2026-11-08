@@ -20,6 +20,7 @@ All notable changes to Frameora are documented here. The format follows [Keep a 
 - Footer credit: "A Product of Unique Labs. Developed by Shahriar Ahmed", linking to www.shahriarahmed.net (opens in a new tab only when clicked).
 
 ### Fixed
+- The popup could stay stuck on "Select what to capture…" if the tab was closed or reloaded while an area/element selection was showing; Cancel now always ends a pending selection, and closing or navigating the tab resets it automatically.
 - Two-column layouts that Tailwind v4 ignored (Settings, Library details, editor info) because of a comma in the arbitrary grid value.
 
 ## [1.0.1] — 2026-11-08

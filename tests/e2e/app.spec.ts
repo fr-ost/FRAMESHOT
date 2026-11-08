@@ -88,7 +88,7 @@ test('library: search, filter, favorite, rename, tags, collections, delete', asy
   await expect(page.getByText('2 selected')).toBeVisible();
   await page.getByRole('button', { name: 'Move to…' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Reports' }).click();
-  await page.getByRole('navigation', { name: 'Collections' }).getByRole('button', { name: /Reports/ }).click();
+  await page.getByRole('navigation', { name: 'Collections' }).getByRole('button', { name: /^Reports/ }).click();
   await expect(cards).toHaveCount(2);
   await page.getByRole('button', { name: /^All screenshots/ }).click();
 
