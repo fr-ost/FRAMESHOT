@@ -17,7 +17,7 @@
     "test:e2e": "npm run build:e2e && playwright test --trace off",
     "check:bundle": "node scripts/check-bundle.mjs .output/chrome-mv3",
     "icons": "node scripts/render-icons.mjs",
-    "store:assets": "npm run build:e2e && node scripts/store-assets.mjs",
+    "store:assets": "npm run build:e2e && node scripts/store-assets.mjs && node scripts/store-render.mjs",
     "perf:ui": "node scripts/perf-ui.mjs",
     "store:kit": "npm run build && python3 scripts/build-store-kit.py",
     "postinstall": "wxt prepare"

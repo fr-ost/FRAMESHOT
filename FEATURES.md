@@ -55,6 +55,8 @@ Every implemented feature is free and available to every user. There are no tier
 | Record a tab, window or entire screen via Chrome's share picker (no permissions) | ✅ | `recorder.spec` (fake picker shares a tab); real window/screen picks 🟡 manual |
 | Recorder never offered as a source (`selfBrowserSurface: exclude`); switch tabs mid-recording | 🟡 | Picker hints passed to Chrome; Chrome's picker UI not automatable |
 | Tab sound + microphone mixed into one track | ✅ | `recorder.spec` (fake devices; `hasAudio` asserted) |
+| The shared tab's own sound is in the saved video (MP4 and WebM), recorded without voice-call processing where Chrome allows | ✅ | `system-audio.spec` (a tab playing a tone is shared and the recording's audio decoded) |
+| Sound guidance: what to tick in Chrome's dialog per system and surface; live sound meter; "no sound" banner with discard and retry | ✅ | `system-audio.spec`, unit `audio-help.test` |
 | Mute/unmute the microphone while recording | 🟡 | Implemented (gain ramp); not asserted on audio samples |
 | Microphone/camera device pickers and live level meter | 🟡 | Default devices tested; choosing a second device not automated |
 | Camera bubble composited into the video (corner, size; adjustable while recording) | ✅ | `recorder.spec` checks the bubble's pixels in the saved video; live re-layout 🟡 |

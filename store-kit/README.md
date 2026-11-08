@@ -14,24 +14,24 @@ Upload `release/frameshot-1.0.0-chrome.zip` (Package tab).
 |---|---|---|
 | Name (from the manifest) | `1-store-listing/name.txt` | 54 / 75 characters |
 | Summary (from the manifest) | `1-store-listing/summary.txt` | 130 / 132 characters |
-| Description | `1-store-listing/description.txt` | ~3,700 / 16,000 characters; no keyword more than 5 times |
+| Description | `1-store-listing/description.txt` | ~11,000 / 16,000 characters: sections, how-to steps and FAQ; every tracked search phrase 5 times or fewer |
 | Category, language, URLs | `1-store-listing/other-fields.md` | Tools · English |
 | Store icon | `images/icon-128.png` | 128 × 128 |
 | Screenshots | `images/screenshot-1.png` … `screenshot-5.png` | 1280 × 800, 24-bit PNG, upload in order |
 | Small promo tile | `images/small-promo-440x280.png` | 440 × 280 |
 | Marquee promo tile | `images/marquee-1400x560.png` | 1400 × 560 |
 
-### Screenshot captions
+### The five screenshots
 
-The store shows screenshots without captions, so each one already explains itself. For your reference (and for social posts):
+Each is a 1280 × 800 marketing image (headline, callouts and the real UI), and together they cover the whole feature set:
 
-1. **Free screen recorder with sound and camera.** Record a tab, window or your whole screen, with a camera bubble. No watermark, no time limit.
-2. **Full page screenshots you can annotate.** Capture an entire page in one click, then add arrows, boxes, text, highlights and numbered steps.
-3. **Turn any part of a recording into a GIF.** Trim it, pick the size and frame rate. Made on your device.
-4. **Blur or redact sensitive information.** Redacted areas are replaced with solid colour in every export.
-5. **One private library for screenshots and recordings.** Search, favourites and collections, stored only on your device. Light and dark themes.
+1. **Overview** — "Record your screen. Capture full pages." The popup, four headline features, Unlimited and No watermark.
+2. **Screen recorder** — "Record your screen with sound & camera." System audio + mic, camera bubble, MP4 · 4K · 60 fps, crash-safe.
+3. **Full page screenshot & editor** — "Capture whole pages. Annotate in seconds." One-click full page, arrows/text/steps, crop/resize/rotate, 5 capture modes.
+4. **Blur · GIF · Export** — "Hide private details. Share it anywhere." Redaction, GIF from any clip, every export format.
+5. **Free. Unlimited. Private.** — Library, beautify, bulk ZIP & PDF, duplicates, shortcuts & sounds, offline; the developer credit.
 
-All images come from the real extension (`npm run store:assets`) on a made-up demo page at `app.example.com`; no real site, brand or person appears.
+They are rebuilt from the real extension by `npm run store:assets` (capture: `scripts/store-assets.mjs`, layout: `scripts/store-render.mjs`) on a made-up demo page at `app.example.com`; no real site, brand or person appears.
 
 ## 2. Privacy practices tab
 

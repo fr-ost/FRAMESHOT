@@ -37,6 +37,7 @@ import { isActivePhase, queryRecorder, RECORDER_CHANNEL, RECORDER_STATE_KEY, typ
 import { createCompositor, type VideoCompositor } from './compositor';
 import { AUDIO_BITS_PER_SECOND, baseMimeType, chooseMimeType, containerOf, QUALITY_PRESETS, videoBitsPerSecond } from './formats';
 import { AudioMixer } from './mixer';
+import { chromeMajor, detectPlatform, missingSoundMessage } from './audio-help';
 import { fixWebmDuration } from './webm';
 
 const TIMESLICE_MS = 1000;
@@ -78,6 +79,10 @@ export interface RecorderSnapshot extends RecorderPublicState {
   mimeType?: string;
   surface?: DisplaySurfaceKind;
   hasSystemAudio: boolean;
+  /** Sound was asked for, but Chrome shared none (explained in the recorder). */
+  soundMissing?: boolean;
+  /** The shared tab/system sound, for the live level meter. */
+  audioPreview?: MediaStream;
   hasCamera: boolean;
   /** A finished recording that could not be stored, offered as a direct download. */
   unsaved?: Blob;
@@ -469,12 +474,11 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
 
     // Sound: tab/system audio and the microphone, mixed into one track.
     displayAudio = opts.systemAudio ? (display.getAudioTracks()[0] ?? null) : null;
-    if (opts.systemAudio && !displayAudio) {
-      warnings.push(
-        surface === 'browser'
-          ? 'The tab was shared without its sound. To include it, keep “Also share tab audio” switched on in Chrome’s picker.'
-          : 'This window or screen was shared without sound. Chrome records sound from tabs (and from the whole screen on Windows and ChromeOS).',
-      );
+    if (displayAudio) {
+      // Record the sound as it plays: voice-call processing (echo cancellation, noise
+      // suppression, automatic gain) would treat music and system sound as echo or noise.
+      // Best effort: some Chrome builds don't allow changing it, and the sound is still recorded.
+      await withTimeout(displayAudio.applyConstraints({ echoCancellation: false, noiseSuppression: false, autoGainControl: false }), 800).catch(() => {});
     }
     micTrack = mic?.getAudioTracks()[0] ?? null;
     const sources: { track: MediaStreamTrack; kind: 'system' | 'mic' }[] = [];
@@ -623,6 +627,8 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
     hasMic: !!micTrack,
     micMuted: false,
     hasSystemAudio: !!displayAudio,
+    soundMissing: opts.systemAudio && !displayAudio,
+    audioPreview: displayAudio ? new MediaStream([displayAudio]) : undefined,
     hasCamera: !!compositor,
     preview,
     // Shown once real frames arrive (track settings can report the requested size).

@@ -48,7 +48,7 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 
 ### Screen recorder
 - Record a **browser tab, an app window, or the entire screen**, chosen in Chrome's own share picker (FrameShot's own tab is never offered, so it cannot record itself). Switch to another tab mid-recording from Chrome's sharing bar.
-- **Sound**: the shared tab's audio (and whole-screen system audio where Chrome offers it) plus your **microphone**, mixed into one track. Mute and unmute the microphone while recording. Device picker and live level meter.
+- **Sound**: the shared tab's audio (and whole-screen system audio where Chrome offers it) plus your **microphone**, mixed into one track and recorded without voice-call processing. Mute and unmute the microphone while recording. Device picker, live level meters for the microphone and the shared sound, and guidance on what to tick in Chrome's dialog.
 - **Camera bubble**: your camera in a round, mirrored bubble drawn into the video, in any corner, in three sizes; it can be moved while recording.
 - Countdown (off, 3, 5, or 10 s), **pause and resume** (paused time is left out), a live preview, timer and size, and a toolbar badge (countdown, `REC`, `II`).
 - Stop from the recorder, from Chrome's **Stop sharing** bar, from the popup, from a floating pill on any Studio screen, or with a keyboard shortcut you assign.
@@ -260,7 +260,7 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 - The tab must stay visible during a multi-frame capture. Switching tabs, minimizing the window, or resizing or zooming stops the capture with a clear message.
 
 **Screen recording limits (Chrome)**
-- Chrome records sound from **tabs**; whole-screen system sound is offered only on Windows and ChromeOS, and app windows have no sound.
+- Chrome records sound from **tabs** on every system. Whole-screen system sound is offered on Windows and ChromeOS, and on macOS 14.2+ with Chrome 141+ (tick "Also share system audio" in Chrome's dialog). A single app window never has sound. The recorder shows a hint for your system before you start and a banner if no sound is coming in.
 - The recorder runs in a FrameShot Studio tab, which must stay open while recording (closing it asks for confirmation; an interrupted recording can be recovered, minus the last few seconds).
 - MP4 needs Chrome 126 or newer and an H.264 encoder; elsewhere recordings are saved as WebM, and FrameShot says so. MP4 sound is AAC where Chrome can encode it (Windows, macOS) and Opus elsewhere.
 - The camera bubble needs Chrome's frame-processing APIs (available in current Chrome); without them FrameShot records the screen only and says so.

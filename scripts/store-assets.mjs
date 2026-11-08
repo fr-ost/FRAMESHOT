@@ -1,7 +1,8 @@
 /**
- * Generates the Chrome Web Store screenshots (1280×800) and promotional tiles
- * (440×280, 1400×560) from the real extension UI, using the fictional demo
- * page in store-assets/demo/. Run after `npm run build:e2e`:
+ * Step 1 of the store images: captures the real extension UI (at 2× for sharp
+ * downscaling) into store-assets/raw/, using the fictional demo page in
+ * store-assets/demo/. Step 2, scripts/store-render.mjs, lays the captures out
+ * as the Chrome Web Store screenshots and promo tiles. Both run with:
  *
  *   npm run store:assets
  *
@@ -21,6 +22,7 @@ const EXT = path.join(ROOT, '.output/chrome-mv3-e2e');
 const OUT = path.join(ROOT, 'store-assets');
 const SHOTS = path.join(OUT, 'screenshots');
 const PROMO = path.join(OUT, 'promo');
+const RAW = path.join(OUT, 'raw');
 const DEMO_HOST = 'app.example.com';
 
 if (!fs.existsSync(path.join(EXT, 'manifest.json'))) {
@@ -29,7 +31,8 @@ if (!fs.existsSync(path.join(EXT, 'manifest.json'))) {
 }
 fs.mkdirSync(SHOTS, { recursive: true });
 fs.mkdirSync(PROMO, { recursive: true });
-for (const f of fs.readdirSync(SHOTS)) if (f.endsWith('.png')) fs.rmSync(path.join(SHOTS, f));
+fs.mkdirSync(RAW, { recursive: true });
+for (const f of fs.readdirSync(RAW)) if (f.endsWith('.png')) fs.rmSync(path.join(RAW, f));
 
 // ── Local server for the demo page and the promo template ──
 const server = http.createServer((req, res) => {
@@ -51,7 +54,7 @@ const context = await chromium.launchPersistentContext('', {
   channel: 'chromium',
   headless: true,
   viewport: { width: 1280, height: 800 },
-  deviceScaleFactor: 1,
+  deviceScaleFactor: 2,
   args: [
     `--disable-extensions-except=${EXT}`,
     `--load-extension=${EXT}`,
@@ -101,8 +104,8 @@ async function shot(page, name) {
   await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
   await page.mouse.move(1279, 799);
   await wait(600);
-  await page.screenshot({ path: path.join(SHOTS, name) });
-  console.log('saved', name);
+  await page.screenshot({ path: path.join(RAW, name) });
+  console.log('captured', name);
 }
 async function setRange(page, testId, value) {
   await page.getByTestId(testId).evaluate((el, v) => {
@@ -219,7 +222,7 @@ async function click(page, x, y) {
   await page.keyboard.press('v');
   await click(page, 1260, 2000);
   await page.keyboard.press('Escape');
-  await shot(page, '02-full-page-editor.png');
+  await shot(page, 'editor.png');
   await wait(1500); // let autosave refresh the library thumbnail
   await page.close();
 }
@@ -232,7 +235,7 @@ async function click(page, x, y) {
   await drag(page, [email.x - 4, email.y - 4], [email.x + email.width + 4, email.y + email.height + 4]);
   await page.keyboard.press('d');
   await drag(page, [card.x - 2, card.y - 2], [card.x + card.width + 2, card.y + card.height + 2]);
-  await shot(page, '04-blur-and-redact.png');
+  await shot(page, 'redact.png');
   await wait(1500);
   await page.close();
 }
@@ -252,7 +255,7 @@ async function click(page, x, y) {
       if (n.scrollHeight > n.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(n).overflowY)) n.scrollTop = 0;
     }
   });
-  await shot(page, '06-composer.png');
+  await shot(page, 'composer.png');
   await page.getByRole('button', { name: 'Save to library' }).click();
   await page.getByText('Composition saved to your library.').waitFor();
   await page.close();
@@ -302,7 +305,7 @@ const player = await context.newPage();
       const dest = ac.createMediaStreamDestination();
       const osc = ac.createOscillator();
       const g = ac.createGain();
-      g.gain.value = 0;
+      g.gain.value = 0.25;
       osc.connect(g).connect(dest);
       osc.start();
       stream.addTrack(dest.stream.getAudioTracks()[0]);
@@ -359,7 +362,7 @@ const player = await context.newPage();
   await page.getByTestId('record-start').click();
   await page.getByTestId('record-status').filter({ hasText: /^Recording$/ }).waitFor({ timeout: 20000 });
   await wait(4300);
-  await shot(page, '01-screen-recorder.png');
+  await shot(page, 'recorder.png');
   await wait(3600);
   await page.getByTestId('record-stop').click();
   await page.waitForURL(/#\/play\//, { timeout: 30000 });
@@ -378,7 +381,7 @@ const player = await context.newPage();
   await setRange(page, 'gif-start', 1);
   await setRange(page, 'gif-end', 5);
   await wait(1500);
-  await shot(page, '03-gif-export.png');
+  await shot(page, 'gif.png');
   await page.keyboard.press('Escape');
   await page.close();
 }
@@ -394,24 +397,27 @@ const player = await context.newPage();
   await fav.hover();
   await fav.getByRole('button', { name: 'Add to favorites' }).click();
   await wait(1200);
-  await shot(page, '05-library-dark.png');
+  await shot(page, 'library-dark.png');
   await page.close();
   await settings({ theme: 'light' });
 }
 
-// ── Promotional tiles from the real screenshots ──
-for (const [name, w, h] of [
-  ['small-440x280.png', 440, 280],
-  ['marquee-1400x560.png', 1400, 560],
-]) {
+// The library in light mode, and the popup (with recent captures).
+{
   const page = await context.newPage();
-  await page.setViewportSize({ width: w, height: h });
-  await page.goto(`${BASE}/promo/tile.html?w=${w}&h=${h}`);
-  await page.evaluate(() => document.fonts.ready);
-  await page.waitForFunction(() => [...document.images].every((i) => i.complete && i.naturalWidth > 0));
-  await wait(300);
-  await page.screenshot({ path: path.join(PROMO, name) });
-  console.log('saved', name);
+  await page.goto(studio('/'));
+  await page.getByTestId('library-card').nth(5).waitFor();
+  await wait(1500);
+  await shot(page, 'library-light.png');
+  await page.close();
+}
+{
+  const page = await context.newPage();
+  await page.setViewportSize({ width: 360, height: 560 });
+  await page.goto(`chrome-extension://${extId}/popup.html`);
+  await page.getByTestId('capture-full').waitFor();
+  await wait(1500);
+  await shot(page, 'popup.png');
   await page.close();
 }
 

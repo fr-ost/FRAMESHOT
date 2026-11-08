@@ -1,54 +1,176 @@
 Capture the web. Edit every detail. Free forever.
 
-FrameShot is a free screen recorder and full page screenshot tool for Chrome. Record a tab, a window or your whole desktop with sound and a webcam bubble, or take a scrolling screenshot of an entire web page in one click. Then annotate, blur private details, turn clips into GIFs, and save as MP4, PNG, JPEG, WebP or PDF. It all happens in your browser: no sign-up, no uploads, no watermark.
+FrameShot is a free screen recorder and full page screenshot extension for Google Chrome. Record your screen with audio, your microphone and a webcam bubble, or grab an entire web page as one tall image in a single click. Then annotate it, blur private details, turn video clips into GIFs, and save everything as MP4, WebM, PNG, JPEG, WebP or PDF.
 
-★ FREE, WITH NOTHING LOCKED
-• Unlimited screenshots and videos, limited only by your device's storage
-• No watermark, no time limit, no subscription, no paid plan, no account
-• Every feature is available to everyone
+There is no account to create, no watermark, no time limit and no paid upgrade. Everything runs locally in your browser, so your videos and images never leave your computer.
 
-★ SCREEN RECORDER WITH AUDIO AND CAMERA
-• Choose a browser tab, an app window or your entire screen in Chrome's own share dialog
-• Include tab sound and your microphone together; mute the mic at any time
-• Add a round camera bubble in any corner
-• Countdown, pause and resume, live timer and toolbar badge
-• Save as MP4 (H.264) that plays on every phone, Mac and PC, or as WebM; 720p to 4K, 15 to 60 fps
-• Export any part of a video as an animated GIF, or save any frame as an image
-• Saved as you go, so a crash or a closed tab loses only the last seconds
+━━━━━━━━━━━━━━━━━━━━
+★ WHY PEOPLE CHOOSE FRAMESHOT
+━━━━━━━━━━━━━━━━━━━━
+• All-in-one screen capture toolkit: a video recorder, a full-page grabber, an image editor, a GIF maker and a private media library in one lightweight add-on
+• Nothing to pay and nothing locked: every feature is available to everyone, with unlimited recordings and snapshots (only your disk space sets the limit)
+• Clean results: no logo stamped on your videos or images, ever
+• Private by design: no servers, no uploads, no analytics, no tracking and no ads
+• Works offline once installed, on Windows, Mac, Linux and Chromebook
+• Fast and simple: start from the toolbar button, the right-click menu or a keyboard shortcut
 
-★ SCREEN CAPTURE, YOUR WAY
-• Full page: scrolls and stitches the whole page; sticky headers and footers appear once, not on every screen
-• Loads lazy images and infinite feeds first, with a height limit and a Stop & save button
-• Visible area, with an optional 3, 5 or 10 second delay for menus and hover states
-• Selected area: drag to select, scroll to extend it
-• Single elements and scrolling panels (chats, tables, feeds)
-• Huge pages are split into full-resolution parts or scaled, your choice
-• Start from the toolbar, the right-click menu or keyboard shortcuts
+━━━━━━━━━━━━━━━━━━━━
+🎥 SCREEN RECORDER WITH AUDIO, MIC AND WEBCAM
+━━━━━━━━━━━━━━━━━━━━
+Make tutorials, product demos, bug reports, lessons and presentations without installing desktop software.
 
-★ SCREENSHOT EDITOR AND ANNOTATIONS
-• Crop, resize, rotate and flip
-• Arrows, lines, boxes, circles, pen, highlighter, text, numbered steps and symbols
-• Move, resize, duplicate and layer anything, with full undo and redo
-• Blur, pixelate or permanently redact sensitive information; redactions are flattened into the exported file
-• Beautify: gradient backgrounds, padding, rounded corners, shadows and a browser mockup frame, with presets for social posts
+• Record a browser tab, a single app window or your entire desktop, chosen in Chrome's own secure share dialog
+• Include tab sound, or your computer's sound when sharing the whole screen (where Chrome supports it), together with your microphone voice-over
+• Mute and unmute the mic at any moment while recording; pick which microphone and camera to use
+• Add a round webcam overlay in any corner of the video, in small, medium or large size, and move it while you record
+• Countdown of 0, 3, 5 or 10 seconds, plus pause and resume (paused time is left out of the final video)
+• Live timer, a live sound meter and a REC badge on the toolbar icon so you always know it's running
+• Stop from the recorder, from the popup, from Chrome's "Stop sharing" bar or with a keyboard shortcut
+• Video quality from 720p HD and 1080p Full HD up to 1440p and 4K, at 15, 30 or 60 frames per second
+• Save as MP4 (H.264) that plays on every phone, Mac and Windows PC, or as WebM
+• No recording length limit: long sessions are saved to your device in small pieces while you record, so a crash or a closed tab loses only the last few seconds, and the recording can be recovered
+• Built-in player with playback speed (0.5× to 2×), frame-by-frame stepping and full-screen mode
+• Save any frame of a video as an image you can annotate
 
-★ SAVE, SHARE AND ORGANIZE
-• Copy to the clipboard, or download as PNG, JPEG, WebP or multi-page PDF
-• Bulk export as ZIP or one combined PDF, with your own file name pattern
-• A private local library with search, website filter, favourites, collections, tags and duplicate finder
+━━━━━━━━━━━━━━━━━━━━
+🎞️ VIDEO TO GIF CONVERTER
+━━━━━━━━━━━━━━━━━━━━
+• Turn any part of a recording into an animated GIF in seconds
+• Trim the start and end with a live preview, choose the width (320 to 800 px), the frame rate (10, 15 or 20 fps) and whether it loops forever
+• Made entirely on your device, with smart optimisation that keeps GIFs of screen content small and sharp
+• Perfect for README files, documentation, chat messages, support replies and social posts
 
-★ GREAT FOR
-Bug reports, tutorials and how-to videos, design reviews, documentation, online lessons, and saving long articles or receipts for later.
+━━━━━━━━━━━━━━━━━━━━
+📸 FULL PAGE SCREENSHOT (SCROLLING CAPTURE)
+━━━━━━━━━━━━━━━━━━━━
+Save a whole web page, top to bottom, as one image or PDF.
 
-★ PRIVATE BY DESIGN
-• No servers, no accounts, no analytics, no tracking, no ads
-• Works offline; FrameShot's pages block every network connection
-• It can only access a tab when you ask it to, and sees only what you pick in Chrome's share dialog
-• Your microphone and camera are used only after you switch them on, and only for your video
-• Light and dark themes, gentle sound effects (can be turned off) and keyboard shortcuts
+• One click scrolls the page for you and stitches every part seamlessly
+• Sticky headers, floating bars and fixed footers appear once, in their natural place, instead of repeating on every screen
+• Lazy-loading images and infinite feeds are loaded before capturing, so nothing is left blank
+• Handles long articles, documentation, dashboards, receipts, chats and web apps with their own scrolling panels
+• A page-height limit and a Stop & save button for endless pages
+• Huge pages are split into full-resolution parts or scaled down to fit, your choice, and you are always told which
+• Sharp on Retina and high-DPI displays and at any browser zoom level
 
-Good to know: Chrome does not let extensions work on its own pages (chrome://) or the Chrome Web Store, and allows two snapshots per second, so long pages take a few seconds. Tab sound works on every system; whole-screen sound depends on your system (Windows and ChromeOS). Blur can sometimes be reversed on short text, so use Redact for confidential data.
+━━━━━━━━━━━━━━━━━━━━
+✂️ MORE WAYS TO CAPTURE YOUR SCREEN
+━━━━━━━━━━━━━━━━━━━━
+• Visible area: snap exactly what you see, with an optional 3, 5 or 10 second delay to catch menus, tooltips and hover states
+• Selected area: drag a rectangle, and scroll while dragging to extend the selection past the edge of the window
+• Element: hover and click any part of a page, such as a chart, a table, a card or a tweet, to grab just that element
+• Scrolling panel: save the full contents of an inner scroller, like a chat thread, a sidebar, a data table or an email list
+• Import images too: drag and drop or paste a picture to edit it like any other
 
-FrameShot is free forever. If it saves you time, an optional tip on the in-app Support page keeps it going.
+━━━━━━━━━━━━━━━━━━━━
+✏️ SCREENSHOT EDITOR AND ANNOTATION TOOLS
+━━━━━━━━━━━━━━━━━━━━
+• Draw arrows, lines, rectangles, rounded boxes, circles and freehand pen strokes
+• Add text with outlines and backgrounds, a highlighter, numbered step markers and symbols
+• Crop, resize, rotate and flip the image
+• Move, resize, duplicate, layer and restyle every object; full undo and redo
+• Colours, stroke width, opacity, corner radius and font size at your fingertips
+• Non-destructive editing: your original stays untouched, so you can always reset
+
+━━━━━━━━━━━━━━━━━━━━
+🔒 BLUR, PIXELATE AND REDACT SENSITIVE INFORMATION
+━━━━━━━━━━━━━━━━━━━━
+• Hide emails, names, passwords, card numbers, addresses and faces before you share
+• Choose a soft blur, chunky pixelation, or solid redaction boxes
+• Redaction is permanent: the original pixels are replaced in every exported file, so nobody can recover them
+
+━━━━━━━━━━━━━━━━━━━━
+🖼️ BEAUTIFY AND MOCKUP
+━━━━━━━━━━━━━━━━━━━━
+• Place a screenshot on a gradient or solid background with padding, rounded corners and a soft shadow
+• Wrap it in a light or dark browser frame for polished marketing images
+• Size presets for 16:9, 4:3, 1:1, 4:5 portrait, 9:16 stories, 1200×630 link previews and 1920×1080 Full HD
+
+━━━━━━━━━━━━━━━━━━━━
+💾 SAVE, EXPORT AND SHARE
+━━━━━━━━━━━━━━━━━━━━
+• Copy an image to the clipboard and paste it straight into chat, email or docs
+• Download images as PNG, JPG or WebP with adjustable quality, or as a PDF (A4, Letter or exact image size; long pages continue across pages)
+• Download recordings as MP4 or WebM, or export clips as GIF
+• Bulk export a selection as a ZIP file or merge many images into one combined PDF
+• Name files automatically with templates (site, page title, date and time) and save into a sub-folder of Downloads, or choose a location each time
+
+━━━━━━━━━━━━━━━━━━━━
+🗂️ A PRIVATE LIBRARY FOR ALL YOUR CAPTURES
+━━━━━━━━━━━━━━━━━━━━
+• Every recording and screenshot in one place, stored only on this device
+• Search by name, website or tag; filter by site; sort by date, name or size
+• Favourites, collections and tags to keep projects organised
+• Find duplicates and compare two images side by side, as an overlay or as a pixel difference
+• Grid and list views, hover previews of videos, keyboard shortcuts and bulk actions
+
+━━━━━━━━━━━━━━━━━━━━
+⌨️ QUICK AND COMFORTABLE
+━━━━━━━━━━━━━━━━━━━━
+• Default shortcuts: Alt+Shift+V (visible area), Alt+Shift+F (full page), Alt+Shift+A (selected area), Alt+Shift+E (element); change them any time at chrome://extensions/shortcuts, where you can also set one to start and stop recording
+• Right-click menu on any page with every capture mode and screen recording
+• Light, dark and system themes; smooth, responsive interface
+• Gentle sound effects (camera shutter, countdown, start and stop chimes) that you can turn off or turn down
+
+━━━━━━━━━━━━━━━━━━━━
+👥 GREAT FOR
+━━━━━━━━━━━━━━━━━━━━
+• Developers and QA testers: bug reports with an annotated image or a short video showing the steps
+• Teachers and students: lessons, walkthroughs and saving study material
+• Designers and marketers: design reviews, landing page snapshots and polished social images
+• Support teams: quick how-to clips and GIF answers
+• Writers and researchers: archiving long articles and sources as PDF
+• Anyone: saving receipts, bookings, conversations and online forms for your records
+
+━━━━━━━━━━━━━━━━━━━━
+🚀 HOW TO USE
+━━━━━━━━━━━━━━━━━━━━
+Take a full page screenshot in Chrome:
+1. Pin FrameShot (puzzle-piece icon → pin) and open any page
+2. Click the FrameShot icon and choose "Full page", or press Alt+Shift+F
+3. Wait a moment while it scrolls; the result opens in the editor, ready to mark up, copy or download
+
+Record your screen with sound:
+1. Click the FrameShot icon and choose "Record screen"
+2. Turn on tab or system sound, the microphone and the camera bubble if you want them
+3. Press Start, pick a tab, window or screen in Chrome's dialog (keep "Also share tab audio" on to include a tab's sound), and stop when you're done; your MP4 is saved to your library
+
+━━━━━━━━━━━━━━━━━━━━
+🔐 PRIVACY AND PERMISSIONS
+━━━━━━━━━━━━━━━━━━━━
+• No account, no cloud, no analytics, no tracking, no ads; nothing is uploaded anywhere
+• FrameShot can only access a page when you start a capture on it (no access to your browsing otherwise)
+• Recording uses Chrome's own share dialog: you decide exactly what is shared, and Chrome shows when sharing is on
+• Your microphone and camera are used only when you switch them on, and only for your video
+• Its pages block all network connections, and it works offline
+
+━━━━━━━━━━━━━━━━━━━━
+❓ FREQUENTLY ASKED QUESTIONS
+━━━━━━━━━━━━━━━━━━━━
+Is FrameShot really free?
+Yes. Every feature is free, with no subscription, no trial and no watermark. Optional tips are welcome on the in-app Support page, but they unlock nothing.
+
+Does it add a watermark to my videos or images?
+Never.
+
+Can it record computer or system audio?
+It records a shared tab's sound on every system. When you share your entire screen, Chrome can include system sound on Windows and ChromeOS, and on macOS 14.2 or later with Chrome 141 or later; tick "Also share system audio" in Chrome's dialog. Chrome does not share sound from a single app window.
+
+How long can a recording be?
+There is no built-in time limit; it depends on your available disk space.
+
+Where are my recordings and screenshots saved?
+In FrameShot's private library on your computer, and in your Downloads folder whenever you download them.
+
+Can I capture a page that needs a login?
+Yes. FrameShot saves what your browser shows, including pages you are signed in to, without sending anything anywhere.
+
+Does it work offline?
+Yes. Capturing, recording, editing and exporting all work without an internet connection.
+
+Good to know: Chrome does not let extensions work on its own settings pages (chrome://) or the Chrome Web Store, and it allows two snapshots per second, so very long pages take a few seconds. Blur can sometimes be reversed on short text, so use Redact for anything confidential.
+
+━━━━━━━━━━━━━━━━━━━━
+FrameShot is free forever. If it saves you time, a quick review on this page helps others find it, and an optional tip on the in-app Support page keeps it improving.
 
 A product of Unique Labs. Developed by Shahriar Ahmed (www.shahriarahmed.net).

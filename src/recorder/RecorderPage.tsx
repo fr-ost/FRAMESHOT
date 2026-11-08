@@ -49,6 +49,7 @@ import {
   type RecorderSnapshot,
 } from './recorder';
 import { useDevices, useLevelMeter, useMediaPreview, useNow, useRecorder } from './useMedia';
+import { chromeMajor, detectPlatform, missingSoundMessage, soundHint } from './audio-help';
 
 const POSITIONS: { value: CameraPosition; label: string }[] = [
   { value: 'top-left', label: 'Top left' },
@@ -255,7 +256,8 @@ export function RecorderPage({ settings }: { settings: Settings }) {
                 </Section>
 
                 <Section title="Sound">
-                  <Switch label="Tab & system sound" description="What the shared tab plays." checked={opts.systemAudio} onChange={(v) => setOpts({ systemAudio: v })} />
+                  <Switch label="Tab & system sound" description="What the shared tab or screen plays." checked={opts.systemAudio} onChange={(v) => setOpts({ systemAudio: v })} />
+                  {opts.systemAudio && <SoundHintNote surface={opts.surface} />}
                   <Switch label="Microphone" description="Narrate while you record." checked={opts.mic} onChange={(v) => setOpts({ mic: v })} />
                   {opts.mic && (
                     <div className="space-y-2 fr-animate-in">
@@ -372,15 +374,30 @@ function LabeledSelect({ label, value, onChange, children }: { label: string; va
   );
 }
 
+/** What to tick in Chrome's picker for sound, for this system and surface. */
+function SoundHintNote({ surface }: { surface: RecorderSettings['surface'] }) {
+  const hint = soundHint(surface, detectPlatform(), chromeMajor());
+  return (
+    <p
+      className={cx('flex gap-2 rounded-[11px] px-3 py-2 text-[12px] leading-snug fr-animate-in', hint.tone === 'warn' ? 'bg-warning-soft text-warning' : 'bg-primary-soft text-primary-soft-fg')}
+      data-testid="sound-hint"
+    >
+      {hint.tone === 'warn' ? <AlertTriangle size={13} className="mt-px shrink-0" /> : <Volume2 size={13} className="mt-px shrink-0" />}
+      <span>{hint.text}</span>
+    </p>
+  );
+}
+
 const EQ = [0.45, 0.7, 0.95, 0.6, 0.85, 1, 0.75, 0.55, 0.9, 0.65, 0.8, 0.5, 0.72, 0.95, 0.6, 0.4];
 
 /** Live microphone level as a small equalizer (driven by one CSS variable). */
-function LevelMeter({ stream }: { stream: MediaStream | null }) {
+function LevelMeter({ stream, kind = 'mic' }: { stream: MediaStream | null; kind?: 'mic' | 'sound' }) {
   const ref = useRef<HTMLDivElement>(null);
   useLevelMeter(stream, ref);
+  const Icon = kind === 'mic' ? Mic : Volume2;
   return (
-    <div ref={ref} className="flex items-center gap-2" aria-hidden>
-      <Mic size={13} className={stream ? 'text-success' : 'text-fg-subtle'} />
+    <div ref={ref} className="flex items-center gap-2" aria-hidden data-testid={kind === 'sound' ? 'sound-meter' : undefined}>
+      <Icon size={13} className={stream ? 'text-success' : 'text-fg-subtle'} />
       <div className="flex h-5 flex-1 items-center gap-[3px]">
         {EQ.map((k, i) => (
           <span
@@ -640,9 +657,28 @@ function LivePanel({
       {snap.phase !== 'acquiring' && (
         <div className="flex flex-wrap gap-1.5">
           {snap.surface && <Chip icon={snap.surface === 'browser' ? <PanelTop size={13} /> : snap.surface === 'window' ? <AppWindow size={13} /> : <Monitor size={13} />}>{SURFACE_LABELS[snap.surface]}</Chip>}
-          {snap.hasSystemAudio ? <Chip icon={<Volume2 size={13} />}>Tab sound</Chip> : <Chip tone="muted" icon={<VolumeX size={13} />}>No tab sound</Chip>}
+          {snap.hasSystemAudio ? (
+            <Chip icon={<Volume2 size={13} />}>{snap.surface === 'browser' ? 'Tab sound' : 'System sound'}</Chip>
+          ) : (
+            <Chip tone="muted" icon={<VolumeX size={13} />}>{snap.surface === 'browser' ? 'No tab sound' : 'No system sound'}</Chip>
+          )}
           {snap.hasMic && <Chip icon={snap.micMuted ? <MicOff size={13} /> : <Mic size={13} />}>{snap.micMuted ? 'Mic muted' : 'Microphone'}</Chip>}
           {snap.hasCamera && <Chip icon={<Webcam size={13} />}>Camera</Chip>}
+        </div>
+      )}
+
+      {snap.hasSystemAudio && snap.audioPreview && snap.phase !== 'acquiring' && <LevelMeter stream={snap.audioPreview} kind="sound" />}
+      {snap.soundMissing && canControl && (
+        <div role="alert" className="space-y-2.5 rounded-[12px] border border-warning/30 bg-warning-soft p-3 text-[12.5px] leading-snug text-warning" data-testid="sound-missing">
+          <p className="flex gap-2">
+            <VolumeX size={15} className="mt-px shrink-0" />
+            <span>
+              <b className="font-semibold">No sound is being recorded.</b> {missingSoundMessage(snap.surface, detectPlatform(), chromeMajor())}
+            </span>
+          </p>
+          <Button size="sm" className="w-full" onClick={() => void discardRecording()} data-testid="sound-retry">
+            Discard and try again
+          </Button>
         </div>
       )}
 
