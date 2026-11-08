@@ -47,7 +47,7 @@ test.beforeAll(async ({ ext }) => {
 });
 
 test('a new install is not asked, however much it is used', async ({ ext }) => {
-  await setReview(ext, eligible({ installedAt: Date.now() - 2 * DAY, successes: 50 }));
+  await setReview(ext, eligible({ installedAt: Date.now() - 1 * DAY, successes: 50 }));
   const page = await openLibrary(ext);
   await page.waitForTimeout(2500);
   await expect(page.getByTestId('review-card')).toHaveCount(0);
@@ -55,7 +55,7 @@ test('a new install is not asked, however much it is used', async ({ ext }) => {
   await page.close();
 });
 
-test('the prompt appears once earned, then pauses for 30 days after "Not now"', async ({ ext }) => {
+test('the prompt appears once earned, then pauses for 3 weeks after "Not now"', async ({ ext }) => {
   await setReview(ext, eligible());
   const page = await openLibrary(ext);
   await expect(page.getByTestId('review-card')).toBeVisible({ timeout: 6000 });
@@ -64,7 +64,7 @@ test('the prompt appears once earned, then pauses for 30 days after "Not now"', 
   await expect(page.getByTestId('review-never')).toBeVisible();
   const shown = await getReview(ext);
   expect(shown.asks).toBe(1);
-  expect(shown.snoozeUntil - Date.now()).toBeGreaterThan(29 * DAY);
+  expect(shown.snoozeUntil - Date.now()).toBeGreaterThan(20 * DAY);
   await page.getByTestId('review-later').click();
   await expect(page.getByTestId('review-card')).toHaveCount(0);
   await page.reload();
@@ -97,6 +97,32 @@ test('“Rate FrameShot” opens this extension’s Chrome Web Store reviews and
   await page.close();
 });
 
+test('clicking the five stars, or the sidebar’s “Rate FrameShot” link, opens the reviews page', async ({ ext }) => {
+  const storeTabs = () =>
+    ext.sw.evaluate(async () => {
+      const tabs = await chrome.tabs.query({});
+      return tabs.filter((x) => (x.pendingUrl ?? x.url ?? '').startsWith('https://chromewebstore.google.com/')).map((t) => ({ id: t.id!, url: t.pendingUrl ?? t.url! }));
+    });
+  const closeStoreTabs = async () => {
+    for (const t of await storeTabs()) await ext.sw.evaluate((id) => chrome.tabs.remove(id), t.id);
+  };
+  const reviews = `https://chromewebstore.google.com/detail/frameshot/${ext.extId}/reviews`;
+  await setReview(ext, eligible());
+  const page = await openLibrary(ext);
+  await expect(page.getByTestId('review-card')).toBeVisible({ timeout: 6000 });
+  await expect(page.getByTestId('review-stars').locator('svg')).toHaveCount(5);
+  await page.getByTestId('review-stars').click();
+  await expect.poll(async () => (await storeTabs()).map((t) => t.url)).toEqual([reviews]);
+  await expect(page.getByTestId('review-card')).toHaveCount(0);
+  expect((await getReview(ext)).done).toBe(true);
+  await closeStoreTabs();
+  // The quiet link stays available in the sidebar, even after rating.
+  await page.getByTestId('rate-link').click();
+  await expect.poll(async () => (await storeTabs()).map((t) => t.url)).toEqual([reviews]);
+  await closeStoreTabs();
+  await page.close();
+});
+
 test('“Don’t ask again” is respected', async ({ ext }) => {
   await setReview(ext, eligible());
   const page = await openLibrary(ext);
@@ -110,7 +136,7 @@ test('“Don’t ask again” is respected', async ({ ext }) => {
 
 test('the popup asks right after a successful capture, which also counts toward asking', async ({ ext }) => {
   // One success short of the threshold: this capture tips it over.
-  await setReview(ext, eligible({ successes: 4 }));
+  await setReview(ext, eligible({ successes: 2 }));
   const { page: fx, tabId } = await openFixture(ext, 'long.html');
   await ext.sw.evaluate(async ([id, url]) => {
     await chrome.windows.create({ url: `${url}?tabId=${id}`, type: 'popup', width: 360, height: 640, focused: false });
@@ -130,7 +156,7 @@ test('the popup asks right after a successful capture, which also counts toward 
   await expect(popup!.getByText('Capture saved')).toBeVisible();
   await expect(popup!.getByTestId('review-card')).toBeVisible({ timeout: 6000 });
   const s = await getReview(ext);
-  expect(s.successes).toBe(5);
+  expect(s.successes).toBe(3); // the threshold: 2 earlier successes + this capture
   expect(s.asks).toBe(1);
   await popup!.close();
   await fx.close();

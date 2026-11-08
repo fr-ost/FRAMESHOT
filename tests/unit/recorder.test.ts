@@ -399,7 +399,8 @@ describe('review prompt rules', () => {
   it('asks only after enough successes and days, and never once done', () => {
     expect(shouldAskForReview(base, now)).toBe(true);
     expect(shouldAskForReview({ ...base, successes: REVIEW_RULES.minSuccesses - 1 }, now)).toBe(false);
-    expect(shouldAskForReview({ ...base, installedAt: now - 2 * DAY }, now)).toBe(false);
+    expect(shouldAskForReview({ ...base, installedAt: now - (REVIEW_RULES.minDaysSinceInstall * DAY - 1) }, now)).toBe(false);
+    expect(shouldAskForReview({ ...base, installedAt: now - REVIEW_RULES.minDaysSinceInstall * DAY }, now)).toBe(true);
     expect(shouldAskForReview({ ...base, done: true }, now)).toBe(false);
   });
 

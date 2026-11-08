@@ -46,7 +46,7 @@ import { exportItem, exportMany, exportRecording } from '../export/service';
 import { describeMimeType } from '../recorder/formats';
 import { isActivePhase } from '../recorder/channel';
 import { useRecorder } from '../recorder/useMedia';
-import { ReviewCard, useReviewPrompt } from '../ui/ReviewPrompt';
+import { RateLink, ReviewCard, useReviewPrompt } from '../ui/ReviewPrompt';
 import { isTypingTarget, navigate } from '../ui/hooks';
 import { getRecordingBlob } from '../db/db';
 import { baseMimeType } from '../recorder/formats';
@@ -362,6 +362,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
             <Button variant="ghost" size="sm" icon={<Keyboard size={15} />} onClick={openShortcuts} aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)" />
             <Button variant="ghost" size="sm" icon={<Sparkles size={15} />} onClick={() => navigate('/welcome')} aria-label="Welcome guide" title="Welcome guide" />
           </div>
+          <RateLink className="-mt-1" />
           <Credits align="start" className="px-1" />
         </div>
       </aside>

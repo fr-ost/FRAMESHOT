@@ -33,10 +33,10 @@ export interface ReviewState {
 }
 
 export const REVIEW_RULES = {
-  minSuccesses: 5,
-  minDaysSinceInstall: 3,
+  minSuccesses: 3,
+  minDaysSinceInstall: 2,
   /** Pause between asks. */
-  snoozeDays: 30,
+  snoozeDays: 21,
   maxAsks: 3,
 } as const;
 

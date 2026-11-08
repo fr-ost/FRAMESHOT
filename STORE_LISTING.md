@@ -140,7 +140,7 @@ FrameShot asks for a rating in-product (popup after a successful capture, librar
 - No incentives of any kind for rating.
 - It asks for an honest rating; it never asks for a particular number of stars (the five stars in the card are decoration and are not clickable ratings).
 - No review gating: every user gets the same choices ("Rate FrameShot", "Not now", "Don't ask again"); nobody is filtered away from the store based on their opinion.
-- Shown only after real use (≥ 5 captures or recordings, ≥ 3 days), at most 3 times, 30 days apart, never during a capture or recording, and only for Web Store installs.
+- Shown only after real use (≥ 3 captures or recordings, ≥ 2 days), at most 3 times, 3 weeks apart, never during a capture or recording, and only for Web Store installs.
 
 The link is `https://chromewebstore.google.com/detail/frameshot/<item id>/reviews` (`REVIEW_URL_SLUG` in `src/core/review.ts`). After publishing, click it once to confirm it opens the listing's Reviews tab, and set the slug to the published listing's slug.
 

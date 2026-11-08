@@ -56,13 +56,58 @@ export function useReviewPrompt(enabled: boolean, delayMs = 0): ReviewPromptCont
   };
 }
 
-function Stars({ size = 18 }: { size?: number }) {
+/** Five glowing stars; clicking any of them opens the listing's Reviews tab. */
+function Stars({ size = 18, onRate }: { size?: number; onRate: () => void }) {
   return (
-    <span className="inline-flex gap-0.5" aria-hidden>
+    <button
+      type="button"
+      onClick={onRate}
+      aria-label="Rate FrameShot on the Chrome Web Store"
+      title="Rate FrameShot on the Chrome Web Store"
+      data-testid="review-stars"
+      className="fr-stars fr-press group/stars -m-1 inline-flex gap-0.5 rounded-[10px] p-1"
+    >
       {[0, 1, 2, 3, 4].map((i) => (
-        <Star key={i} size={size} fill="currentColor" className="fr-star-pop text-amber-400 drop-shadow-[0_1px_2px_rgb(245_158_11/0.35)]" style={{ animationDelay: `${120 + i * 70}ms` } as CSSProperties} />
+        <Star
+          key={i}
+          size={size}
+          fill="currentColor"
+          className="fr-star-pop text-amber-400 drop-shadow-[0_1px_3px_rgb(245_158_11/0.45)] transition-transform duration-300 group-hover/stars:scale-110"
+          style={{ animationDelay: `${120 + i * 70}ms`, transitionDelay: `${i * 35}ms`, transitionTimingFunction: 'var(--fr-ease-spring)' } as CSSProperties}
+          aria-hidden
+        />
       ))}
-    </span>
+    </button>
+  );
+}
+
+/**
+ * A quiet, always-available "Rate FrameShot" link (library sidebar). Shown only
+ * once the extension is installed from the Chrome Web Store.
+ */
+export function RateLink({ className }: { className?: string }) {
+  const [listed, setListed] = useState(false);
+  useEffect(() => {
+    void hasStoreListing().then(setListed);
+  }, []);
+  if (!listed) return null;
+  return (
+    <button
+      type="button"
+      data-testid="rate-link"
+      onClick={() => {
+        void markReviewDone();
+        void chrome.tabs.create({ url: reviewUrl() });
+      }}
+      className={cx('fr-press group/rate flex w-full items-center gap-2 rounded-[11px] px-2.5 py-2 text-left text-[12.5px] font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg', className)}
+    >
+      <span className="inline-flex gap-px text-amber-400" aria-hidden>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <Star key={i} size={12} fill="currentColor" className="transition-transform duration-300 group-hover/rate:scale-125" style={{ transitionDelay: `${i * 40}ms`, transitionTimingFunction: 'var(--fr-ease-spring)' } as CSSProperties} />
+        ))}
+      </span>
+      Rate FrameShot
+    </button>
   );
 }
 
@@ -74,10 +119,10 @@ export function ReviewCard({ controls, layout = 'inline' }: { controls: ReviewPr
   const text = (
     <>
       <p className="flex items-center gap-1.5 text-[14px] font-semibold tracking-tight text-fg">
-        Enjoying FrameShot? <Heart size={14} className="text-rose-500" fill="currentColor" aria-hidden />
+        Love FrameShot? <Heart size={14} className="text-rose-500" fill="currentColor" aria-hidden />
       </p>
       <p className="mt-0.5 text-[12.5px] leading-snug text-fg-muted">
-        It’s free forever, with no ads or tracking. If it helps you, a rating on the Chrome Web Store helps more people find it. It only takes a moment.
+        Tap the stars to rate it on the Chrome Web Store. It’s free forever, with no ads or tracking, and your review helps more people find it. It takes ten seconds.
       </p>
     </>
   );
@@ -107,13 +152,13 @@ export function ReviewCard({ controls, layout = 'inline' }: { controls: ReviewPr
       </button>
       {layout === 'stacked' ? (
         <>
-          <Stars size={17} />
+          <Stars size={22} onRate={controls.rate} />
           <div className="mt-2 pr-5">{text}</div>
           {actions}
         </>
       ) : (
         <>
-          <Stars size={20} />
+          <Stars size={24} onRate={controls.rate} />
           <div className="min-w-[220px] flex-1">{text}</div>
           {actions}
         </>

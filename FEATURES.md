@@ -166,7 +166,7 @@ Every implemented feature is free and available to every user. There are no tier
 | Popup capture modes, live progress, Stop & save, Cancel, recent captures | ✅ | `app.spec` popup (opened in its own window) |
 | Popup "Record screen" and live recording controls (pause, stop, mic) | ✅ | `recorder.spec` (pause and stop; mic toggle 🟡) |
 | Reusing an open Studio/recorder tab instead of opening another | ✅ | `recorder.spec` shortcut and library-reuse tests (works without the `tabs` permission) |
-| Review prompt: after ≥ 5 captures/recordings and ≥ 3 days; at most 3 asks, 30 days apart; never mid-task; store installs only; same choices for everyone | ✅ | `review.spec` (library, popup after a capture, rate link, not now, don't ask again), unit rules |
+| Review prompt: after ≥ 3 captures/recordings and ≥ 2 days; at most 3 asks, 3 weeks apart; never mid-task; store installs only; same choices for everyone; clickable five stars; permanent sidebar link | ✅ | `review.spec` (library, popup after a capture, rate button, stars, sidebar link, not now, don't ask again), unit rules |
 | "Rate FrameShot" in Settings → About | 🟡 | Same link as the prompt; shown only for store installs |
 | Popup warning on restricted pages | 🟡 | |
 | Settings: theme (system/light/dark), default format, filename template, clear data | ✅ | `app.spec` |
