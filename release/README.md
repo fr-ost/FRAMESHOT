@@ -1,13 +1,14 @@
-# FrameShot 1.3.0 — release package
+# FrameShot 1.0.0 — release package (first public release)
 
-`frameshot-1.3.0-chrome.zip` is the production Manifest V3 build produced by
-`npm run build && npm run zip` (identical to `.output/frameshot-1.3.0-chrome.zip`).
+`frameshot-1.0.0-chrome.zip` is the production Manifest V3 build produced by
+`npm run build && npm run zip` (identical to `.output/frameshot-1.0.0-chrome.zip`).
 
-New in 1.3.0: export recordings as animated GIFs, sound effects (shutter,
-recording countdown and chimes; can be turned off), a keyboard shortcut sheet,
-smoother scrolling and transitions, and the fixes from two internal reviews.
-One new permission, `offscreen`, plays sounds for background captures (no
-install warning). See `CHANGELOG.md`.
+The first public version: full-page, visible-area, area and element
+screenshots with an annotation editor (blur and redact included); a screen
+recorder for a tab, window or the whole screen, with sound and a camera bubble;
+GIF export; sound effects that can be turned off; and a private local library.
+Permissions: activeTab, scripting, storage, unlimitedStorage, downloads,
+contextMenus, offscreen; no host permissions. See `CHANGELOG.md`.
 
 - Install for testing: unzip it, open `chrome://extensions`, enable Developer mode,
   click **Load unpacked**, and select the unzipped folder.

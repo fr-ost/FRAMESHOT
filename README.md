@@ -130,7 +130,7 @@ npm run build
 npm run zip
 ```
 
-This produces `.output/frameshot-1.3.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+This produces `.output/frameshot-1.0.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ### Keyboard shortcuts
 
@@ -233,7 +233,7 @@ Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 - Screenshots, recordings, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
 - The microphone and camera are used only while you record, after you switch them on, and Chrome asks for your permission. Screen recording uses Chrome's share picker, so you choose exactly what is recorded.
 - Extension pages run under a strict Content Security Policy that **blocks all network connections** (`connect-src 'self' blob: data:`). This is verified by an automated test.
-- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added no permissions; `offscreen` (1.3) only plays sound effects for background captures and shows no install warning.
+- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added no permissions; `offscreen` only plays sound effects for background captures and shows no install warning.
 - Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
 
 See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).

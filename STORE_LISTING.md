@@ -26,7 +26,7 @@ The Chrome Web Store ranks mainly on the **name** and **summary**, then the full
 | Summary | screen recorder · full page screen capture · record tab / window / desktop · mic · camera · annotate · blur · MP4 / PNG / PDF |
 | Full description (each ≤ 5×, written naturally) | screen recorder · record your screen · screen recording with audio · webcam / camera bubble · MP4 · full page screenshot · scrolling screenshot · capture an entire web page · screen capture · screenshot tool · visible area · selected area · element / scrolling panel capture · screenshot editor · annotate · blur and redact sensitive information · save as PDF / PNG / JPEG / WebP · browser mockup · free, no watermark, no sign-up, no time limit · works offline, no uploads |
 
-"Screen recorder" became a target only once the recorder shipped and passed its tests (1.2.0). Deliberately avoided: competitor names, and the exact phrases competitors use as titles (e.g. "Annotate & Blur", "Full Page Screen Capture").
+"Screen recorder" became a target only once the recorder shipped and passed its tests. Deliberately avoided: competitor names, and the exact phrases competitors use as titles (e.g. "Annotate & Blur", "Full Page Screen Capture").
 
 ## Category
 

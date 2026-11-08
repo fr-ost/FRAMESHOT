@@ -2,7 +2,9 @@
 
 All notable changes to FrameShot (formerly Frameora) are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
-## [1.3.0] — 2026-11-08
+## [1.0.0] — 2026-11-08 — first public release
+
+The first version published on the Chrome Web Store. It includes everything from the internal development builds listed under "Development history" below; this section lists what was added in the last of them.
 
 ### Added
 - **Export recordings as animated GIFs.** Pick the part to keep with a two-handle trim slider (with a live preview), choose the width (320–800 px), the frame rate (10, 15 or 20 fps) and whether it loops. GIFs are made on your device in a background worker, with one steady colour palette, unchanged pixels stored once and identical frames merged, so screen recordings make small, clean GIFs. Available from the player (button or **G**) and from a recording's menu in the library.
@@ -47,9 +49,13 @@ All notable changes to FrameShot (formerly Frameora) are documented here. The fo
   - Light/Dark-style segmented controls work with the arrow keys.
   - A failure in one screen, or a broken address, no longer leaves the Studio blank; FrameShot shows a message with a way back.
 
-## [1.2.0] — 2026-11-08
+## Development history (internal builds, never published)
 
-### Added
+Before the first public release, FrameShot went through internal builds numbered 1.0.0–1.3.0. The last of them became public version 1.0.0 above.
+
+### Internal build 1.2.0 — 2026-11-08
+
+#### Added
 - **Screen recorder, built in.** Record a browser tab, an app window or the entire screen, chosen in Chrome's own share picker — no new permissions.
   - Tab sound (and whole-screen system sound where Chrome offers it) and your microphone, mixed into one track; mute the microphone while recording; device pickers and a live level meter.
   - Optional **camera bubble** drawn into the video, in any corner and three sizes, adjustable while recording.
@@ -64,18 +70,18 @@ All notable changes to FrameShot (formerly Frameora) are documented here. The fo
 - Right-click menu: **Record screen…**
 - **Review prompt**: a friendly card asking for a Chrome Web Store rating — only after at least 5 captures or recordings and 3 days of use, at most three times, 30 days apart, never in the middle of a capture or recording, and only for Web Store installs. "Rate FrameShot", "Not now" and "Don't ask again" are offered to everyone (no incentives, no star-specific requests, no filtering of unhappy users, per Chrome Web Store policy). Also available any time under Settings → About.
 
-### Changed
+#### Changed
 - **Store title and summary rewritten around the recorder for Chrome Web Store search:** "FrameShot: Free Screen Recorder & Full Page Screenshot".
 - Library "All screenshots" is now **All captures**.
 - Toolbar tooltip: "FrameShot — screenshot or record your screen".
 
-### Fixed
+#### Fixed
 - Opening the library or the recorder now brings an already-open FrameShot tab forward instead of always opening a new one. (Chrome hides tab addresses from extensions without the `tabs` permission, so the old check never matched; open pages now announce themselves on a local channel.)
 - Architecture notes named the storage database and settings key incorrectly after the rename (they keep their original `frameora` names).
 
-## [1.1.0] — 2026-11-08
+### Internal build 1.1.0 — 2026-11-08
 
-### Changed
+#### Changed
 - **Renamed from Frameora to FrameShot.** Existing screenshots and settings are kept: the screenshot database and settings storage keep their original internal names. Default file names now start with `frameshot-`.
 - **Store title and summary rewritten for Chrome Web Store search:** "FrameShot: Free Full Page Screenshot, Screen Capture & Editor".
 - **Redesigned interface (design system v2):** a slowly drifting aurora background with fine grain, glass surfaces, a single gradient accent, and fluid motion — page transitions (View Transitions API), animated dialogs, menus, tooltips and toasts, staggered card entrances, shimmer loading states, hover lift and press feedback. Every animation is disabled when the system asks for reduced motion.
@@ -87,16 +93,16 @@ All notable changes to FrameShot (formerly Frameora) are documented here. The fo
 - Welcome page: new hero and feature overview.
 - In-page selection overlay: glass hint and toolbar, glowing selection, gradient size badge.
 
-### Added
+#### Added
 - Footer credit: "A Product of Unique Labs. Developed by Shahriar Ahmed", linking to www.shahriarahmed.net (opens in a new tab only when clicked).
 
-### Fixed
+#### Fixed
 - The popup could stay stuck on "Select what to capture…" if the tab was closed or reloaded while an area/element selection was showing; Cancel now always ends a pending selection, and closing or navigating the tab resets it automatically.
 - Two-column layouts that Tailwind v4 ignored (Settings, Library details, editor info) because of a comma in the arbitrary grid value.
 
-## [1.0.1] — 2026-11-08
+### Internal build 1.0.1 — 2026-11-08
 
-### Fixed
+#### Fixed
 - **Full-page captures failing with "about 1 px missing"** on displays with fractional scaling (125%, 150%, 175% in Windows display settings) or non-100% page zoom, regardless of the scroll delay. Chrome reports the viewport and page height as rounded integers (for example 717 px for a 717.333 px viewport), so Frameora underestimated each frame by a fraction of a pixel and could never reach the page's last device-pixel row. Frameora now:
   - measures the true fractional viewport (`visualViewport`) and fractional scrolling-panel boxes,
   - uses the exact device pixel ratio when it matches the captured frames,
@@ -104,14 +110,14 @@ All notable changes to FrameShot (formerly Frameora) are documented here. The fo
   - aims retry frames so gaps land inside the viewport, and
   - fills rounding slivers of at most one CSS pixel by repeating the adjacent row. Real missing content still fails the capture, as before.
 
-### Tests
+#### Tests
 - New realistic rounding simulation (2,000 scenarios across 10 device scales) and real-browser captures at 125%, 150%, and 175% device scale on pages with fractional heights.
 
-## [1.0.0] — 2026-11-07
+### Internal build 1.0.0 — 2026-11-07
 
 First release candidate. Not yet published to the Chrome Web Store.
 
-### Added
+#### Added
 - **Capture**:
   - Visible area (optional 3, 5, or 10 s delay).
   - Full page, with smart sticky/fixed handling, lazy-content preload, animation freezing, horizontal overflow, app-shell panel detection, max-height limit, Stop & save, and cancel (popup, Esc, or command).

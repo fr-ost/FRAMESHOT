@@ -61,7 +61,7 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 |---|---|
 | `capture.spec.ts` | Visible capture; full page (pixel-exact, restores scroll and `outerHTML`); sticky header, sticky section, and fixed footer each exactly once; long table with sticky thead; lazy images; infinite scroll; app-shell panel; horizontal overflow; element picker; area drag; area extended by scrolling (multi-frame); scrolling-panel capture; max-height limit; split into parts; scale mode; cancel restores page; Esc cancels; stop & save partial; dynamic page; image-heavy page; chrome:// refused |
 | `hidpi.spec.ts` | Real 2× device pixels (`--force-device-scale-factor=2`): full page 2560 px wide with 240 px bands; sticky handling at 2× |
-| `fractional-dpi.spec.ts` | Real fractional device scales 1.25, 1.5 and 1.75 (odd window heights) on a page with fractional band heights, a long article, and the sticky-header page: every capture succeeds, matches the page height within a device pixel, and keeps all bands in order. Before the 1.0.1 fix, five of these nine failed with "about 1 px missing". |
+| `fractional-dpi.spec.ts` | Real fractional device scales 1.25, 1.5 and 1.75 (odd window heights) on a page with fractional band heights, a long article, and the sticky-header page: every capture succeeds, matches the page height within a device pixel, and keeps all bands in order. Before the fix (internal build 1.0.1), five of these nine failed with "about 1 px missing". |
 | `editor.spec.ts` | All 12 tools create objects; undo/redo, duplicate, delete, layer list; PNG export with redaction exactly black, blur and pixelation measurably destroying detail, annotation present, original unchanged; JPEG/WebP/PDF magic bytes and redaction kept (PDF image extracted and checked losslessly); clipboard read back; crop → rotate → flip → resize with orientation verified by pixel; autosave and reopen; double-click text editing |
 | `app.spec.ts` | Library search, domain filter, favourites, rename and tags, collections, sort, delete with confirmation, list view; reopen in editor; bulk ZIP (validated by Python) and combined PDF (pdf-lib); thumbnail refresh when leaving the editor quickly; composer 1200×630 export plus save to library; popup full-page capture with live progress bar and Stop button; shortcut commands declared and executed; settings theme, default format, filename template, clear data, persistence; image import |
 | `privacy.spec.ts` | CSP blocks fetch, beacons, and remote images from extension pages and the SW; capture → edit → export makes no requests except the fixture page's own; Studio, editor, and export work offline |
@@ -83,7 +83,7 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 These counts come from the development runs in this session. The release run below supersedes them.
 
 ### Defects found by the tests and fixed
-- **"About 1 px missing" failures at fractional display scaling (1.0.1)**: reported by a user on a real display. Reproduced first with `tests/unit/stitch-rounding.test.ts` (a model of Chrome's integer rounding: 1,722 of 2,400 scenarios failed) and in real Chromium with `fractional-dpi.spec.ts` (5 of 9 failed with the exact message), then fixed; both now pass.
+- **"About 1 px missing" failures at fractional display scaling (internal build 1.0.1)**: reported by a user on a real display. Reproduced first with `tests/unit/stitch-rounding.test.ts` (a model of Chrome's integer rounding: 1,722 of 2,400 scenarios failed) and in real Chromium with `fractional-dpi.spec.ts` (5 of 9 failed with the exact message), then fixed; both now pass.
 - **1-device-pixel seams at fractional scales** (for example 125% zoom): the unit test in `capture-plan.test.ts` exposed it. Coverage is now tracked in output device pixels.
 - **App-shell captures blank after the first frame**: the main scroller is itself `position: fixed` and was being hidden. Scroller ancestors are now exempt.
 - **Area handle drags ignored**: listeners on a closed shadow root's host can't see internal targets. Listeners moved into the shadow root.
@@ -115,7 +115,7 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 
 ## Final verification run
 
-Run on 2026-11-08 for release 1.3.0 (GIF export, sound effects, interface and stability fixes; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
+Run on 2026-11-08 for release 1.0.0, the first public release (GIF export, sound effects, interface and stability fixes; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
 
 | Suite | Result |
 |---|---|
@@ -129,22 +129,22 @@ Run on 2026-11-08 for release 1.3.0 (GIF export, sound effects, interface and st
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
 | E2E `recorder.spec.ts` (recorder, GIF export, sounds under Chrome's real autoplay rule) | **21 / 21 passed** |
 | E2E `review.spec.ts` (review prompt) | **5 / 5 passed** |
-| E2E `ux.spec.ts` (new in 1.3.0) | **5 / 5 passed** |
+| E2E `ux.spec.ts` (new in this release) | **5 / 5 passed** |
 | **E2E total** | **83 / 83 passed** (6.0 min) |
-| Production bundle audit (`npm run check:bundle`) | **passed**: MV3, the 7 expected permissions (1.2.0's six plus `offscreen`), no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
-| Packaged ZIP smoke test (`frameshot-1.3.0-chrome.zip`, unzipped and loaded unpacked, Chrome's real autoplay rule, fake media devices) | **passed**: name, version and permissions as expected; welcome page on install; context menus and all 9 commands including `toggle-recording`; no test hooks in the service worker or pages; the offscreen document loads from the package and accepts a sound; no review prompt on a fresh install; Studio, Settings, Popup (with the sound toggle), Options and Recorder render with zero console errors; "?" opens the shortcut sheet; a recording made through the UI (3 s countdown with sounds) saved and played as MP4 (H.264 · Opus, 3.4 s) with the `REC` badge during and none after; **Export as GIF** from the shipped build produced a valid GIF89a (320×206, 69 KB) |
+| Production bundle audit (`npm run check:bundle`) | **passed**: MV3, the 7 expected permissions (the earlier six plus `offscreen`), no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
+| Packaged ZIP smoke test (`frameshot-1.0.0-chrome.zip`, unzipped and loaded unpacked, Chrome's real autoplay rule, fake media devices) | **passed**: name, version and permissions as expected; welcome page on install; context menus and all 9 commands including `toggle-recording`; no test hooks in the service worker or pages; the offscreen document loads from the package and accepts a sound; no review prompt on a fresh install; Studio, Settings, Popup (with the sound toggle), Options and Recorder render with zero console errors; "?" opens the shortcut sheet; a recording made through the UI (3 s countdown with sounds) saved and played as MP4 (H.264 · Opus, 3.4 s) with the `REC` badge during and none after; **Export as GIF** from the shipped build produced a valid GIF89a (320×206, 69 KB) |
 | Store assets | Generated from the real UI by `npm run store:assets` and reviewed by eye: 6 screenshots (1280×800) and 2 promotional tiles, all 24-bit PNG without alpha |
 
-Defects found while building 1.3.0 and fixed (details in [CHANGELOG.md](CHANGELOG.md)):
+Defects found while preparing 1.0.0 and fixed (details in [CHANGELOG.md](CHANGELOG.md)):
 - Two internal reviews, of the recorder (10 findings) and of the interface (18 findings). All are fixed; regression tests were added to `recorder.spec.ts` (Discard after the recording ended, "Clear all local data" during a recording, the REC badge from another tab) and in the new `ux.spec.ts` (paging, narrow windows, editor focus, composer typing, broken addresses).
 - GIF dialog: a trim was reset when the video's real length arrived (found while testing the dialog).
 - Making the store screenshots showed that a library thumbnail could keep showing the unedited, for example unredacted, screenshot if the editor tab was closed within about 1.7 s of an edit. The thumbnail now refreshes 0.4 s after the autosave.
 - Duplicate detection took about 9 s for 4,000 screenshots on the test machine; it now takes under 0.1 s, and repeat checks are cached.
 
-Defects found in earlier releases and fixed (each now covered by a test):
-- 1.2.0: Chrome's MP4 recorder emitted no data until a recording stopped (a 2-second key-frame interval fixed it, so MP4s can be recovered after a crash); re-using an open Studio tab needed a BroadcastChannel presence check because Chrome hides extension tab URLs without the `tabs` permission; the floating recording pill covered the sidebar credits; the live panel showed "0 B recorded" and the requested instead of the actual resolution.
-- 1.1.0: popup stuck on "Select what to capture…" after the tab closed mid-selection (found during visual QA); two-column layouts ignored by Tailwind v4.
-- 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.
+Defects found in earlier internal builds and fixed (each now covered by a test):
+- Internal build 1.2.0: Chrome's MP4 recorder emitted no data until a recording stopped (a 2-second key-frame interval fixed it, so MP4s can be recovered after a crash); re-using an open Studio tab needed a BroadcastChannel presence check because Chrome hides extension tab URLs without the `tabs` permission; the floating recording pill covered the sidebar credits; the live panel showed "0 B recorded" and the requested instead of the actual resolution.
+- Internal build 1.1.0: popup stuck on "Select what to capture…" after the tab closed mid-selection (found during visual QA); two-column layouts ignored by Tailwind v4.
+- Internal build 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.
 - 1-device-pixel stitching seam at fractional device scales (e.g. 125% zoom) — planner now tracks coverage in output pixels.
 - App-shell pages: the scrolling panel itself is `position: fixed` and was hidden after the first frame.
 - Area selection handles were not detectable through the closed shadow root.

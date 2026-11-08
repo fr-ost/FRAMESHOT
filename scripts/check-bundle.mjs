@@ -16,7 +16,7 @@ const files = [];
 })(dir);
 
 const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
-// Sorted. `offscreen` (1.3.0) only plays sound effects; it shows no install warning.
+// Sorted. `offscreen` only plays sound effects; it shows no install warning.
 const EXPECTED_PERMISSIONS = ['activeTab', 'contextMenus', 'downloads', 'offscreen', 'scripting', 'storage', 'unlimitedStorage'];
 if (manifest.manifest_version !== 3) problems.push('manifest_version must be 3');
 if (JSON.stringify([...(manifest.permissions ?? [])].sort()) !== JSON.stringify(EXPECTED_PERMISSIONS)) {

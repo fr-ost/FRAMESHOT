@@ -2,7 +2,7 @@
 
 FrameShot is free forever. Nothing on this roadmap will ever become a paid feature, and nothing here adds accounts, cloud storage, or tracking unless it is explicitly optional and local-first.
 
-## Shipped in 1.0.0
+## Shipped in 1.0.0 (first public release)
 
 Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these optional extras:
 
@@ -15,11 +15,9 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 - Metadata inspection (details dialog: source, mode, sizes, pixel density, capture notes)
 - Import, paste, or drag-and-drop images into the library
 
-## Shipped in 1.2.0
+Also in 1.0.0:
 
 - **Screen recorder** (tab, window or screen; tab sound and microphone; camera bubble; pause/resume; MP4 or WebM; crash recovery; player with frame capture). See [FEATURES.md](FEATURES.md).
-
-## Shipped in 1.3.0
 
 - GIF export for recordings, sound effects, keyboard shortcut sheet, smoother scrolling and transitions, and the fixes from two internal reviews.
 
@@ -47,7 +45,7 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 | **Translations (i18n)** | The UI is English only. |
 | **Optional sync between devices** | Would conflict with the local-first promise unless strictly opt-in and end-to-end encrypted. Not planned for now. |
 | **Automated accessibility audit** | Keyboard support, focus rings, and ARIA labels are built in; an axe-core audit in CI is planned. |
-| **Scheduled/automated captures** | Out of scope for now. (Screen recording shipped in 1.2.0.) |
+| **Scheduled/automated captures** | Out of scope for now. (Screen recording shipped in 1.0.0.) |
 
 ## Not possible in Chrome (browser restrictions)
 
