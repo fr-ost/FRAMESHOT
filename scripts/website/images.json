@@ -1,0 +1,154 @@
+{
+  "editor": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "popup": {
+    "w": 720,
+    "h": 1120,
+    "widths": [
+      360,
+      720
+    ]
+  },
+  "recorder": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "redact": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "gif": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "library-light": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "library-dark": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "composer": {
+    "w": 2560,
+    "h": 1600,
+    "widths": [
+      720,
+      1440
+    ]
+  },
+  "fullpage": {
+    "w": 1280,
+    "h": 1895,
+    "widths": [
+      380,
+      760
+    ]
+  },
+  "og-home": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-blog": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-privacy": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-support": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-full-page-screenshot-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-record-your-screen-with-audio-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-blur-or-redact-sensitive-information-in-screenshots": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-turn-a-screen-recording-into-a-gif": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-why-frameshot-keeps-your-screenshots-on-your-device": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-better-bug-reports-with-screenshots-and-screen-recordings": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  }
+}

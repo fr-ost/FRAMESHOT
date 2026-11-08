@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+<title>FrameShot blog</title>
+<link>https://frameshot.vercel.app/blog</link>
+<atom:link href="https://frameshot.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
+<description>Guides for screenshots and screen recording in Chrome.</description>
+<language>en</language>
+<lastBuildDate>Sun, 08 Nov 2026 09:00:00 GMT</lastBuildDate>
+<item>
+<title>How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)</title>
+<link>https://frameshot.vercel.app/blog/how-to-take-a-full-page-screenshot-in-chrome</link>
+<guid isPermaLink="true">https://frameshot.vercel.app/blog/how-to-take-a-full-page-screenshot-in-chrome</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.</description>
+</item>
+<item>
+<title>How to Record Your Screen With Audio in Chrome</title>
+<link>https://frameshot.vercel.app/blog/how-to-record-your-screen-with-audio-in-chrome</link>
+<guid isPermaLink="true">https://frameshot.vercel.app/blog/how-to-record-your-screen-with-audio-in-chrome</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>Record a tab, a window or your whole screen with sound, your microphone and a webcam bubble. What to tick in Chrome’s dialog, and how to fix a silent video.</description>
+</item>
+<item>
+<title>How to Blur or Redact Sensitive Information in Screenshots</title>
+<link>https://frameshot.vercel.app/blog/how-to-blur-or-redact-sensitive-information-in-screenshots</link>
+<guid isPermaLink="true">https://frameshot.vercel.app/blog/how-to-blur-or-redact-sensitive-information-in-screenshots</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Privacy</category>
+<description>Why blur and pixelation can sometimes be undone, when to use a solid redaction box, and a checklist of details to hide before you share a screenshot.</description>
+</item>
+<item>
+<title>How to Turn a Screen Recording Into a GIF</title>
+<link>https://frameshot.vercel.app/blog/how-to-turn-a-screen-recording-into-a-gif</link>
+<guid isPermaLink="true">https://frameshot.vercel.app/blog/how-to-turn-a-screen-recording-into-a-gif</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>Make small, sharp GIFs from screen recordings: when a GIF beats a video, which size and frame rate to choose, and how to keep the file light.</description>
+</item>
+<item>
+<title>Private by Design: Why FrameShot Keeps Your Files Local</title>
+<link>https://frameshot.vercel.app/blog/why-frameshot-keeps-your-screenshots-on-your-device</link>
+<guid isPermaLink="true">https://frameshot.vercel.app/blog/why-frameshot-keeps-your-screenshots-on-your-device</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Privacy</category>
+<description>How FrameShot captures and records without servers, accounts or tracking, what each permission is for, and how to check it yourself in a minute.</description>
+</item>
+<item>
+<title>Better Bug Reports With Screenshots and Short Videos</title>
+<link>https://frameshot.vercel.app/blog/better-bug-reports-with-screenshots-and-screen-recordings</link>
+<guid isPermaLink="true">https://frameshot.vercel.app/blog/better-bug-reports-with-screenshots-and-screen-recordings</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Workflow</category>
+<description>A practical template for bug reports developers can act on: what to capture, how to annotate it, and when a short screen recording beats a paragraph.</description>
+</item>
+</channel>
+</rss>

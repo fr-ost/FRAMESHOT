@@ -175,6 +175,8 @@ npm run dev
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:e2e` | E2E build, then real-browser tests (Playwright) |
 | `npm run icons` | Re-render PNG icons from `src/assets/logo*.svg` |
+| `npm run website` | Build the static website into `website/` (see [WEBSITE.md](WEBSITE.md)) |
+| `npm run website:check` | Check the built website in a real browser (links, console errors, images, structured data) |
 
 Stack: WXT 0.21, Vite 8, React 19, TypeScript 5.9, Tailwind CSS 4, Radix UI primitives, Lucide icons, `idb`, Vitest 5, and Playwright 1.63.
 
@@ -298,6 +300,7 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 | [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) | Market research and brand availability |
+| [WEBSITE.md](WEBSITE.md) | The marketing website: pages, Vercel deployment, store link, editing content |
 
 ---
 

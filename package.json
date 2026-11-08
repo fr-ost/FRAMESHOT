@@ -20,6 +20,10 @@
     "store:assets": "npm run build:e2e && node scripts/store-assets.mjs && node scripts/store-render.mjs",
     "perf:ui": "node scripts/perf-ui.mjs",
     "store:kit": "npm run build && python3 scripts/build-store-kit.py",
+    "website": "node scripts/website/build.mjs",
+    "website:assets": "node scripts/website/assets.mjs",
+    "website:serve": "node scripts/website/serve.mjs",
+    "website:check": "node scripts/website/verify.mjs",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
