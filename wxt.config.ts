@@ -43,7 +43,7 @@ export default defineConfig({
     name: 'FrameShot: Free Screen Recorder & Full Page Screenshot',
     short_name: 'FrameShot',
     description:
-      'Screen recorder & full page screen capture. Record tab, window or desktop with mic & camera. Annotate, blur, export MP4, PNG, PDF.',
+      'Record your screen with sound and camera, or capture a whole web page in one click. Then annotate, blur and share. No watermark.',
     minimum_chrome_version: '116',
     // `offscreen` lets the service worker play sound effects (camera shutter, countdown).
     permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage', 'downloads', 'contextMenus', 'offscreen'],

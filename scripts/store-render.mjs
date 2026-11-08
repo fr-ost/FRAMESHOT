@@ -109,7 +109,7 @@ const SLIDES = {
           ['Video', 'Record tab, window or desktop with sound'],
           ['ScrollText', 'Full page, area &amp; element screenshots'],
           ['PenLine', 'Annotate, blur and beautify in seconds'],
-          ['Download', 'Export MP4, GIF, PNG, JPG and PDF'],
+          ['Download', 'Copy, download and share with one click'],
         ])}</div>
       </div>
       <div class="tool" style="left:744px;top:46px;width:480px"><span style="display:flex;gap:10px;color:#77778a">${icon('ArrowLeft', 18, '#77778a')}${icon('RotateCw', 18, '#77778a')}</span><span class="addr">${icon('Lock', 14, '#77778a')} app.example.com</span><span class="ext"><img src="${LOGO}"></span></div>
@@ -125,7 +125,7 @@ const SLIDES = {
       ${win('recorder.png', { x: 0, y: 0, cw: 1280, ch: 760 }, 880, 'FrameShot · Screen recorder', 'left:64px;top:272px')}
       ${callout('Volume2', 'System audio + mic', 'tab, window or screen', 'left:880px;top:300px', 'var(--g5)')}
       ${callout('Webcam', 'Camera bubble', 'any corner, three sizes', 'left:918px;top:430px', 'var(--g2)')}
-      ${callout('Clapperboard', 'MP4 · 4K · 60 fps', 'pause, resume, no limit', 'left:896px;top:560px', 'var(--g1)')}
+      ${callout('Clapperboard', 'Up to 4K, 60 fps', 'pause, resume, no time limit', 'left:896px;top:560px', 'var(--g1)')}
       ${chip('ShieldCheck', 'Crash-safe', 'saved while you record', 'left:96px;top:682px', 'var(--g3)')}`),
 
   3: () =>
@@ -143,7 +143,7 @@ const SLIDES = {
     page(`<div class="bg"></div><div class="dots"></div>
       <div class="abs" style="left:64px;top:52px">${kicker('4', 'Blur · GIF · Export')}</div>
       <h1 class="abs" style="left:64px;top:116px;font-size:58px">Hide private details.<br><span class="gt">Share it anywhere.</span></h1>
-      <p class="abs sub" style="right:64px;top:92px;width:440px;font-size:19px;text-align:right">Blur, pixelate or redact sensitive info. Turn any clip into a GIF. Copy, or save as PNG, JPG, WebP, PDF or MP4.</p>
+      <p class="abs sub" style="right:64px;top:92px;width:440px;font-size:19px;text-align:right">Blur, pixelate or redact sensitive info. Turn any clip into a GIF. Copy it, or download an image, a document or a video.</p>
       ${win('redact.png', { x: 80, y: 120, cw: 905, ch: 600 }, 700, 'FrameShot · Editor', 'left:64px;top:280px')}
       ${win('gif.png', { x: 340, y: 40, cw: 600, ch: 720 }, 400, 'FrameShot · Export as GIF', 'left:812px;top:236px;transform:rotate(1.5deg)')}
       ${chip('EyeOff', 'Redact = gone', 'pixels replaced in every export', 'left:470px;top:648px', 'var(--g2)')}
@@ -160,7 +160,7 @@ const SLIDES = {
         ${[
           ['Images', 'Private library', 'Search, favourites, collections and tags'],
           ['LayoutTemplate', 'Beautify', 'Gradients, browser frames, social sizes'],
-          ['Archive', 'Bulk ZIP &amp; PDF', 'Export many captures at once'],
+          ['Archive', 'Bulk export', 'Export many captures at once'],
           ['Columns2', 'Find duplicates', 'Spot copies and compare side by side'],
           ['Keyboard', 'Shortcuts &amp; sounds', 'Every capture mode on your keyboard'],
           ['WifiOff', 'Works offline', 'Light and dark themes, no uploads'],
@@ -185,7 +185,7 @@ const PROMOS = {
         <div class="brand"><img src="${LOGO}" style="background:#fff;padding:6px"><b style="font-size:32px">FrameShot</b></div>
         <h1 style="font-size:58px;margin-top:34px">Free Screen Recorder<br>&amp; Full Page Screenshot</h1>
         <p style="font-size:20px;line-height:1.5;margin-top:18px;color:rgba(255,255,255,.88);max-width:560px">Record your screen with sound and camera. Capture, annotate and blur whole pages. No watermark.</p>
-        <div style="display:flex;gap:10px;margin-top:26px">${[['Video', 'Screen recorder'], ['ScrollText', 'Full page'], ['ImagePlay', 'GIF &amp; PDF']].map(([ic, t]) => `<span style="display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:16px;font-weight:650">${icon(ic, 17)}${t}</span>`).join('')}</div>
+        <div style="display:flex;gap:10px;margin-top:26px">${[['Video', 'Screen recorder'], ['ScrollText', 'Full page'], ['PenLine', 'Annotate &amp; blur']].map(([ic, t]) => `<span style="display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:16px;font-weight:650">${icon(ic, 17)}${t}</span>`).join('')}</div>
       </div>
       ${win('editor.png', { x: 0, y: 0, cw: 1280, ch: 800 }, 720, 'FrameShot · Editor', 'left:744px;top:64px;transform:perspective(1600px) rotateY(-14deg) rotateX(3deg)')}
       <div class="popup" style="left:1150px;top:250px;width:230px">${crop('popup.png', { cw: 360, ch: 470 }, 230)}</div>

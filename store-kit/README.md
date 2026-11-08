@@ -14,7 +14,7 @@ Upload `release/frameshot-1.0.0-chrome.zip` (Package tab).
 |---|---|---|
 | Name (from the manifest) | `1-store-listing/name.txt` | 54 / 75 characters |
 | Summary (from the manifest) | `1-store-listing/summary.txt` | 130 / 132 characters |
-| Description | `1-store-listing/description.txt` | ~11,000 / 16,000 characters: sections, how-to steps and FAQ; every tracked search phrase 5 times or fewer |
+| Description | `1-store-listing/description.txt` | ~12,700 / 16,000 characters of plain, helpful text: features, how-to guides, FAQ and tips. No lists of file formats or keyword runs (see below) |
 | Category, language, URLs | `1-store-listing/other-fields.md` | Tools · English |
 | Store icon | `images/icon-128.png` | 128 × 128 |
 | Screenshots | `images/screenshot-1.png` … `screenshot-5.png` | 1280 × 800, 24-bit PNG, upload in order |
@@ -32,6 +32,10 @@ Each is a 1280 × 800 marketing image (headline, callouts and the real UI), and 
 5. **Free. Unlimited. Private.** — Library, beautify, bulk ZIP & PDF, duplicates, shortcuts & sounds, offline; the developer credit.
 
 They are rebuilt from the real extension by `npm run store:assets` (capture: `scripts/store-assets.mjs`, layout: `scripts/store-render.mjs`) on a made-up demo page at `app.example.com`; no real site, brand or person appears.
+
+### Why the description reads the way it does
+
+The first submission was rejected for "excessive keywords in the item's description" (violation **Yellow Argon**, Spam and Placement), quoting the list of file formats "MP4, WebM, PNG, JPEG, WebP or PDF". The store reads strings of format names, specs and short keyword lists as keyword stuffing, whatever the length of the text. The current description is long but written as sentences: features are explained, formats are named only where a sentence needs one, and there are no comma-separated keyword runs. `npm run store:kit` enforces this (no runs of format names in the name, summary, description or the text on the screenshots; at most one format per line; no sentence with four or more commas; key phrases at most five times).
 
 ## 2. Privacy practices tab
 

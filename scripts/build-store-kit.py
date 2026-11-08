@@ -51,19 +51,41 @@ if manifest_path.exists():
 else:
     problems.append("run `npm run build` first (manifest not found)")
 
-# Long and thorough (10,000+ characters), ranking through many distinct search
-# phrases, none repeated unnaturally: the store's spam policy flags the same
-# keyword more than five times.
-check(len(description) >= 10000, f"description is {len(description)} characters (aim for 10,000+)")
-TRACKED = [
-    "screen recorder", "full page screenshot", "screen capture", "screen recording", "record your screen",
-    "scrolling capture", "screenshot editor", "webcam", "system audio", "system sound", "video to gif",
-    "annotate", "blur", "redact", "watermark", "mp4", "pdf", "gif", "chrome extension", "free",
-]
-counts = {k: len(re.findall(r"\b" + re.escape(k) + r"\b", description, re.I)) for k in TRACKED}
+# A clear, well-written description. The store rejected an earlier version for
+# "excessive keywords" over a list of file formats ("MP4, WebM, PNG, JPEG, WebP
+# or PDF"), so lists of format names and long keyword runs are not allowed in
+# any listing text, including the text drawn onto the screenshots.
+FORMATS = r"(?:MP4|WebM|PNG|JPE?G|WebP|PDF|GIF|ZIP|SVG|BMP|MOV|AVI)"
+check(11000 <= len(description) <= 13000, f"description is {len(description)} characters (target about 12,000: thorough, with how-to steps and an FAQ)")
+
+
+def format_runs(text):
+    """Two or more format names within a short span, e.g. "PNG, JPG or PDF"."""
+    return re.findall(rf"\b{FORMATS}\b(?:[\s,/·&]+(?:or|and)?\s*\b{FORMATS}\b)+", text, re.I)
+
+
+for label, text in [("name", name), ("summary", summary), ("description", description)]:
+    for run in format_runs(text):
+        problems.append(f'{label} lists file formats: "{run}"')
+fmt_total = len(re.findall(rf"\b{FORMATS}\b", description, re.I))
+check(fmt_total <= 6, f"description names file formats {fmt_total} times (keep it at 6 or fewer)")
+for i, line in enumerate(description.splitlines(), 1):
+    if len(re.findall(rf"\b{FORMATS}\b", line, re.I)) > 1:
+        problems.append(f"description line {i} names more than one file format")
+    for sentence in re.split(r"(?<=[.!?])\s+", line):
+        if sentence.count(",") >= 4:
+            problems.append(f'description line {i} has a long comma list: "{sentence[:70]}…"')
+render_src = (ROOT / "scripts/store-render.mjs").read_text()
+for run in format_runs(render_src):
+    problems.append(f'screenshot text lists file formats: "{run}"')
+
+# Exact search phrases stay at 5 or fewer; common words are reported, not capped
+# (natural use in a long text is allowed, unnatural repetition is not).
+TRACKED = ["screen recorder", "full page screenshot", "full-page capture", "screen capture", "record your screen", "screenshot tool", "screenshot editor", "watermark", "annotate", "free"]
+counts = {k: len(re.findall(r"\b" + re.escape(k) + r"s?\b", description, re.I)) for k in TRACKED}
+words = {w: len(re.findall(r"\b" + w + r"s?\b", description, re.I)) for w in ["screenshot", "capture", "record", "recording", "chrome", "browser"]}
 for k, n in counts.items():
     check(n <= 5, f'"{k}" appears {n} times in the description (keep it at 5 or fewer)')
-words = {w: len(re.findall(r"\b" + w + r"s?\b", description, re.I)) for w in ["screenshot", "record", "capture", "video", "image"]}
 
 # ── Images ──
 IMAGES.mkdir(parents=True, exist_ok=True)
@@ -160,7 +182,7 @@ with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
     for f in sorted(KIT.rglob("*")):
         if f.is_file():
             z.write(f, pathlib.Path("frameshot-store-kit") / f.relative_to(KIT))
-print(f"Store kit OK: name {len(name)}/75, summary {len(summary)}/132, description {len(description)}/16000 characters")
-print("Phrase counts:", ", ".join(f"{k} {n}" for k, n in counts.items()))
+print(f"Store kit OK: name {len(name)}/75, summary {len(summary)}/132, description {len(description)} characters (11,000–13,000)")
+print("Phrase counts:", ", ".join(f"{k} {n}" for k, n in counts.items()), f"| file formats named: {fmt_total}")
 print("Common words:", ", ".join(f"{k} {n}" for k, n in words.items()))
 print(f"Wrote {zip_path.relative_to(ROOT)} ({zip_path.stat().st_size // 1024} KB)")
