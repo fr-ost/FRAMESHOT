@@ -108,23 +108,32 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 
 ## Final verification run
 
-Run on 2026-11-08 for release 1.1.0 (FrameShot rename + UI redesign; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
+Run on 2026-11-08 for release 1.2.0 (screen recorder, SEO title, review prompt; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
 
 | Suite | Result |
 |---|---|
-| Unit (`npm test`, 8 files, including the 2,000-scenario rounding simulation) | **95 / 95 passed** |
-| E2E `capture.spec.ts` (incl. selection cancel / tab-close regressions) | **23 / 23 passed** |
+| Type check (`npm run compile`) | **passed** |
+| Unit (`npm test`, 9 files, including the 2,000-scenario rounding simulation and the recorder/review tests) | **124 / 124 passed** |
+| E2E `capture.spec.ts` | **23 / 23 passed** |
 | E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
 | E2E `fractional-dpi.spec.ts` (real 1.25× / 1.5× / 1.75× device scale) | **9 / 9 passed** |
 | E2E `editor.spec.ts` | **7 / 7 passed** |
 | E2E `app.spec.ts` (library, composer, popup, shortcuts, settings, import) | **8 / 8 passed** |
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
-| **E2E total** | **52 / 52 passed** (4.1 min) |
-| Production bundle audit (`npm run check:bundle`) | **passed** — MV3, 6 permissions, no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps (the only URL strings are inert: library namespaces, the Tailwind license banner, and the footer credit link) |
-| Packaged ZIP smoke test (`.output/frameshot-1.1.0-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
-| Visual QA (light and dark) | Library, editor, composer, settings, welcome, compare, popup and the in-page selection overlay screenshotted in both themes and reviewed |
+| E2E `recorder.spec.ts` (screen recorder, fake media devices) | **14 / 14 passed** |
+| E2E `review.spec.ts` (review prompt) | **5 / 5 passed** |
+| **E2E total** | **71 / 71 passed** (5.6 min) |
+| Production bundle audit (`npm run check:bundle`) | **passed** — MV3, the same 6 permissions, no host permissions, strict CSP, no remote code, no eval, no test hooks (`__frameshotTest`, `__frameshotEditor`, `__frameshotRecorder`), no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
+| Packaged ZIP smoke test (`.output/frameshot-1.2.0-chrome.zip`, unzipped and loaded unpacked, with fake media devices) | **passed** — name/version/permissions as expected, welcome page on install, context menus incl. "Record screen…", `toggle-recording` command, review state initialised and no prompt on a fresh install, Studio / Settings / Popup / Options / Recorder render with zero console errors, no test hooks, and a real recording made through the UI saved and played as MP4 (H.264 · Opus, 2.8 s) with the `REC` badge during and none after |
+| Visual QA | Recorder (setup, countdown, recording, paused), player, library with recordings, popup recording card and review card, settings and welcome page, in light and dark |
 
-Defects found by these suites and fixed during development (each now covered by a test):
+Defects found while building 1.2.0 and fixed (each covered by a test or checked in visual QA):
+- Chrome's MP4 MediaRecorder emitted **no data until the recording stopped** with its default key-frame spacing, so an MP4 would sit in memory and could not be recovered after a crash. Fixed with a 2-second key-frame interval; `recorder.spec` now checks that chunks reach IndexedDB during recording and recovers an interrupted MP4.
+- Re-using an open Studio tab never worked: without the `tabs` permission Chrome hides even the extension's own tab URLs. Replaced with a BroadcastChannel presence check (shortcut and library-reuse tests).
+- The floating recording pill covered the library sidebar's credits (visual QA) — moved to the top centre.
+- The live panel showed "0 B recorded" during the first seconds of an MP4 and the requested (not actual) resolution (visual QA).
+
+Defects found in earlier releases and fixed (each now covered by a test):
 - 1.1.0: popup stuck on "Select what to capture…" after the tab closed mid-selection (found during visual QA); two-column layouts ignored by Tailwind v4.
 - 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.
 - 1-device-pixel stitching seam at fractional device scales (e.g. 125% zoom) — planner now tracks coverage in output pixels.
