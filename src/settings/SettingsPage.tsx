@@ -1,20 +1,78 @@
-import { ArrowLeft, ExternalLink, Keyboard, Lock, Shield, Trash2 } from 'lucide-react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Info, Keyboard, Lock, Palette, Shield, Trash2 } from 'lucide-react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { BRAND } from '../core/brand';
 import { buildFilename, FILENAME_TOKENS } from '../core/filename';
 import { formatBytes } from '../core/format';
 import { DEFAULT_SETTINGS, LIMITS, saveSettings, sanitizeFolder, type Settings, type DeepPartial, mergeSettings } from '../core/settings';
 import { clearAllData, storageStats, type StorageStats } from '../db/db';
 import { navigate } from '../ui/hooks';
 import { useConfirm, useToast } from '../ui/overlays';
-import { Button, Field, Input, Logo, SegmentedControl, Select, Slider, Switch } from '../ui/primitives';
+import { Button, Credits, Field, Input, Logo, SegmentedControl, Select, Slider, Switch, cx } from '../ui/primitives';
+
+const SECTIONS = [
+  { id: 'appearance', label: 'Appearance', icon: <Palette size={15} /> },
+  { id: 'capture', label: 'Capture', icon: <Camera size={15} /> },
+  { id: 'export', label: 'Export & downloads', icon: <Download size={15} /> },
+  { id: 'shortcuts', label: 'Shortcuts', icon: <Keyboard size={15} /> },
+  { id: 'storage', label: 'Storage', icon: <HardDrive size={15} /> },
+  { id: 'privacy', label: 'Privacy', icon: <Shield size={15} /> },
+  { id: 'about', label: 'About', icon: <Info size={15} /> },
+] as const;
 
 function Card({ title, description, children, id }: { title: string; description?: ReactNode; children: ReactNode; id?: string }) {
+  const section = SECTIONS.find((s) => s.id === id);
   return (
-    <section id={id} className="rounded-2xl border border-border bg-surface p-5 shadow-card">
-      <h2 className="text-[15px] font-semibold">{title}</h2>
-      {description && <p className="mt-1 text-[13px] text-fg-subtle">{description}</p>}
-      <div className="mt-4 space-y-4">{children}</div>
+    <section id={id} className="fr-card fr-stagger scroll-mt-24 p-6" style={{ '--i': SECTIONS.findIndex((s) => s.id === id) } as CSSProperties}>
+      <div className="flex items-start gap-3">
+        {section && <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-primary-soft text-primary">{section.icon}</span>}
+        <div className="min-w-0">
+          <h2 className="text-[16px] font-semibold tracking-tight">{title}</h2>
+          {description && <p className="mt-1 text-[13px] leading-relaxed text-fg-subtle">{description}</p>}
+        </div>
+      </div>
+      <div className="mt-5 space-y-5">{children}</div>
     </section>
+  );
+}
+
+function ThemeTile({ value, label, current, onSelect }: { value: Settings['theme']; label: string; current: Settings['theme']; onSelect: () => void }) {
+  const active = value === current;
+  const pane = (dark: boolean) => (
+    <span className={cx('flex h-full flex-1 flex-col gap-1 p-1.5', dark ? 'bg-[#0d0d14]' : 'bg-[#f4f4f8]')}>
+      <span className={cx('h-1.5 w-8 rounded-full', dark ? 'bg-white/25' : 'bg-black/15')} />
+      <span className={cx('flex-1 rounded-[5px]', dark ? 'bg-white/[0.07]' : 'bg-white shadow-sm')} />
+      <span className="h-1.5 w-5 rounded-full bg-[linear-gradient(90deg,#6366f1,#8b5cf6)]" />
+    </span>
+  );
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={active}
+      aria-label={label}
+      onClick={onSelect}
+      className={cx(
+        'fr-press group flex flex-col gap-2 rounded-[14px] border p-2 text-left transition-all duration-300',
+        active ? 'border-primary bg-primary-soft shadow-glow' : 'border-border bg-surface-2 hover:border-border-strong',
+      )}
+    >
+      <span className="flex h-16 w-full overflow-hidden rounded-[10px] border border-border">
+        {value === 'system' ? (
+          <>
+            {pane(false)}
+            {pane(true)}
+          </>
+        ) : (
+          pane(value === 'dark')
+        )}
+      </span>
+      <span className="flex items-center justify-between px-1 text-[13px] font-medium">
+        {label}
+        <span className={cx('flex h-4 w-4 items-center justify-center rounded-full border transition-colors', active ? 'fr-accent-bg border-transparent text-white' : 'border-border-strong')}>
+          {active && <Check size={10} strokeWidth={3} />}
+        </span>
+      </span>
+    </button>
   );
 }
 
@@ -25,6 +83,25 @@ export function SettingsPage({ settings }: { settings: Settings }) {
   const [commands, setCommands] = useState<chrome.commands.Command[]>([]);
   const [template, setTemplate] = useState(settings.filenameTemplate);
   const [folder, setFolder] = useState(settings.downloadFolder);
+  const [activeSection, setActiveSection] = useState<string>('appearance');
+
+  // Highlight the section currently in view.
+  useEffect(() => {
+    const root = document.getElementById('fr-settings-scroll');
+    if (!root) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveSection(visible[0].target.id);
+      },
+      { root, rootMargin: '-80px 0px -55% 0px' },
+    );
+    for (const sct of SECTIONS) {
+      const el = document.getElementById(sct.id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     void storageStats().then(setStats);
@@ -43,30 +120,48 @@ export function SettingsPage({ settings }: { settings: Settings }) {
   const version = chrome.runtime.getManifest().version;
 
   return (
-    <div className="fr-scroll h-full overflow-y-auto">
-      <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur">
+    <div id="fr-settings-scroll" className="fr-scroll h-full overflow-y-auto">
+      <header className="fr-glass sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border px-5">
         <Button variant="ghost" size="sm" icon={<ArrowLeft size={16} />} onClick={() => navigate('/')}>
           Library
         </Button>
-        <h1 className="text-[15px] font-semibold">Settings</h1>
+        <span className="h-5 w-px bg-border" aria-hidden />
+        <h1 className="text-[17px] font-semibold tracking-tight">Settings</h1>
       </header>
-      <div className="mx-auto max-w-3xl space-y-5 px-5 py-8">
-        <Card title="Appearance">
-          <Field label="Theme">
-            <SegmentedControl
-              label="Theme"
-              value={settings.theme}
-              onChange={(theme) => void update({ theme })}
-              options={[
-                { value: 'system', label: 'System' },
-                { value: 'light', label: 'Light' },
-                { value: 'dark', label: 'Dark' },
-              ]}
-            />
-          </Field>
+      <div className="mx-auto grid max-w-5xl gap-8 px-6 py-8 lg:grid-cols-[210px_1fr]">
+        <nav aria-label="Settings sections" className="hidden lg:block">
+          <ul className="sticky top-24 space-y-0.5">
+            {SECTIONS.map((sct) => (
+              <li key={sct.id}>
+                <a
+                  href={`#/settings`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById(sct.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  aria-current={activeSection === sct.id ? 'true' : undefined}
+                  className={cx(
+                    'flex h-9 items-center gap-2.5 rounded-[11px] px-3 text-[13px] font-medium transition-all duration-200',
+                    activeSection === sct.id ? 'bg-surface-solid text-fg shadow-card' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+                  )}
+                >
+                  <span className={activeSection === sct.id ? 'text-primary' : 'text-fg-subtle'}>{sct.icon}</span>
+                  {sct.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="min-w-0 space-y-6">
+        <Card title="Appearance" id="appearance" description="FrameShot follows your system theme by default.">
+          <div role="radiogroup" aria-label="Theme" className="grid max-w-md grid-cols-3 gap-3">
+            <ThemeTile value="system" label="System" current={settings.theme} onSelect={() => void update({ theme: 'system' })} />
+            <ThemeTile value="light" label="Light" current={settings.theme} onSelect={() => void update({ theme: 'light' })} />
+            <ThemeTile value="dark" label="Dark" current={settings.theme} onSelect={() => void update({ theme: 'dark' })} />
+          </div>
         </Card>
 
-        <Card title="Capture" description="How Frameora captures long pages. These apply to full-page, element, and scrolling-area captures.">
+        <Card title="Capture" id="capture" description="How FrameShot captures long pages. These apply to full-page, element, and scrolling-area captures.">
           <Field label="Fixed & sticky elements" htmlFor="fr-fixed" hint="Smart keeps headers at the top and footers at the bottom, once — instead of repeating them on every screen.">
             <Select id="fr-fixed" value={settings.capture.fixedElements} onChange={(e) => void update({ capture: { fixedElements: e.target.value as Settings['capture']['fixedElements'] } })}>
               <option value="smart">Smart: show once (recommended)</option>
@@ -102,7 +197,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
           </Field>
         </Card>
 
-        <Card title="Export & downloads">
+        <Card title="Export & downloads" id="export" description="Formats, quality, file names and where files are saved.">
           <Field label="Default format">
             <SegmentedControl
               label="Default format"
@@ -140,7 +235,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
             ))}
           </div>
           <Field label="Save into a folder inside Downloads" htmlFor="fr-folder" hint="Leave empty to save directly into your Downloads folder.">
-            <Input id="fr-folder" value={folder} placeholder="e.g. Frameora" onChange={(e) => setFolder(e.target.value)} onBlur={() => void update({ downloadFolder: sanitizeFolder(folder) })} />
+            <Input id="fr-folder" value={folder} placeholder="e.g. FrameShot" onChange={(e) => setFolder(e.target.value)} onBlur={() => void update({ downloadFolder: sanitizeFolder(folder) })} />
           </Field>
           <Switch label="Ask where to save each file" checked={settings.askWhereToSave} onChange={(v) => void update({ askWhereToSave: v })} />
           <Field label="PDF page size" htmlFor="fr-pdf">
@@ -170,20 +265,20 @@ export function SettingsPage({ settings }: { settings: Settings }) {
           </Button>
         </Card>
 
-        <Card title="Storage" description="Screenshots are stored only in this browser on this device.">
+        <Card title="Storage" id="storage" description="Screenshots are stored only in this browser on this device.">
           <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3 text-sm">
             <span>
               <strong>{stats?.count ?? 0}</strong> items · <strong>{formatBytes(stats?.usage ?? stats?.imageBytes ?? 0)}</strong> used
             </span>
-            {stats?.quota ? <span className="text-[12px] text-fg-subtle">{formatBytes(stats.quota)} available to Frameora</span> : null}
+            {stats?.quota ? <span className="text-[12px] text-fg-subtle">{formatBytes(stats.quota)} available to FrameShot</span> : null}
           </div>
           <Button
             variant="danger"
             icon={<Trash2 size={15} />}
             onClick={async () => {
               const ok = await confirm({
-                title: 'Delete all Frameora data?',
-                message: 'This permanently deletes every screenshot, edit, and collection stored by Frameora in this browser. Settings are kept. This cannot be undone.',
+                title: 'Delete all FrameShot data?',
+                message: 'This permanently deletes every screenshot, edit, and collection stored by FrameShot in this browser. Settings are kept. This cannot be undone.',
                 confirmLabel: 'Delete everything',
                 danger: true,
               });
@@ -197,27 +292,34 @@ export function SettingsPage({ settings }: { settings: Settings }) {
           </Button>
         </Card>
 
-        <Card title="Privacy">
+        <Card title="Privacy" id="privacy">
           <ul className="space-y-2 text-[13px] text-fg-muted">
-            <li className="flex gap-2"><Lock size={15} className="mt-0.5 shrink-0 text-success" /> Screenshots never leave your device. Frameora has no servers, accounts, analytics, or tracking.</li>
-            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> Frameora’s pages block all network connections through a strict Content Security Policy.</li>
-            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> Frameora only accesses a tab when you start a capture on it (the “activeTab” permission).</li>
+            <li className="flex gap-2"><Lock size={15} className="mt-0.5 shrink-0 text-success" /> Screenshots never leave your device. FrameShot has no servers, accounts, analytics, or tracking.</li>
+            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> FrameShot’s pages block all network connections through a strict Content Security Policy.</li>
+            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> FrameShot only accesses a tab when you start a capture on it (the “activeTab” permission).</li>
           </ul>
         </Card>
 
-        <Card title="About">
+        <Card title="About" id="about">
           <div className="flex items-center justify-between">
-            <Logo size={36} />
-            <span className="text-[12px] text-fg-subtle">Version {version}</span>
+            <Logo size={38} />
+            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] font-medium tabular-nums text-fg-muted">Version {version}</span>
           </div>
-          <p className="text-[13px] text-fg-muted">
-            <strong>Frameora: Free Screenshot &amp; Full Page Capture</strong> — capture the web, edit every detail. Free forever: no subscriptions, no watermarks, no accounts, no locked features.
+          <p className="text-[13px] leading-relaxed text-fg-muted">
+            <strong className="text-fg">FrameShot</strong> — {BRAND.tagline} No subscriptions, no watermarks, no accounts, no locked features.
           </p>
-          <p className="text-[13px] text-fg-subtle">A Unique Labs product. Useful technology. Accessible to everyone.</p>
-          <Button variant="ghost" size="sm" icon={<ExternalLink size={14} />} onClick={() => navigate('/welcome')}>
-            Show the welcome guide
-          </Button>
+          <p className="text-[13px] text-fg-subtle">{BRAND.principle}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+            <Credits align="start" />
+            <Button variant="ghost" size="sm" icon={<ExternalLink size={14} />} onClick={() => navigate('/welcome')}>
+              Show the welcome guide
+            </Button>
+          </div>
         </Card>
+        <footer className="pb-6 pt-2">
+          <Credits />
+        </footer>
+        </div>
       </div>
     </div>
   );

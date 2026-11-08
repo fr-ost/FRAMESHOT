@@ -57,11 +57,11 @@ export function ComparePage({ a, b }: { a: string; b: string }) {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-surface px-3">
+      <header className="fr-glass relative z-20 flex h-[60px] shrink-0 items-center gap-3 border-b border-border px-3">
         <Button variant="ghost" size="sm" icon={<ArrowLeft size={16} />} onClick={() => navigate('/')}>
           Library
         </Button>
-        <h1 className="text-sm font-semibold">Compare screenshots</h1>
+        <h1 className="text-[15px] font-semibold tracking-tight">Compare screenshots</h1>
         <div className="ml-auto flex items-center gap-3">
           {mode === 'overlay' && (
             <div className="w-40">
@@ -81,7 +81,7 @@ export function ComparePage({ a, b }: { a: string; b: string }) {
           />
         </div>
       </header>
-      <div className="fr-scroll min-h-0 flex-1 overflow-auto bg-canvas p-6">
+      <div className="fr-canvas-bg fr-scroll min-h-0 flex-1 overflow-auto p-6">
         {error ? (
           <p className="text-sm text-danger">{error}</p>
         ) : !data ? (
@@ -92,7 +92,7 @@ export function ComparePage({ a, b }: { a: string; b: string }) {
           <div className="grid grid-cols-2 gap-6">
             {[data.a, data.b].map((d) => (
               <figure key={d.item.id} className="min-w-0">
-                <figcaption className="mb-2 truncate text-[13px] font-medium text-fg-muted">{d.item.name}</figcaption>
+                <figcaption className="mb-2.5 truncate text-[13px] font-semibold text-fg-muted">{d.item.name}</figcaption>
                 <CanvasImage canvas={d.canvas} />
               </figure>
             ))}
@@ -114,5 +114,5 @@ function CanvasImage({ canvas }: { canvas: OffscreenCanvas }) {
     el.height = Math.round(canvas.height * scale);
     el.getContext('2d')!.drawImage(canvas, 0, 0, el.width, el.height);
   }, [canvas]);
-  return <canvas ref={ref} className="block w-full shadow-pop" />;
+  return <canvas ref={ref} className="fr-animate-in block w-full rounded-[6px] shadow-pop" />;
 }

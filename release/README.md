@@ -1,7 +1,7 @@
-# Frameora 1.0.1 — release package
+# FrameShot 1.0.1 — release package
 
-`frameora-1.0.1-chrome.zip` is the production Manifest V3 build produced by
-`npm run build && npm run zip` (identical to `.output/frameora-1.0.1-chrome.zip`).
+`frameshot-1.0.1-chrome.zip` is the production Manifest V3 build produced by
+`npm run build && npm run zip` (identical to `.output/frameshot-1.0.1-chrome.zip`).
 
 - Install for testing: unzip it, open `chrome://extensions`, enable Developer mode,
   click **Load unpacked**, and select the unzipped folder.

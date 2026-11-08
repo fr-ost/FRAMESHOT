@@ -1,7 +1,7 @@
 /**
- * Frameora capture agent — injected on demand (chrome.scripting.executeScript)
+ * FrameShot capture agent — injected on demand (chrome.scripting.executeScript)
  * into the tab being captured. It never runs on pages the user did not invoke
- * Frameora on, never reads page text, and never sends page content anywhere.
+ * FrameShot on, never reads page text, and never sends page content anywhere.
  *
  * Responsibilities:
  *  - measure pages and find the main scroller (window or app-shell panel)
@@ -232,7 +232,7 @@ function* allElements(limit = 60000): Generator<Element> {
     let node = walker.nextNode() as Element | null;
     while (node) {
       if (++count > limit) return;
-      if (!(node as HTMLElement).hasAttribute?.('data-frameora-overlay')) {
+      if (!(node as HTMLElement).hasAttribute?.('data-frameshot-overlay')) {
         yield node;
         if (node.shadowRoot) stack.push(node.shadowRoot);
       }
@@ -638,9 +638,9 @@ async function handle(msg: AgentRequest): Promise<unknown> {
 }
 
 export function installAgent(): void {
-  const w = window as unknown as { __frameoraAgent?: number };
-  if (w.__frameoraAgent === AGENT_PROTOCOL_VERSION) return;
-  w.__frameoraAgent = AGENT_PROTOCOL_VERSION;
+  const w = window as unknown as { __frameshotAgent?: number };
+  if (w.__frameshotAgent === AGENT_PROTOCOL_VERSION) return;
+  w.__frameshotAgent = AGENT_PROTOCOL_VERSION;
 
   chrome.runtime.onMessage.addListener((msg: AgentRequest, sender, sendResponse) => {
     if (sender.id !== chrome.runtime.id || !msg || typeof msg.kind !== 'string' || !msg.kind.startsWith('agent.')) {

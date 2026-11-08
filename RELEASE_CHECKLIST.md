@@ -3,7 +3,7 @@
 > ⚠️ **Do not submit or publish to the Chrome Web Store without explicit approval from the owner (Unique Labs).**
 
 ## 1. Legal & brand
-- [ ] **Trademark clearance for "Frameora"** by counsel (US, EU, UK, WIPO; Classes 9 and 42). Research found a **moderate risk** from the registered mark **FRAMEO** (frameo ApS), which is contained in the first six letters. See [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) §8.
+- [ ] **Trademark clearance for "FrameShot"** by counsel (US, EU, UK, WIPO; Classes 9 and 42). A check on 2026-11-08 rated the risk **high**: an existing "FrameShot" screenshot extension and two "Frameshot" capture extensions are on the Chrome Web Store, "FramedShot" is a near-identical competitor, and US filing 87795731 (FRAMESHOT, photo software) exists. Decide on the final name before submitting. See [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md), addendum.
 - [ ] A fallback name is prepared in case clearance fails.
 - [ ] Domains and social handles are checked and secured, if desired.
 - [ ] The privacy policy ([PRIVACY.md](PRIVACY.md)) is hosted at a public URL, and the contact address placeholders are replaced in PRIVACY.md and SECURITY.md.
@@ -15,18 +15,18 @@
 - [ ] `npm run compile` passes with no type errors.
 - [ ] `npm test` passes all unit tests.
 - [ ] `npm run test:e2e` passes all E2E tests; record the counts in [TESTING.md](TESTING.md).
-- [ ] No `console.log` of page content or URLs; no debug code outside `__FRAMEORA_E2E__`.
+- [ ] No `console.log` of page content or URLs; no debug code outside `__FRAMESHOT_E2E__`.
 
 ## 3. Build & package
 - [ ] `npm run build`, then confirm `.output/chrome-mv3/manifest.json`:
-  - [ ] name "Frameora: Free Screenshot & Full Page Capture", correct description and version
+  - [ ] name "FrameShot: Free Screenshot & Full Page Capture", correct description and version
   - [ ] permissions are exactly `activeTab, scripting, storage, unlimitedStorage, downloads, contextMenus`
   - [ ] **no `host_permissions`**
   - [ ] the CSP includes `connect-src 'self' blob: data:` and `script-src 'self'`
   - [ ] icons 16/32/48/96/128 are present
-- [ ] The production bundle contains no `__frameoraTest` (`grep -r __frameoraTest .output/chrome-mv3` finds nothing).
+- [ ] The production bundle contains no `__frameshotTest` (`grep -r __frameshotTest .output/chrome-mv3` finds nothing).
 - [ ] The production bundle loads no remote URLs (no `https://` script, style, or font loads; XML namespace strings are fine).
-- [ ] `npm run zip` produces `.output/frameora-<version>-chrome.zip`. Unzip it and verify the contents match `.output/chrome-mv3`.
+- [ ] `npm run zip` produces `.output/frameshot-<version>-chrome.zip`. Unzip it and verify the contents match `.output/chrome-mv3`.
 - [ ] **Never** package `.output/chrome-mv3-e2e`, which has `<all_urls>` and test hooks.
 
 ## 4. Manual QA (real Chrome, installed via Load unpacked or from the ZIP)

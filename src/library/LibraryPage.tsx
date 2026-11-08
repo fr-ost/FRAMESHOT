@@ -24,8 +24,12 @@ import {
   X,
   Columns2,
   Camera,
+  Monitor,
+  Moon,
+  Sparkles,
+  Sun,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { formatBytes, formatDate, formatDimensions, formatRelative, newId } from '../core/format';
 import { isSafeLink } from '../core/restricted';
 import { type Settings, updateSettings } from '../core/settings';
@@ -36,7 +40,7 @@ import { ExportDialog, type ExportChoice } from '../export/ExportDialog';
 import { exportItem, exportMany } from '../export/service';
 import { navigate } from '../ui/hooks';
 import { Dialog, DropdownContent, DropdownItem, DropdownMenu, DropdownSeparator, DropdownTrigger, useConfirm, useToast } from '../ui/overlays';
-import { Button, EmptyState, Field, IconButton, Input, Kbd, Logo, Select, Spinner, cx } from '../ui/primitives';
+import { Badge, Button, Credits, EmptyState, Field, IconButton, Input, Kbd, Logo, Select, Spinner, cx } from '../ui/primitives';
 import { withFolder } from '../core/filename';
 import { importImageFile } from './importer';
 import { domainsOf, filterItems, findDuplicateGroups, useLibraryData, type SortKey, type ViewFilter } from './useLibrary';
@@ -185,6 +189,9 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   const viewTitle =
     view.kind === 'all' ? 'All screenshots' : view.kind === 'favorites' ? 'Favorites' : view.kind === 'duplicates' ? 'Possible duplicates' : collections.find((c) => c.id === view.id)?.name ?? 'Collection';
 
+  const nextTheme = settings.theme === 'system' ? 'light' : settings.theme === 'light' ? 'dark' : 'system';
+  const themeIcon = settings.theme === 'dark' ? <Moon size={16} /> : settings.theme === 'light' ? <Sun size={16} /> : <Monitor size={16} />;
+
   return (
     <div
       className="flex h-full"
@@ -203,27 +210,27 @@ export function LibraryPage({ settings }: { settings: Settings }) {
       }}
     >
       {/* Sidebar */}
-      <aside className="fr-scroll flex w-60 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface">
-        <div className="flex h-14 items-center px-4">
-          <Logo />
+      <aside className="fr-glass fr-scroll flex w-[252px] shrink-0 flex-col overflow-y-auto border-r border-border">
+        <div className="flex h-16 items-center px-5">
+          <Logo size={30} />
         </div>
-        <nav aria-label="Library sections" className="space-y-0.5 px-2">
+        <nav aria-label="Library sections" className="space-y-0.5 px-3">
           <NavItem icon={<Images size={16} />} label="All screenshots" count={items?.length} active={view.kind === 'all'} onClick={() => setView({ kind: 'all' })} />
           <NavItem icon={<Star size={16} />} label="Favorites" count={items?.filter((i) => i.favorite).length} active={view.kind === 'favorites'} onClick={() => setView({ kind: 'favorites' })} />
           <NavItem icon={<Columns2 size={16} />} label="Duplicates" count={dupCount || undefined} active={view.kind === 'duplicates'} onClick={() => setView({ kind: 'duplicates' })} />
         </nav>
-        <div className="mt-5 flex items-center justify-between px-4 pb-1">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">Collections</h2>
+        <div className="mt-6 flex items-center justify-between px-5 pb-1.5">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Collections</h2>
           <IconButton label="New collection" size="sm" onClick={() => setCollectionDialog({ mode: 'create' })}>
             <FolderPlus size={15} />
           </IconButton>
         </div>
-        <nav aria-label="Collections" className="space-y-0.5 px-2">
-          {collections.length === 0 && <p className="px-2 py-1 text-[12px] text-fg-subtle">Group screenshots into collections.</p>}
+        <nav aria-label="Collections" className="space-y-0.5 px-3">
+          {collections.length === 0 && <p className="px-2.5 py-1 text-[12px] leading-relaxed text-fg-subtle">Group related screenshots into collections.</p>}
           {collections.map((c) => (
             <div key={c.id} className="group relative">
               <NavItem icon={<Folder size={16} />} label={c.name} count={items?.filter((i) => i.collectionId === c.id).length} active={view.kind === 'collection' && view.id === c.id} onClick={() => setView({ kind: 'collection', id: c.id })} />
-              <div className="absolute right-1 top-1 hidden group-focus-within:block group-hover:block">
+              <div className="absolute right-1 top-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                 <DropdownMenu>
                   <DropdownTrigger asChild>
                     <IconButton label={`Options for ${c.name}`} size="sm">
@@ -255,25 +262,32 @@ export function LibraryPage({ settings }: { settings: Settings }) {
         </nav>
         <div className="mt-auto space-y-3 p-4">
           <StorageMeter used={stats?.usage ?? stats?.imageBytes ?? 0} count={stats?.count ?? 0} quota={stats?.quota} />
-          <Button variant="ghost" size="sm" className="w-full justify-start" icon={<SettingsIcon size={15} />} onClick={() => navigate('/settings')}>
-            Settings
-          </Button>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" className="flex-1 justify-start" icon={<SettingsIcon size={15} />} onClick={() => navigate('/settings')}>
+              Settings
+            </Button>
+            <Button variant="ghost" size="sm" icon={<Sparkles size={15} />} onClick={() => navigate('/welcome')} aria-label="Welcome guide" title="Welcome guide" />
+          </div>
+          <Credits align="start" className="px-1" />
         </div>
       </aside>
 
       {/* Main */}
       <main className="relative flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-surface px-4">
-          <h1 className="mr-2 min-w-0 shrink-0 truncate text-[15px] font-semibold">{viewTitle}</h1>
+        <header className="fr-glass z-20 flex h-16 shrink-0 items-center gap-2.5 border-b border-border px-5">
+          <div className="mr-1 flex min-w-0 shrink-0 items-baseline gap-2">
+            <h1 className="truncate text-[17px] font-semibold tracking-tight">{viewTitle}</h1>
+            {items && <span className="text-[13px] tabular-nums text-fg-subtle">{visible.length}</span>}
+          </div>
           <div className="relative ml-auto w-full min-w-[160px] max-w-xs">
-            <Search size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fg-subtle" />
-            <Input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, site, tag…" aria-label="Search screenshots" className="pl-8 pr-8" />
+            <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
+            <Input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, site, tag…" aria-label="Search screenshots" className="pl-9 pr-9" />
             {search ? (
-              <button type="button" aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-subtle hover:text-fg" onClick={() => setSearch('')}>
+              <button type="button" aria-label="Clear search" className="fr-press absolute right-2.5 top-1/2 -translate-y-1/2 text-fg-subtle hover:text-fg" onClick={() => setSearch('')}>
                 <X size={14} />
               </button>
             ) : (
-              <Kbd className="absolute right-2 top-1/2 -translate-y-1/2">/</Kbd>
+              <Kbd className="absolute right-2.5 top-1/2 -translate-y-1/2">/</Kbd>
             )}
           </div>
           <Select aria-label="Filter by website" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-40">
@@ -290,7 +304,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
             <option value="name">Name A–Z</option>
             <option value="largest">Largest first</option>
           </Select>
-          <div className="flex rounded-lg border border-border p-0.5">
+          <div className="flex rounded-[11px] border border-border bg-surface-2 p-[3px]">
             <IconButton label="Grid view" size="sm" active={layout === 'grid'} onClick={() => void updateSettings({ library: { view: 'grid' } })}>
               <Grid2x2 size={15} />
             </IconButton>
@@ -298,7 +312,10 @@ export function LibraryPage({ settings }: { settings: Settings }) {
               <List size={15} />
             </IconButton>
           </div>
-          <Button icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
+          <IconButton label={`Theme: ${settings.theme === 'system' ? 'System' : settings.theme === 'light' ? 'Light' : 'Dark'} (switch to ${nextTheme})`} onClick={() => void updateSettings({ theme: nextTheme })}>
+            {themeIcon}
+          </IconButton>
+          <Button variant="primary" icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
             Import
           </Button>
           <input
@@ -315,61 +332,55 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           />
         </header>
 
-        {selected.size > 0 && (
-          <div className="fr-animate-in flex items-center gap-2 border-b border-border bg-primary-soft px-4 py-2 text-primary-soft-fg">
-            <span className="text-[13px] font-semibold">{selected.size} selected</span>
-            <Button size="sm" variant="ghost" className="!text-primary-soft-fg" onClick={() => setSelected(new Set(visible.map((i) => i.id)))}>
-              Select all {visible.length}
-            </Button>
-            <div className="ml-auto flex items-center gap-1.5">
-              <Button size="sm" icon={<Download size={14} />} onClick={() => setBulkExport(true)}>
-                Export
-              </Button>
-              {selected.size === 2 && (
-                <Button size="sm" icon={<Columns2 size={14} />} onClick={() => navigate(`/compare/${[...selected].map(encodeURIComponent).join('/')}`)}>
-                  Compare
-                </Button>
-              )}
-              <Button size="sm" icon={<Folder size={14} />} onClick={() => setMoveOpen(true)}>
-                Move to…
-              </Button>
-              <Button size="sm" icon={<Star size={14} />} onClick={() => void updateItems([...selected], { favorite: !selectedItems.every((i) => i.favorite) })}>
-                {selectedItems.every((i) => i.favorite) ? 'Unfavorite' : 'Favorite'}
-              </Button>
-              <Button size="sm" variant="danger" icon={<Trash2 size={14} />} onClick={() => void remove([...selected])}>
-                Delete
-              </Button>
-              <IconButton label="Clear selection" size="sm" onClick={() => setSelected(new Set())}>
-                <X size={15} />
-              </IconButton>
-            </div>
-          </div>
-        )}
-
-        <div className="fr-scroll min-h-0 flex-1 overflow-y-auto p-5" data-testid="library-scroll">
+        <div className="fr-scroll min-h-0 flex-1 overflow-y-auto px-6 pb-28 pt-6" data-testid="library-scroll">
           {error && <p className="mb-4 text-sm text-danger">{error}</p>}
           {items === null ? (
-            <div className="flex items-center justify-center gap-2 py-20 text-sm text-fg-subtle">
-              <Spinner /> Loading library…
-            </div>
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-5" aria-hidden>
+              {Array.from({ length: 8 }, (_, i) => (
+                <li key={i} className="fr-card overflow-hidden">
+                  <div className="fr-skeleton aspect-[4/3]" />
+                  <div className="space-y-2 p-3.5">
+                    <div className="fr-skeleton h-3 w-3/4 rounded" />
+                    <div className="fr-skeleton h-2.5 w-1/2 rounded" />
+                  </div>
+                </li>
+              ))}
+            </ul>
           ) : items.length === 0 ? (
-            <EmptyState icon={<Camera size={22} />} title="No screenshots yet" action={<Button icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>Import an image</Button>}>
-              <p>Click the Frameora icon in the Chrome toolbar, right-click any page, or press <Kbd>Alt</Kbd>+<Kbd>Shift</Kbd>+<Kbd>F</Kbd> to capture a full page.</p>
+            <EmptyState
+              icon={<Camera size={28} />}
+              title="No screenshots yet"
+              action={
+                <>
+                  <Button variant="primary" icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
+                    Import an image
+                  </Button>
+                  <Button icon={<Sparkles size={16} />} onClick={() => navigate('/welcome')}>
+                    How to capture
+                  </Button>
+                </>
+              }
+            >
+              <p>
+                Click the FrameShot icon in the Chrome toolbar, right-click any page, or press <Kbd>Alt</Kbd> <Kbd>Shift</Kbd> <Kbd>F</Kbd> to capture a full page.
+              </p>
               <p className="mt-2">You can also paste or drop images here.</p>
             </EmptyState>
           ) : visible.length === 0 ? (
-            <EmptyState icon={<Search size={22} />} title="Nothing matches">
+            <EmptyState icon={<Search size={26} />} title="Nothing matches">
               {view.kind === 'duplicates' ? 'No visually identical screenshots were found.' : 'Try a different search or filter.'}
             </EmptyState>
           ) : layout === 'grid' ? (
-            <ul className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4" aria-label="Screenshots">
-              {visible.slice(0, limit).map((item) => (
-                <li key={item.id}>
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-5" aria-label="Screenshots">
+              {visible.slice(0, limit).map((item, index) => (
+                <li key={item.id} className="fr-stagger" style={{ '--i': index % PAGE } as CSSProperties}>
                   <Card
                     item={item}
                     selected={selected.has(item.id)}
                     selecting={selected.size > 0}
                     onToggle={(range) => toggle(item.id, range)}
+                    onCopy={() => void copy(item)}
+                    onDownload={() => void download(item)}
                     menu={<ItemMenu item={item} onDownload={download} onCopy={copy} onDetails={setDetails} onDelete={(i) => void remove([i.id])} />}
                   />
                 </li>
@@ -381,14 +392,49 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           {visible.length > limit && <LoadMore onVisible={() => setLimit((l) => l + PAGE)} />}
         </div>
 
+        {/* Floating bulk-action bar */}
+        {selected.size > 0 && (
+          <div
+            className="fr-glass absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-[18px] border border-border p-2 pl-4 shadow-pop"
+            style={{ animation: 'fr-slide-up 420ms var(--fr-ease)' }}
+          >
+            <span className="mr-1 text-[13px] font-semibold">{selected.size} selected</span>
+            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set(visible.map((i) => i.id)))}>
+              Select all {visible.length}
+            </Button>
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+            <Button size="sm" variant="primary" icon={<Download size={14} />} onClick={() => setBulkExport(true)}>
+              Export
+            </Button>
+            {selected.size === 2 && (
+              <Button size="sm" icon={<Columns2 size={14} />} onClick={() => navigate(`/compare/${[...selected].map(encodeURIComponent).join('/')}`)}>
+                Compare
+              </Button>
+            )}
+            <Button size="sm" icon={<Folder size={14} />} onClick={() => setMoveOpen(true)}>
+              Move to…
+            </Button>
+            <Button size="sm" icon={<Star size={14} />} onClick={() => void updateItems([...selected], { favorite: !selectedItems.every((i) => i.favorite) })}>
+              {selectedItems.every((i) => i.favorite) ? 'Unfavorite' : 'Favorite'}
+            </Button>
+            <Button size="sm" variant="danger" icon={<Trash2 size={14} />} onClick={() => void remove([...selected])}>
+              Delete
+            </Button>
+            <IconButton label="Clear selection" size="sm" onClick={() => setSelected(new Set())}>
+              <X size={15} />
+            </IconButton>
+          </div>
+        )}
+
         {busy && (
-          <div className="pointer-events-none absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#18181b]/90 px-4 py-2 text-[13px] text-white shadow-pop">
-            <Spinner /> {busy}
+          <div className="fr-glass pointer-events-none absolute bottom-6 right-6 z-30 flex items-center gap-2.5 rounded-full border border-border px-4 py-2.5 text-[13px] font-medium shadow-pop fr-animate-in">
+            <Spinner className="text-primary" /> {busy}
           </div>
         )}
         {dragOver && (
-          <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-2xl border-2 border-dashed border-primary bg-primary-soft/80 text-sm font-medium text-primary-soft-fg">
-            Drop images to import them
+          <div className="pointer-events-none absolute inset-4 z-40 flex flex-col items-center justify-center gap-3 rounded-[24px] border-2 border-dashed border-primary/60 bg-primary-soft/70 text-primary-soft-fg backdrop-blur-sm fr-fade">
+            <ImagePlus size={32} className="fr-float" />
+            <span className="text-sm font-semibold">Drop images to import them</span>
           </div>
         )}
       </main>
@@ -421,13 +467,14 @@ function NavItem({ icon, label, count, active, onClick }: { icon: ReactNode; lab
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={cx(
-        'flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[13px] font-medium transition-colors',
-        active ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+        'fr-press group relative flex h-9 w-full items-center gap-2.5 rounded-[11px] px-2.5 text-left text-[13px] font-medium transition-colors duration-200',
+        active ? 'bg-surface-solid text-fg shadow-card' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
       )}
     >
-      <span className="shrink-0">{icon}</span>
+      <span className={cx('shrink-0 transition-colors', active ? 'text-primary' : 'text-fg-subtle group-hover:text-fg-muted')}>{icon}</span>
       <span className="min-w-0 flex-1 truncate">{label}</span>
-      {count !== undefined && count > 0 && <span className="text-[11px] tabular-nums text-fg-subtle">{count}</span>}
+      {count !== undefined && count > 0 && <span className={cx('rounded-full px-1.5 text-[11px] tabular-nums', active ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-subtle')}>{count}</span>}
+      {active && <span className="fr-accent-bg absolute -left-3 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" aria-hidden />}
     </button>
   );
 }
@@ -435,16 +482,16 @@ function NavItem({ icon, label, count, active, onClick }: { icon: ReactNode; lab
 function StorageMeter({ used, count, quota }: { used: number; count: number; quota?: number }) {
   const pct = quota ? Math.min(100, (used / quota) * 100) : 0;
   return (
-    <div className="rounded-xl border border-border bg-surface-2 p-3">
+    <div className="rounded-[14px] border border-border bg-surface-2 p-3">
       <div className="flex items-center gap-2 text-[12px] font-medium text-fg-muted">
-        <HardDrive size={14} /> Stored on this device
+        <HardDrive size={14} className="text-primary" /> Stored on this device
       </div>
       <div className="mt-1.5 text-[13px] font-semibold tabular-nums">
         {formatBytes(used)} · {count} {count === 1 ? 'item' : 'items'}
       </div>
       {quota ? (
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-3" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} aria-label="Storage used">
-          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(2, pct)}%` }} />
+          <div className="fr-accent-bg h-full rounded-full transition-[width] duration-700" style={{ width: `${Math.max(2, pct)}%` }} />
         </div>
       ) : null}
     </div>
@@ -483,9 +530,27 @@ function useInView<T extends Element>(): [React.RefObject<T | null>, boolean] {
   return [ref, inView];
 }
 
-function Card({ item, selected, selecting, onToggle, menu }: { item: LibraryItem; selected: boolean; selecting: boolean; onToggle: (range: boolean) => void; menu: ReactNode }) {
+function Card({
+  item,
+  selected,
+  selecting,
+  onToggle,
+  onCopy,
+  onDownload,
+  menu,
+}: {
+  item: LibraryItem;
+  selected: boolean;
+  selecting: boolean;
+  onToggle: (range: boolean) => void;
+  onCopy: () => void;
+  onDownload: () => void;
+  menu: ReactNode;
+}) {
   const [ref, inView] = useInView<HTMLDivElement>();
   const thumb = useThumbUrl(item, inView);
+  const [loaded, setLoaded] = useState(false);
+  const [pop, setPop] = useState(false);
   const open = () => navigate(`/edit/${encodeURIComponent(item.id)}`);
   const w = item.editedWidth ?? item.width;
   const h = item.editedHeight ?? item.height;
@@ -494,62 +559,83 @@ function Card({ item, selected, selecting, onToggle, menu }: { item: LibraryItem
       ref={ref}
       data-testid="library-card"
       data-id={item.id}
-      className={cx(
-        'group relative overflow-hidden rounded-xl border bg-surface shadow-card transition-shadow hover:shadow-pop',
-        selected ? 'border-primary ring-2 ring-primary/30' : 'border-border',
-      )}
+      className={cx('fr-card fr-lift group overflow-hidden', selected && '!border-primary ring-[3px] ring-primary/25')}
     >
-      <button
-        type="button"
-        className="fr-checker block aspect-[4/3] w-full overflow-hidden"
-        onClick={(e) => (selecting || e.shiftKey || e.metaKey || e.ctrlKey ? onToggle(e.shiftKey) : open())}
-        aria-label={`Open ${item.name}`}
-      >
-        {thumb ? (
-          <img src={thumb} alt="" className="h-full w-full object-cover object-top" draggable={false} />
-        ) : (
-          <span className="flex h-full items-center justify-center text-fg-subtle">
-            <Images size={20} />
-          </span>
-        )}
-      </button>
-      <button
-        type="button"
-        aria-label={selected ? `Deselect ${item.name}` : `Select ${item.name}`}
-        aria-pressed={selected}
-        onClick={(e) => onToggle(e.shiftKey)}
-        className={cx(
-          'absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-md bg-surface/90 text-fg shadow-card transition-opacity',
-          selected || selecting ? 'opacity-100' : 'opacity-0 focus:opacity-100 group-hover:opacity-100',
-        )}
-      >
-        {selected ? <CheckSquare size={16} className="text-primary" /> : <Square size={16} />}
-      </button>
-      <button
-        type="button"
-        aria-label={item.favorite ? 'Remove from favorites' : 'Add to favorites'}
-        aria-pressed={item.favorite}
-        onClick={() => void updateItem(item.id, { favorite: !item.favorite })}
-        className={cx(
-          'absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md bg-surface/90 shadow-card transition-opacity',
-          item.favorite ? 'text-amber-500 opacity-100' : 'text-fg-subtle opacity-0 focus:opacity-100 group-hover:opacity-100',
-        )}
-      >
-        <Star size={15} fill={item.favorite ? 'currentColor' : 'none'} />
-      </button>
-      <div className="flex items-start gap-1 p-3">
+      <div className={cx('relative aspect-[4/3] overflow-hidden', !loaded && 'fr-skeleton')}>
+        <button
+          type="button"
+          className="fr-checker block h-full w-full overflow-hidden"
+          onClick={(e) => (selecting || e.shiftKey || e.metaKey || e.ctrlKey ? onToggle(e.shiftKey) : open())}
+          aria-label={`Open ${item.name}`}
+        >
+          {thumb ? (
+            <img
+              src={thumb}
+              alt=""
+              onLoad={() => setLoaded(true)}
+              data-loaded={loaded}
+              className="fr-img-fade h-full w-full object-cover object-top group-hover:scale-[1.04]"
+              draggable={false}
+            />
+          ) : null}
+        </button>
+        {/* Hover veil + quick actions */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="absolute bottom-2.5 right-2.5 flex translate-y-2 gap-1.5 opacity-0 transition-all duration-300 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
+          <button type="button" aria-label={`Copy ${item.name}`} title="Copy image" onClick={onCopy} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
+            <ClipboardCopy size={15} />
+          </button>
+          <button type="button" aria-label={`Download ${item.name}`} title="Download" onClick={onDownload} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
+            <Download size={15} />
+          </button>
+        </div>
+        <button
+          type="button"
+          aria-label={selected ? `Deselect ${item.name}` : `Select ${item.name}`}
+          aria-pressed={selected}
+          onClick={(e) => onToggle(e.shiftKey)}
+          className={cx(
+            'fr-press absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-[9px] shadow-card backdrop-blur transition-all duration-200',
+            selected ? 'fr-accent-bg text-white opacity-100' : 'bg-white/90 text-[#111118]',
+            selected || selecting ? 'opacity-100' : 'opacity-0 focus:opacity-100 group-hover:opacity-100',
+          )}
+        >
+          {selected ? <CheckSquare size={16} /> : <Square size={16} />}
+        </button>
+        <button
+          type="button"
+          aria-label={item.favorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-pressed={item.favorite}
+          onClick={() => {
+            setPop(true);
+            void updateItem(item.id, { favorite: !item.favorite });
+          }}
+          onAnimationEnd={() => setPop(false)}
+          className={cx(
+            'fr-press absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/90 shadow-card backdrop-blur transition-opacity duration-200',
+            item.favorite ? 'text-amber-500 opacity-100' : 'text-[#55556a] opacity-0 focus:opacity-100 group-hover:opacity-100',
+          )}
+        >
+          <Star size={15} fill={item.favorite ? 'currentColor' : 'none'} className={pop ? 'fr-star-pop' : undefined} />
+        </button>
+      </div>
+      <div className="flex items-start gap-1 p-3.5">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-medium text-fg" title={item.name}>
+          <p className="truncate text-[13px] font-semibold text-fg" title={item.name}>
             {item.name}
           </p>
           <p className="mt-0.5 truncate text-[12px] text-fg-subtle">
             {[item.source?.domain || (item.kind === 'import' ? 'Imported' : item.kind === 'composition' ? 'Composition' : ''), formatRelative(item.createdAt)].filter(Boolean).join(' · ')}
           </p>
-          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] tabular-nums text-fg-subtle">
+          <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] tabular-nums text-fg-subtle">
             {formatDimensions(w, h)}
-            {item.hasEdits && <span className="rounded bg-primary-soft px-1 text-[10px] font-semibold text-primary-soft-fg">Edited</span>}
-            {item.group && <span className="rounded bg-surface-3 px-1 text-[10px] font-semibold">Part {item.group.index + 1}/{item.group.count}</span>}
-            {item.partial && <span className="rounded bg-warning-soft px-1 text-[10px] font-semibold text-warning">Partial</span>}
+            {item.hasEdits && <Badge tone="primary">Edited</Badge>}
+            {item.group && (
+              <Badge>
+                Part {item.group.index + 1}/{item.group.count}
+              </Badge>
+            )}
+            {item.partial && <Badge tone="warning">Partial</Badge>}
           </p>
         </div>
         {menu}
@@ -560,41 +646,47 @@ function Card({ item, selected, selecting, onToggle, menu }: { item: LibraryItem
 
 function ListView({ items, selected, onToggle, renderMenu }: { items: LibraryItem[]; selected: Set<string>; onToggle: (id: string, range?: boolean) => void; renderMenu: (i: LibraryItem) => ReactNode }) {
   return (
-    <table className="w-full border-separate border-spacing-0 text-[13px]" aria-label="Screenshots">
-      <thead>
-        <tr className="text-left text-[11px] uppercase tracking-wider text-fg-subtle">
-          <th className="w-10 pb-2 font-semibold"><span className="sr-only">Select</span></th>
-          <th className="pb-2 font-semibold">Name</th>
-          <th className="pb-2 font-semibold">Website</th>
-          <th className="pb-2 font-semibold">Captured</th>
-          <th className="pb-2 text-right font-semibold">Size</th>
-          <th className="w-10 pb-2"><span className="sr-only">Actions</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((item) => (
-          <ListRow key={item.id} item={item} selected={selected.has(item.id)} onToggle={(r) => onToggle(item.id, r)} menu={renderMenu(item)} />
-        ))}
-      </tbody>
-    </table>
+    <div className="fr-card overflow-hidden">
+      <table className="w-full border-separate border-spacing-0 text-[13px]" aria-label="Screenshots">
+        <thead>
+          <tr className="text-left text-[11px] uppercase tracking-[0.08em] text-fg-subtle">
+            <th className="w-12 border-b border-border py-3 pl-4 font-semibold">
+              <span className="sr-only">Select</span>
+            </th>
+            <th className="border-b border-border py-3 font-semibold">Name</th>
+            <th className="border-b border-border py-3 font-semibold">Website</th>
+            <th className="border-b border-border py-3 font-semibold">Captured</th>
+            <th className="border-b border-border py-3 text-right font-semibold">Size</th>
+            <th className="w-12 border-b border-border py-3 pr-3">
+              <span className="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => (
+            <ListRow key={item.id} index={index} item={item} selected={selected.has(item.id)} onToggle={(r) => onToggle(item.id, r)} menu={renderMenu(item)} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
-function ListRow({ item, selected, onToggle, menu }: { item: LibraryItem; selected: boolean; onToggle: (range: boolean) => void; menu: ReactNode }) {
+function ListRow({ item, selected, onToggle, menu, index }: { item: LibraryItem; selected: boolean; onToggle: (range: boolean) => void; menu: ReactNode; index: number }) {
   const [ref, inView] = useInView<HTMLTableRowElement>();
   const thumb = useThumbUrl(item, inView);
   return (
-    <tr ref={ref} className={cx('group', selected && 'bg-primary-soft/60')} data-testid="library-row">
-      <td className="border-b border-border py-1.5">
-        <input type="checkbox" aria-label={`Select ${item.name}`} checked={selected} onChange={(e) => onToggle((e.nativeEvent as MouseEvent).shiftKey)} className="h-4 w-4" />
+    <tr ref={ref} className={cx('fr-stagger group transition-colors hover:bg-surface-2', selected && 'bg-primary-soft')} style={{ '--i': index % PAGE } as CSSProperties} data-testid="library-row">
+      <td className="border-b border-border py-2 pl-4">
+        <input type="checkbox" aria-label={`Select ${item.name}`} checked={selected} onChange={(e) => onToggle((e.nativeEvent as MouseEvent).shiftKey)} className="h-4 w-4 rounded" />
       </td>
-      <td className="border-b border-border py-1.5">
+      <td className="border-b border-border py-2">
         <button type="button" className="flex min-w-0 items-center gap-3 text-left" onClick={() => navigate(`/edit/${encodeURIComponent(item.id)}`)}>
-          <span className="fr-checker h-10 w-14 shrink-0 overflow-hidden rounded-md border border-border">
+          <span className="fr-checker h-11 w-16 shrink-0 overflow-hidden rounded-[9px] border border-border">
             {thumb && <img src={thumb} alt="" className="h-full w-full object-cover object-top" />}
           </span>
           <span className="min-w-0">
-            <span className="flex items-center gap-1.5 truncate font-medium text-fg">
+            <span className="flex items-center gap-1.5 truncate font-semibold text-fg">
               {item.favorite && <Star size={12} className="shrink-0 text-amber-500" fill="currentColor" />}
               <span className="truncate">{item.name}</span>
             </span>
@@ -602,10 +694,10 @@ function ListRow({ item, selected, onToggle, menu }: { item: LibraryItem; select
           </span>
         </button>
       </td>
-      <td className="border-b border-border py-1.5 text-fg-muted">{item.source?.domain ?? '—'}</td>
-      <td className="border-b border-border py-1.5 text-fg-muted">{formatDate(item.createdAt)}</td>
-      <td className="border-b border-border py-1.5 text-right tabular-nums text-fg-muted">{formatBytes(item.byteSize)}</td>
-      <td className="border-b border-border py-1.5 text-right">{menu}</td>
+      <td className="border-b border-border py-2 text-fg-muted">{item.source?.domain ?? '—'}</td>
+      <td className="border-b border-border py-2 text-fg-muted">{formatDate(item.createdAt)}</td>
+      <td className="border-b border-border py-2 text-right tabular-nums text-fg-muted">{formatBytes(item.byteSize)}</td>
+      <td className="border-b border-border py-2 pr-3 text-right">{menu}</td>
     </tr>
   );
 }
@@ -652,8 +744,8 @@ function LoadMore({ onVisible }: { onVisible: () => void }) {
     if (inView) onVisible();
   }, [inView, onVisible]);
   return (
-    <div ref={ref} className="flex justify-center py-6 text-sm text-fg-subtle">
-      <Spinner />
+    <div ref={ref} className="flex justify-center py-8 text-sm text-fg-subtle">
+      <Spinner className="text-primary" />
     </div>
   );
 }
@@ -707,7 +799,7 @@ function DetailsDialog({ item, collections, onClose }: { item: LibraryItem; coll
             ))}
           </Select>
         </Field>
-        <dl className="grid grid-cols-[110px,1fr] gap-x-3 gap-y-1.5 rounded-xl bg-surface-2 p-3 text-[12px]">
+        <dl className="grid grid-cols-[110px_1fr] gap-x-3 gap-y-1.5 rounded-xl bg-surface-2 p-3 text-[12px]">
           {row('Type', item.kind === 'capture' ? `Capture · ${item.mode ? CAPTURE_MODE_LABELS[item.mode] : ''}` : item.kind === 'import' ? 'Imported image' : 'Composition')}
           {item.source?.url &&
             row(

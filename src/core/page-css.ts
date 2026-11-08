@@ -6,8 +6,8 @@
  * Elements are targeted through data attributes set by the content agent, so
  * removing the attributes plus the stylesheet fully restores the page.
  */
-export const ATTR_HIDE = 'data-frameora-hide';
-export const ATTR_UNSTICK = 'data-frameora-unstick';
+export const ATTR_HIDE = 'data-frameshot-hide';
+export const ATTR_UNSTICK = 'data-frameshot-unstick';
 
 /** Always applied during multi-frame captures. */
 export const CAPTURE_CSS = `

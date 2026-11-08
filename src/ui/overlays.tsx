@@ -1,4 +1,4 @@
-/** Dialogs, menus, popovers and toasts (Radix primitives, Frameora styling). */
+/** Dialogs, menus, popovers and toasts (Radix primitives, animated). */
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
@@ -28,30 +28,29 @@ export function Dialog({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-[2px]" />
+        <DialogPrimitive.Overlay className="fr-overlay fixed inset-0 z-50 bg-overlay backdrop-blur-[6px]" />
         <DialogPrimitive.Content
-          className="fr-animate-in fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-2xl border border-border bg-surface p-5 shadow-pop focus:outline-none"
+          className="fr-dialog fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-[22px] border border-border bg-surface-solid/95 p-6 shadow-pop backdrop-blur-2xl focus:outline-none"
           style={{ maxWidth: width }}
-          aria-describedby={description ? undefined : undefined}
         >
-          <div className="mb-3 flex items-start justify-between gap-4">
+          <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <DialogPrimitive.Title className="text-base font-semibold text-fg">{title}</DialogPrimitive.Title>
+              <DialogPrimitive.Title className="text-[17px] font-semibold tracking-tight text-fg">{title}</DialogPrimitive.Title>
               {description ? (
-                <DialogPrimitive.Description className="mt-1 text-sm text-fg-subtle">{description}</DialogPrimitive.Description>
+                <DialogPrimitive.Description className="mt-1.5 text-sm leading-relaxed text-fg-subtle">{description}</DialogPrimitive.Description>
               ) : (
                 <DialogPrimitive.Description className="sr-only">{title}</DialogPrimitive.Description>
               )}
             </div>
             <DialogPrimitive.Close
-              className="-mr-1 -mt-1 inline-flex h-8 w-8 items-center justify-center rounded-lg text-fg-subtle hover:bg-surface-2 hover:text-fg"
+              className="fr-press -mr-1.5 -mt-1.5 inline-flex h-8 w-8 items-center justify-center rounded-[10px] text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg"
               aria-label="Close"
             >
               <X size={16} />
             </DialogPrimitive.Close>
           </div>
           {children}
-          {footer && <div className="mt-5 flex justify-end gap-2">{footer}</div>}
+          {footer && <div className="mt-6 flex justify-end gap-2">{footer}</div>}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
@@ -118,8 +117,11 @@ export function DropdownContent({ children, align = 'end', className }: { childr
     <Menu.Portal>
       <Menu.Content
         align={align}
-        sideOffset={6}
-        className={cx('fr-animate-in z-50 min-w-[200px] rounded-xl border border-border bg-surface p-1 shadow-pop focus:outline-none', className)}
+        sideOffset={8}
+        className={cx(
+          'fr-pop z-50 min-w-[220px] rounded-[16px] border border-border bg-surface-solid/90 p-1.5 shadow-pop backdrop-blur-2xl focus:outline-none',
+          className,
+        )}
       >
         {children}
       </Menu.Content>
@@ -147,11 +149,13 @@ export function DropdownItem({
       disabled={disabled}
       onSelect={onSelect}
       className={cx(
-        'flex h-8 cursor-pointer select-none items-center gap-2.5 rounded-lg px-2.5 text-[13px] outline-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40',
+        'group flex h-9 cursor-pointer select-none items-center gap-2.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-colors duration-150 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40',
         danger ? 'text-danger data-[highlighted]:bg-danger-soft' : 'text-fg data-[highlighted]:bg-surface-2',
       )}
     >
-      {icon && <span className="flex w-4 justify-center text-fg-subtle">{icon}</span>}
+      {icon && (
+        <span className={cx('flex w-4 justify-center transition-colors', danger ? 'text-danger' : 'text-fg-subtle group-data-[highlighted]:text-primary')}>{icon}</span>
+      )}
       <span className="flex-1">{children}</span>
       {shortcut && <span className="text-[11px] text-fg-subtle">{shortcut}</span>}
     </Menu.Item>
@@ -159,11 +163,11 @@ export function DropdownItem({
 }
 
 export function DropdownSeparator() {
-  return <Menu.Separator className="my-1 h-px bg-border" />;
+  return <Menu.Separator className="mx-1 my-1.5 h-px bg-border" />;
 }
 
 export function DropdownLabel({ children }: { children: ReactNode }) {
-  return <Menu.Label className="px-2.5 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-fg-subtle">{children}</Menu.Label>;
+  return <Menu.Label className="px-2.5 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">{children}</Menu.Label>;
 }
 
 // ── Popover ──
@@ -176,8 +180,8 @@ export function Popover({ trigger, children, align = 'start', side = 'bottom' }:
         <PopoverPrimitive.Content
           align={align}
           side={side}
-          sideOffset={6}
-          className="fr-animate-in z-50 rounded-xl border border-border bg-surface p-3 shadow-pop focus:outline-none"
+          sideOffset={8}
+          className="fr-pop z-50 rounded-[16px] border border-border bg-surface-solid/90 p-3 shadow-pop backdrop-blur-2xl focus:outline-none"
         >
           {children}
         </PopoverPrimitive.Content>
@@ -194,6 +198,8 @@ interface ToastItem {
   tone: ToastTone;
   message: ReactNode;
   action?: { label: string; onClick: () => void };
+  leaving?: boolean;
+  duration: number;
 }
 
 interface ToastApi {
@@ -208,12 +214,17 @@ const ToastContext = createContext<ToastApi>({ show() {}, success() {}, error() 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const counter = useRef(0);
-  const remove = useCallback((id: number) => setItems((list) => list.filter((t) => t.id !== id)), []);
+  const remove = useCallback((id: number) => {
+    // Play the exit animation, then unmount.
+    setItems((list) => list.map((t) => (t.id === id ? { ...t, leaving: true } : t)));
+    setTimeout(() => setItems((list) => list.filter((t) => t.id !== id)), 230);
+  }, []);
   const show = useCallback(
     (message: ReactNode, tone: ToastTone = 'info', action?: ToastItem['action']) => {
       const id = ++counter.current;
-      setItems((list) => [...list.slice(-3), { id, tone, message, action }]);
-      setTimeout(() => remove(id), tone === 'error' ? 8000 : 4500);
+      const duration = tone === 'error' ? 8000 : 4500;
+      setItems((list) => [...list.slice(-3), { id, tone, message, action, duration }]);
+      setTimeout(() => remove(id), duration);
     },
     [remove],
   );
@@ -227,27 +238,36 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [show],
   );
   const icons = {
-    success: <CheckCircle2 size={16} className="text-success" />,
-    error: <XCircle size={16} className="text-danger" />,
-    info: <Info size={16} className="text-primary" />,
-    warning: <AlertTriangle size={16} className="text-warning" />,
+    success: <CheckCircle2 size={17} className="text-success" />,
+    error: <XCircle size={17} className="text-danger" />,
+    info: <Info size={17} className="text-primary" />,
+    warning: <AlertTriangle size={17} className="text-warning" />,
+  };
+  const bar = {
+    success: 'bg-success',
+    error: 'bg-danger',
+    info: 'fr-accent-bg',
+    warning: 'bg-warning',
   };
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div aria-live="polite" aria-atomic="false" className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[360px] max-w-[calc(100vw-32px)] flex-col gap-2">
+      <div aria-live="polite" aria-atomic="false" className="pointer-events-none fixed bottom-5 right-5 z-[60] flex w-[380px] max-w-[calc(100vw-40px)] flex-col gap-2.5">
         {items.map((t) => (
           <div
             key={t.id}
             role={t.tone === 'error' ? 'alert' : 'status'}
-            className="fr-animate-in pointer-events-auto flex items-start gap-2.5 rounded-xl border border-border bg-surface px-3.5 py-3 text-sm text-fg shadow-pop"
+            className={cx(
+              'pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-[16px] border border-border bg-surface-solid/90 px-4 py-3.5 text-sm text-fg shadow-pop backdrop-blur-2xl',
+              t.leaving ? 'fr-toast-leave' : 'fr-toast-enter',
+            )}
           >
-            <span className="mt-0.5">{icons[t.tone]}</span>
-            <div className="min-w-0 flex-1 break-words">{t.message}</div>
+            <span className="mt-px">{icons[t.tone]}</span>
+            <div className="min-w-0 flex-1 break-words leading-snug">{t.message}</div>
             {t.action && (
               <button
                 type="button"
-                className="text-[13px] font-semibold text-primary hover:underline"
+                className="fr-press text-[13px] font-semibold text-primary hover:underline"
                 onClick={() => {
                   t.action!.onClick();
                   remove(t.id);
@@ -256,9 +276,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 {t.action.label}
               </button>
             )}
-            <button type="button" aria-label="Dismiss notification" className="text-fg-subtle hover:text-fg" onClick={() => remove(t.id)}>
+            <button type="button" aria-label="Dismiss notification" className="fr-press text-fg-subtle transition-colors hover:text-fg" onClick={() => remove(t.id)}>
               <X size={14} />
             </button>
+            {/* Time remaining */}
+            <span
+              aria-hidden
+              className={cx('absolute bottom-0 left-0 h-[2px] origin-left opacity-60', bar[t.tone])}
+              style={{ width: '100%', animation: `fr-toast-timer ${t.duration}ms linear forwards` }}
+            />
           </div>
         ))}
       </div>

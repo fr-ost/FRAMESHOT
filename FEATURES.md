@@ -1,4 +1,4 @@
-# Frameora Features
+# FrameShot Features
 
 Status legend:
 

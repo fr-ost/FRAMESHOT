@@ -28,7 +28,7 @@ export const FILENAME_TOKENS: { token: string; description: string }[] = [
   { token: '{height}', description: 'Image height in pixels' },
 ];
 
-const FALLBACK = 'frameora-screenshot';
+const FALLBACK = 'frameshot-screenshot';
 const MAX_BASENAME = 120;
 
 const pad = (n: number, len = 2) => String(n).padStart(len, '0');
@@ -85,7 +85,7 @@ export function renderTemplate(template: string, ctx: FilenameContext): string {
 /** Builds a complete, safe filename (with extension) from a template. */
 export function buildFilename(template: string, ctx: FilenameContext, format: ExportFormat | 'zip'): string {
   const rendered = renderTemplate(template, ctx)
-    // Collapse separators left behind by empty tokens, e.g. "frameora--2024".
+    // Collapse separators left behind by empty tokens, e.g. "frameshot--2024".
     .replace(/([-_ ]){2,}/g, '$1');
   const base = sanitizeBasename(rendered);
   const ext = format === 'zip' ? 'zip' : FORMAT_EXTENSION[format];

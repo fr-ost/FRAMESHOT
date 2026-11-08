@@ -41,7 +41,7 @@ export interface Settings {
   };
 }
 
-export const DEFAULT_FILENAME_TEMPLATE = 'frameora-{domain}-{date}-{time}';
+export const DEFAULT_FILENAME_TEMPLATE = 'frameshot-{domain}-{date}-{time}';
 
 export const DEFAULT_SETTINGS: Settings = Object.freeze({
   theme: 'system',
@@ -65,6 +65,8 @@ export const DEFAULT_SETTINGS: Settings = Object.freeze({
   pdf: Object.freeze({ pageSize: 'a4', marginPt: 24 }),
 }) as Settings;
 
+// Storage key kept from the product's former name (Frameora) so existing
+// users keep their settings after the rename to FrameShot.
 export const SETTINGS_KEY = 'frameora.settings';
 
 export const LIMITS = {

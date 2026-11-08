@@ -237,3 +237,25 @@ Users who need these will choose Awesome Screenshot, Scrnli, ScreenPal or FuseBa
 - https://tmsearch.uspto.gov/
 - https://euipo.europa.eu/eSearch/
 - https://branddb.wipo.int/
+
+---
+
+## Addendum (2026-11-08): renamed to "FrameShot" — name check and store SEO
+
+The product was renamed from **Frameora** to **FrameShot** at the owner's request. Sections 1–9 above describe the original name and are kept as a historical record. A fresh check of the new name, made from search results (the Chrome Web Store pages and trademark databases could not be opened directly from the research environment):
+
+**Name conflicts — risk: HIGH**
+- Chrome Web Store, same category: an extension named **"FrameShot"** (visible, full-page, element and region screenshots; v0.1.0, July 2026, about 3 users): https://chromewebstore.google.com/detail/hfhgkejnmebboekdfiihfcmaigcnkoic
+- **"Frameshot"** (viewport/area screenshots with URL and time stamp, about 44 users): https://chromewebstore.google.com/detail/gjikiiejollodfdbpalpnfcfmfphjaaf
+- **"Frameshot: Professional Browser Screenshots in One Click"** (macOS-style browser frames): https://chromewebstore.google.com/detail/frameshot-professional-br/beldmeahjmlgalcmkenhenbkocnmaemd
+- One letter away and positioned almost identically: **"FramedShot: Full Page Screenshot, Annotate & Blur"**: https://chromewebstore.google.com/detail/framedshot-full-page-scre/ojodikaampkjmcldckbcgfohhcaaohhe
+- Trademark: US serial **87795731, FRAMESHOT** (Frame Postcards, Inc., filed 2018-02-13, photo software); current status unconfirmed. https://trademarks.justia.com/browse-by-serial-number/87/79/57/ · https://frameshot.com/terms
+- Other uses: "FrameShot – Photos from Videos" (iOS), "Video to Picture – Frame Shot" (Android), several GitHub projects named frameshot.
+
+Consequences: brand searches will be shared with existing extensions, store reviewers or other owners may raise impersonation/IP concerns (https://developer.chrome.com/docs/webstore/program-policies/impersonation-and-intellectual-property), and the trademark filing needs review. Absence of further results is **not** legal clearance. Recommended: check serial 87795731 in USPTO TSDR, search EUIPO eSearch and the WIPO Global Brand Database, have counsel run a clearance search, and consider a more distinctive name before launch.
+
+**Store SEO findings** (applied in [STORE_LISTING.md](STORE_LISTING.md) and the manifest)
+- Leading screenshot extensions target "full page", "screen capture", "screenshot tool", "webpage screenshots / entire page", "scrolling screenshot" and "editor" in their names (GoFullPage, FireShot, Lightshot, and others).
+- Limits: name ≤ 75 characters, summary ≤ 132; listings that repeat a keyword more than about five times get closer review; competitor names and irrelevant keywords are not allowed (https://developer.chrome.com/docs/webstore/program-policies/spam-faq, https://developer.chrome.com/docs/webstore/best-listing).
+- Chosen name: **FrameShot: Free Full Page Screenshot, Screen Capture & Editor** (61 characters). Chosen summary: "Full page screenshot tool: capture scrolling pages, areas & elements. Annotate, blur, export PNG, JPG, PDF. Private, no watermark." (130 characters). "Screen recorder" is not used because FrameShot does not record video.
+

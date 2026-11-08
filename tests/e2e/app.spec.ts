@@ -24,7 +24,7 @@ async function clearLibrary(ext: ExtFixture) {
     const tx = db.transaction(['items', 'blobs', 'docs', 'collections'], 'readwrite');
     for (const s of ['items', 'blobs', 'docs', 'collections']) tx.objectStore(s).clear();
     await new Promise((r) => (tx.oncomplete = r));
-    new BroadcastChannel('frameora-library').postMessage({ kind: 'cleared' });
+    new BroadcastChannel('frameshot-library').postMessage({ kind: 'cleared' });
   });
   await page.close();
 }
@@ -38,7 +38,7 @@ async function captureFixture(ext: ExtFixture, name: string, mode = 'visible'): 
 }
 
 test.beforeEach(async ({ ext }) => {
-  await setSettings(ext.sw, { afterCapture: 'library', defaultFormat: 'png', theme: 'light', filenameTemplate: 'frameora-{domain}-{date}-{time}', pdf: { pageSize: 'a4', marginPt: 24 } });
+  await setSettings(ext.sw, { afterCapture: 'library', defaultFormat: 'png', theme: 'light', filenameTemplate: 'frameshot-{domain}-{date}-{time}', pdf: { pageSize: 'a4', marginPt: 24 } });
 });
 
 test('library: search, filter, favorite, rename, tags, collections, delete', async ({ ext }) => {
@@ -137,7 +137,7 @@ test('library: reopen in editor, bulk export ZIP and combined PDF', async ({ ext
   expect(zip.bytes.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
   const listing = execFileSync('python3', ['-c', 'import sys,zipfile; z=zipfile.ZipFile(sys.argv[1]); assert z.testzip() is None; print("\\n".join(z.namelist()))', zip.path]).toString().trim().split('\n');
   expect(listing).toHaveLength(2);
-  for (const n of listing) expect(n).toMatch(/^frameora-127\.0\.0\.1-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}( \(2\))?\.png$/);
+  for (const n of listing) expect(n).toMatch(/^frameshot-127\.0\.0\.1-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}( \(2\))?\.png$/);
 
   // One combined PDF.
   before = await lastDownloadId(ext);
@@ -244,12 +244,12 @@ test('keyboard shortcut commands start captures and are declared in the manifest
 
   const { page, tabId } = await openFixture(ext, 'long.html');
   const since = ((await getStatus(ext.sw)) as { updatedAt?: number }).updatedAt ?? 0;
-  await ext.sw.evaluate((id) => (globalThis as unknown as { __frameoraTest: { command(c: string, t?: number): Promise<void> } }).__frameoraTest.command('capture-visible', id), tabId);
+  await ext.sw.evaluate((id) => (globalThis as unknown as { __frameshotTest: { command(c: string, t?: number): Promise<void> } }).__frameshotTest.command('capture-visible', id), tabId);
   const status = await waitForResult(ext.sw, 30_000, since);
   expect(status.phase, status.message).toBe('done');
 
   // open-library opens (or focuses) the Studio.
-  await ext.sw.evaluate(() => (globalThis as unknown as { __frameoraTest: { command(c: string): Promise<void> } }).__frameoraTest.command('open-library'));
+  await ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { command(c: string): Promise<void> } }).__frameshotTest.command('open-library'));
   await expect.poll(() => ext.context.pages().some((p) => p.url().includes('studio.html#/'))).toBe(true);
   await page.close();
 });
@@ -293,7 +293,7 @@ test('settings: theme, default format, filename template and clear data', async 
   // Settings persist across reloads.
   await page.reload();
   await expect(page.locator('html')).toHaveClass(/dark/);
-  await setSettings(ext.sw, { theme: 'light', defaultFormat: 'png', filenameTemplate: 'frameora-{domain}-{date}-{time}' });
+  await setSettings(ext.sw, { theme: 'light', defaultFormat: 'png', filenameTemplate: 'frameshot-{domain}-{date}-{time}' });
   await page.close();
 });
 

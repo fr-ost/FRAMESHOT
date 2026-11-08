@@ -12,6 +12,8 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import { LIBRARY_CHANNEL, type LibraryEvent } from '../core/messages';
 import type { Collection, LibraryItem } from '../core/types';
 
+// Database name kept from the product's former name (Frameora) so existing
+// screenshot libraries survive the rename to FrameShot.
 export const DB_NAME = 'frameora';
 export const DB_VERSION = 1;
 
@@ -21,18 +23,18 @@ export interface StoredDoc {
   updatedAt: number;
 }
 
-interface FrameoraDB extends DBSchema {
+interface FrameShotDB extends DBSchema {
   items: { key: string; value: LibraryItem; indexes: { createdAt: number } };
   blobs: { key: string; value: Blob };
   docs: { key: string; value: StoredDoc };
   collections: { key: string; value: Collection };
 }
 
-let dbPromise: Promise<IDBPDatabase<FrameoraDB>> | null = null;
+let dbPromise: Promise<IDBPDatabase<FrameShotDB>> | null = null;
 
-export function getDb(): Promise<IDBPDatabase<FrameoraDB>> {
+export function getDb(): Promise<IDBPDatabase<FrameShotDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<FrameoraDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB<FrameShotDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('items')) {
           const items = db.createObjectStore('items', { keyPath: 'id' });

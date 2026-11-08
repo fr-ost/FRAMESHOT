@@ -9,7 +9,7 @@ export async function openEditor(ext: ExtFixture, itemId: string): Promise<Page>
   await page.setViewportSize({ width: 1400, height: 900 });
   await page.goto(`chrome-extension://${ext.extId}/studio.html#/edit/${encodeURIComponent(itemId)}`);
   await page.waitForSelector('[data-testid=editor-canvas]');
-  await page.waitForFunction(() => !!(window as unknown as { __frameoraEditor?: unknown }).__frameoraEditor);
+  await page.waitForFunction(() => !!(window as unknown as { __frameshotEditor?: unknown }).__frameshotEditor);
   await page.waitForTimeout(200);
   return page;
 }
@@ -26,7 +26,7 @@ export interface EditorSnapshot {
 
 export function editorState(page: Page): Promise<EditorSnapshot> {
   return page.evaluate(() => {
-    const s = (window as unknown as { __frameoraEditor: { getState(): any } }).__frameoraEditor.getState();
+    const s = (window as unknown as { __frameshotEditor: { getState(): any } }).__frameshotEditor.getState();
     return {
       objects: s.doc.objects.map((o: { type: string; id: string }) => ({ type: o.type, id: o.id })),
       output: s.doc.output,
@@ -43,7 +43,7 @@ export function editorState(page: Page): Promise<EditorSnapshot> {
 export function toScreen(page: Page, x: number, y: number): Promise<{ x: number; y: number }> {
   return page.evaluate(
     ([dx, dy]) => {
-      const s = (window as unknown as { __frameoraEditor: { getState(): any } }).__frameoraEditor.getState();
+      const s = (window as unknown as { __frameshotEditor: { getState(): any } }).__frameshotEditor.getState();
       const r = document.querySelector('[data-testid=editor-canvas]')!.getBoundingClientRect();
       return { x: r.left + dx * s.view.zoom + s.view.panX, y: r.top + dy * s.view.zoom + s.view.panY };
     },
@@ -143,7 +143,7 @@ export async function imageStats(page: Page, bytes: Buffer, regions: { x: number
   ) as Promise<{ width: number; height: number; regions: RegionStats[] }>;
 }
 
-/** Extracts Flate/PNG-predictor RGB images from a Frameora PDF (test helper). */
+/** Extracts Flate/PNG-predictor RGB images from a FrameShot PDF (test helper). */
 export function extractPdfImages(pdf: Buffer): { width: number; height: number; rgb: Buffer }[] {
   const text = pdf.toString('latin1');
   const out: { width: number; height: number; rgb: Buffer }[] = [];

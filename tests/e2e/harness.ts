@@ -1,6 +1,6 @@
 /**
  * Shared E2E harness: launches Chromium with the unpacked E2E build of
- * Frameora (identical to production except for host permissions and a test
+ * FrameShot (identical to production except for host permissions and a test
  * hook), serves fixture pages from a local HTTP server, and provides helpers
  * to drive captures and inspect results stored in IndexedDB.
  */
@@ -132,13 +132,13 @@ export interface Status {
 }
 
 export async function getStatus(sw: Worker): Promise<Status> {
-  return sw.evaluate(() => (globalThis as unknown as { __frameoraTest: { status(): Status } }).__frameoraTest.status());
+  return sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { status(): Status } }).__frameshotTest.status());
 }
 
 export async function startCapture(sw: Worker, tabId: number, mode: string, delayMs?: number): Promise<void> {
   await sw.evaluate(
     ([id, m, d]) =>
-      (globalThis as unknown as { __frameoraTest: { start(a: number, b: string, c?: number): Promise<void> } }).__frameoraTest.start(
+      (globalThis as unknown as { __frameshotTest: { start(a: number, b: string, c?: number): Promise<void> } }).__frameshotTest.start(
         id as number,
         m as string,
         d as number | undefined,

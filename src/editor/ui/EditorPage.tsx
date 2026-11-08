@@ -1,5 +1,5 @@
 /**
- * Frameora editor screen: loads a library item, hosts the canvas, tools and
+ * FrameShot editor screen: loads a library item, hosts the canvas, tools and
  * properties, autosaves non-destructive edits, and exports flattened images.
  */
 import {
@@ -47,7 +47,7 @@ import { CanvasView, type CanvasHandle } from './CanvasView';
 import { PropertiesPanel } from './PropertiesPanel';
 import { TOOL_SHORTCUTS, Toolbar } from './Toolbar';
 
-const STYLE_KEY = 'frameora.editor.style';
+const STYLE_KEY = 'frameshot.editor.style';
 
 function loadStyle(): Partial<ToolStyle> {
   try {
@@ -135,9 +135,9 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
   const [showWarnings, setShowWarnings] = useState(true);
   const [name, setName] = useState(item.name);
 
-  if (__FRAMEORA_E2E__) {
+  if (__FRAMESHOT_E2E__) {
     // Test-only hook (compiled out of production builds).
-    (window as unknown as Record<string, unknown>).__frameoraEditor = store;
+    (window as unknown as Record<string, unknown>).__frameshotEditor = store;
   }
 
   // ── Autosave (non-destructive document + refreshed thumbnail) ──
@@ -391,7 +391,7 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
   return (
     <div className="flex h-full flex-col">
       {/* Top bar */}
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
+      <header className="fr-glass relative z-20 flex h-[60px] shrink-0 items-center gap-2 border-b border-border px-3">
         <IconButton label="Back to library" onClick={() => navigate('/')}>
           <ArrowLeft size={18} />
         </IconButton>
@@ -408,7 +408,7 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
               }
             }}
             aria-label="Screenshot name"
-            className="w-full max-w-[520px] truncate rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-fg hover:border-border focus:border-primary focus:outline-none"
+            className="w-full max-w-[520px] truncate rounded-[9px] border border-transparent bg-transparent px-2 py-1 text-[14px] font-semibold tracking-tight text-fg transition-colors hover:border-border hover:bg-surface-2 focus:border-primary focus:bg-surface-solid focus:outline-none"
           />
           <div className="flex items-center gap-2 px-2 text-[11px] text-fg-subtle">
             {item.source?.domain && <span className="truncate">{item.source.domain}</span>}
@@ -422,20 +422,20 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
           </div>
         </div>
 
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5 rounded-[13px] border border-border bg-surface-2 p-[3px]">
           <IconButton label="Undo" shortcut="Ctrl+Z" onClick={store.undo} disabled={!state.canUndo}>
             <Undo2 size={17} />
           </IconButton>
           <IconButton label="Redo" shortcut="Ctrl+Shift+Z" onClick={store.redo} disabled={!state.canRedo}>
             <Redo2 size={17} />
           </IconButton>
-          <div className="mx-1.5 h-6 w-px bg-border" />
+          <div className="mx-1 h-5 w-px bg-border" />
           <IconButton label="Zoom out" shortcut="−" onClick={() => zoomBy(0.8)}>
             <ZoomOut size={17} />
           </IconButton>
           <button
             type="button"
-            className="h-8 w-14 rounded-md text-center text-[12px] font-medium tabular-nums text-fg-muted hover:bg-surface-2"
+            className="fr-press h-8 w-14 rounded-[9px] text-center text-[12px] font-semibold tabular-nums text-fg-muted transition-colors hover:bg-surface-solid hover:text-fg"
             onClick={() => {
               const v = viewport();
               store.actualSize(v.width, v.height);
@@ -451,8 +451,8 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
           <IconButton label="Fit to screen" shortcut="0" onClick={() => fit()}>
             <Maximize size={16} />
           </IconButton>
-          <div className="mx-1.5 h-6 w-px bg-border" />
         </div>
+        <span className="mx-1 h-6 w-px bg-border" aria-hidden />
 
         <Button
           variant="ghost"
@@ -521,7 +521,7 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
       </header>
 
       {(item.group || (showWarnings && warnings.length > 0)) && (
-        <div className="space-y-2 border-b border-border bg-surface px-4 py-2">
+        <div className="fr-glass relative z-10 space-y-2 border-b border-border px-4 py-2.5">
           {item.group && (
             <div className="flex items-center gap-2 text-[13px] text-fg-muted">
               <Scan size={14} />
@@ -556,7 +556,7 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1">
+      <div className="fr-canvas-bg flex min-h-0 flex-1">
         <Toolbar tool={state.tool} onTool={store.setTool} />
         <div className="relative flex min-w-0 flex-1 flex-col">
           {state.tool === 'crop' && (
@@ -577,8 +577,8 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
           )}
           <CanvasView store={store} base={base} dark={dark} handleRef={canvasHandle} onReady={(size) => fit(size)} />
           {busy && (
-            <div className="pointer-events-none absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#18181b]/90 px-4 py-2 text-[13px] text-white shadow-pop">
-              <Spinner /> {busy}
+            <div className="fr-glass fr-animate-in pointer-events-none absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-border px-4 py-2.5 text-[13px] font-medium shadow-pop">
+              <Spinner className="text-primary" /> {busy}
             </div>
           )}
         </div>
@@ -604,7 +604,7 @@ function CropBar({ onApply, onCancel, onAspect }: { onApply: () => void; onCance
   const [aspect, setAspect] = useState<string>('free');
   const ratios: Record<string, number | null> = { free: null, '1:1': 1, '4:3': 4 / 3, '16:9': 16 / 9, '9:16': 9 / 16 };
   return (
-    <div className="absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-border bg-surface px-2 py-1.5 shadow-pop">
+    <div className="fr-glass fr-animate-in absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-2 rounded-[16px] border border-border px-2 py-1.5 shadow-pop">
       <span className="px-1 text-[13px] font-medium text-fg-muted">Crop</span>
       <div role="radiogroup" aria-label="Aspect ratio" className="flex gap-0.5">
         {Object.keys(ratios).map((k) => (
@@ -617,7 +617,7 @@ function CropBar({ onApply, onCancel, onAspect }: { onApply: () => void; onCance
               setAspect(k);
               onAspect(ratios[k]);
             }}
-            className={cx('h-7 rounded-md px-2 text-[12px] font-medium', aspect === k ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-subtle hover:bg-surface-2')}
+            className={cx('fr-press h-7 rounded-[8px] px-2.5 text-[12px] font-medium transition-colors', aspect === k ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-subtle hover:bg-surface-2')}
           >
             {k === 'free' ? 'Free' : k}
           </button>

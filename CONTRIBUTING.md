@@ -1,6 +1,6 @@
-# Contributing to Frameora
+# Contributing to FrameShot
 
-Thanks for helping make Frameora better. These rules keep the product what it promises to be.
+Thanks for helping make FrameShot better. These rules keep the product what it promises to be.
 
 ## Non-negotiable principles
 
@@ -52,7 +52,7 @@ npm run test:e2e
 - Add unit tests for any pure logic you change.
 - Add or extend E2E tests (`tests/e2e/`) for user-visible behaviour. Prefer pixel-level verification with the band fixtures over screenshot comparisons.
 - Never skip, disable, or weaken a test to get a green run. Fix the cause.
-- Test hooks must stay behind `__FRAMEORA_E2E__`.
+- Test hooks must stay behind `__FRAMESHOT_E2E__`.
 
 ## Commits and pull requests
 
@@ -62,4 +62,4 @@ npm run test:e2e
 
 ## Reporting bugs
 
-Include your Chrome version, OS, display scale and zoom, the page or kind of page (if shareable), the capture mode, and the message Frameora showed. **Never attach screenshots that contain private information.** For security issues see [SECURITY.md](SECURITY.md).
+Include your Chrome version, OS, display scale and zoom, the page or kind of page (if shareable), the capture mode, and the message FrameShot showed. **Never attach screenshots that contain private information.** For security issues see [SECURITY.md](SECURITY.md).

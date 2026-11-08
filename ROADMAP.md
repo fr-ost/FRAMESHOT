@@ -1,6 +1,6 @@
-# Frameora Roadmap
+# FrameShot Roadmap
 
-Frameora is free forever. Nothing on this roadmap will ever become a paid feature, and nothing here adds accounts, cloud storage, or tracking unless it is explicitly optional and local-first.
+FrameShot is free forever. Nothing on this roadmap will ever become a paid feature, and nothing here adds accounts, cloud storage, or tracking unless it is explicitly optional and local-first.
 
 ## Shipped in 1.0.0
 
@@ -20,7 +20,7 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 | Item | Why it is deferred / what it needs |
 |---|---|
 | **Local OCR and searchable screenshot text** | Needs a bundled OCR engine (for example Tesseract compiled to WASM, plus language data of several MB) and `'wasm-unsafe-eval'` in the extension CSP. Text recognition must stay 100% local. Deferred to keep 1.0 small and the CSP strict. |
-| **Batch capture of several tabs** | Capturing tabs the user did not invoke Frameora on requires host permissions. Planned as an *optional* permission requested only when the feature is used. |
+| **Batch capture of several tabs** | Capturing tabs the user did not invoke FrameShot on requires host permissions. Planned as an *optional* permission requested only when the feature is used. |
 | **Export presets** (named format/quality/size combinations) | The settings model supports it; it needs UI and storage work. |
 | **More metadata options** | Canvas re-encoding already drops EXIF and other embedded metadata from exports. Options to *add* metadata (title, source URL) to PNG/PDF exports are not implemented. |
 | **Web Worker for heavy effects** | Blur and pixelation run on the main thread. Very large effect regions (tens of megapixels) can make the editor pause briefly. Moving `boxBlur`/`pixelate` to a worker is planned. |
@@ -37,10 +37,10 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 - Capturing `chrome://` pages, other extensions' pages, or the Chrome Web Store.
 - Capturing faster than two frames per second (Chrome's `captureVisibleTab` quota).
 - Adjusting sticky or fixed elements inside cross-origin iframes or closed shadow roots.
-- Single images larger than the browser's canvas limits. Frameora splits or scales instead.
+- Single images larger than the browser's canvas limits. FrameShot splits or scales instead.
 
 ## Release hygiene backlog
 
-- Formal trademark clearance for the "Frameora" name (see [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) §8) before public launch.
+- Formal trademark clearance for the "FrameShot" name (see [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) §8) before public launch.
 - Store screenshots and promotional tiles produced from real captures.
 - A CI workflow running `npm test` and `npm run test:e2e` on every push.

@@ -8,7 +8,7 @@ const date = new Date(2026, 10, 7, 9, 5, 3);
 
 describe('filename templates', () => {
   it('renders tokens', () => {
-    expect(renderTemplate('frameora-{domain}-{date}-{time}', { date, domain: 'www.example.com' })).toBe('frameora-example.com-2026-11-07-09-05-03');
+    expect(renderTemplate('frameshot-{domain}-{date}-{time}', { date, domain: 'www.example.com' })).toBe('frameshot-example.com-2026-11-07-09-05-03');
     expect(renderTemplate('{mode}_{width}x{height}', { mode: 'full', width: 1280.4, height: 7200 })).toBe('full_1280x7200');
   });
 
@@ -20,20 +20,20 @@ describe('filename templates', () => {
   });
 
   it('builds safe filenames with the right extension', () => {
-    expect(buildFilename('frameora-{domain}', { domain: 'example.com' }, 'jpeg')).toBe('frameora-example.com.jpg');
-    expect(buildFilename('{title}', { title: '' }, 'png')).toBe('frameora-screenshot.png');
-    expect(buildFilename('frameora--{domain}--', { domain: '' }, 'pdf')).toBe('frameora.pdf');
-    expect(buildFilename('{title}', { title: 'CON' }, 'png')).toBe('frameora-screenshot.png');
+    expect(buildFilename('frameshot-{domain}', { domain: 'example.com' }, 'jpeg')).toBe('frameshot-example.com.jpg');
+    expect(buildFilename('{title}', { title: '' }, 'png')).toBe('frameshot-screenshot.png');
+    expect(buildFilename('frameshot--{domain}--', { domain: '' }, 'pdf')).toBe('frameshot.pdf');
+    expect(buildFilename('{title}', { title: 'CON' }, 'png')).toBe('frameshot-screenshot.png');
     expect(buildFilename('a'.repeat(300), {}, 'webp')).toHaveLength(120 + 5);
   });
 
   it('sanitizes control and reserved characters', () => {
     expect(sanitizeBasename('  ..bad\u0000name?*.  ')).toBe('badname');
-    expect(sanitizeBasename('...')).toBe('frameora-screenshot');
+    expect(sanitizeBasename('...')).toBe('frameshot-screenshot');
   });
 
   it('joins folders and de-duplicates batch names', () => {
-    expect(withFolder('Frameora', 'a.png')).toBe('Frameora/a.png');
+    expect(withFolder('FrameShot', 'a.png')).toBe('FrameShot/a.png');
     expect(withFolder('', 'a.png')).toBe('a.png');
     expect(uniquifyNames(['a.png', 'A.png', 'b.png', 'a.png'])).toEqual(['a.png', 'A (2).png', 'b.png', 'a (3).png']);
   });
@@ -82,7 +82,7 @@ describe('settings validation', () => {
   it('sanitizes download folders to safe relative paths', () => {
     expect(sanitizeFolder('../../etc/passwd')).toBe('etc/passwd');
     expect(sanitizeFolder('C:\\Users\\me')).toBe('C/Users/me');
-    expect(sanitizeFolder(' Frameora / Shots? ')).toBe('Frameora/Shots');
+    expect(sanitizeFolder(' FrameShot / Shots? ')).toBe('FrameShot/Shots');
     expect(sanitizeFolder(42)).toBe('');
   });
 });

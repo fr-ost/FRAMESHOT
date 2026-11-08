@@ -9,7 +9,7 @@ import tailwindcss from '@tailwindcss/vite';
  *   2. A tiny test hook is exposed on the service worker global.
  * Production builds never contain either.
  */
-const E2E = process.env.FRAMEORA_E2E === '1';
+const E2E = process.env.FRAMESHOT_E2E === '1';
 
 // Strict CSP for every extension page and the service worker. `connect-src`
 // only allows the extension itself plus blob:/data: URLs, so extension pages
@@ -36,18 +36,19 @@ export default defineConfig({
   imports: false,
   modules: ['@wxt-dev/module-react'],
   zip: {
-    artifactTemplate: 'frameora-{{version}}-chrome.zip',
+    artifactTemplate: 'frameshot-{{version}}-chrome.zip',
   },
   manifest: () => ({
-    name: 'Frameora: Free Screenshot & Full Page Capture',
-    short_name: 'Frameora',
+    // Written for Chrome Web Store search (see STORE_LISTING.md, "SEO").
+    name: 'FrameShot: Free Full Page Screenshot, Screen Capture & Editor',
+    short_name: 'FrameShot',
     description:
-      'Capture, edit, organize, and export screenshots with a complete browser-based toolkit. Free forever. Local-first.',
+      'Full page screenshot tool: capture scrolling pages, areas & elements. Annotate, blur, export PNG, JPG, PDF. Private, no watermark.',
     minimum_chrome_version: '116',
     permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage', 'downloads', 'contextMenus'],
     ...(E2E ? { host_permissions: ['<all_urls>'] } : {}),
     action: {
-      default_title: 'Frameora — capture a screenshot',
+      default_title: 'FrameShot — capture a screenshot',
     },
     icons: {
       16: 'icon/16.png',
@@ -75,7 +76,7 @@ export default defineConfig({
         suggested_key: { default: 'Alt+Shift+E' },
         description: 'Capture an element',
       },
-      'open-studio': { description: 'Open Frameora Studio' },
+      'open-studio': { description: 'Open FrameShot Studio' },
       'open-library': { description: 'Open screenshot library' },
       'cancel-capture': { description: 'Cancel the active capture' },
     },
@@ -83,7 +84,7 @@ export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
     define: {
-      __FRAMEORA_E2E__: JSON.stringify(E2E),
+      __FRAMESHOT_E2E__: JSON.stringify(E2E),
     },
     build: {
       // Keep output readable for Chrome Web Store review; no source maps in prod.

@@ -66,7 +66,7 @@ const PROTECTED_PAGE_MESSAGE =
 
 /**
  * Converts raw Chrome API errors into user-facing explanations. `urlKnown`
- * tells whether Chrome exposed the tab URL to us: when Frameora is invoked on
+ * tells whether Chrome exposed the tab URL to us: when FrameShot is invoked on
  * a normal page the URL is visible, so a hidden URL plus a permission error
  * means the page is protected by Chrome.
  */
@@ -82,10 +82,10 @@ export function friendlyCaptureError(raw: string, urlKnown = true): string {
     return PROTECTED_PAGE_MESSAGE;
   }
   if (m.includes('activetab') || m.includes('permission') || m.includes('not been invoked')) {
-    return 'Frameora needs you to start the capture from the toolbar button, the right-click menu, or a keyboard shortcut on this tab.';
+    return 'FrameShot needs you to start the capture from the toolbar button, the right-click menu, or a keyboard shortcut on this tab.';
   }
   if (m.includes('file://') || m.includes('file:')) {
-    return 'To capture local files, enable "Allow access to file URLs" for Frameora in chrome://extensions.';
+    return 'To capture local files, enable "Allow access to file URLs" for FrameShot in chrome://extensions.';
   }
   if (m.includes('no tab with id') || m.includes('tab was closed')) {
     return 'The tab was closed before the capture finished.';

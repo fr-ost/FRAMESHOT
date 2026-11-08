@@ -67,8 +67,8 @@ export function ColorPicker({
             title={NAMES[c] ?? c}
             onClick={() => onChange(c)}
             className={cx(
-              'h-6 w-6 rounded-full border border-black/10 dark:border-white/15',
-              value?.toLowerCase() === c && 'ring-2 ring-primary ring-offset-2 ring-offset-surface',
+              'fr-press h-6 w-6 rounded-full border border-black/10 transition-transform duration-200 hover:scale-110 dark:border-white/15',
+              value?.toLowerCase() === c && 'scale-110 ring-2 ring-primary ring-offset-2 ring-offset-surface',
             )}
             style={{ background: c }}
           />

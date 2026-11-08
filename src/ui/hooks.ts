@@ -1,8 +1,9 @@
 /** Shared React hooks: settings, theme, hash routing, object URLs. */
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { flushSync } from 'react-dom';
 import { DEFAULT_SETTINGS, loadSettings, onSettingsChanged, sanitizeSettings, type Settings, type ThemeSetting } from '../core/settings';
 
-const THEME_CACHE_KEY = 'frameora.theme';
+const THEME_CACHE_KEY = 'frameshot.theme';
 
 /** Applies the theme class synchronously from a local cache to avoid a flash. */
 export function bootstrapTheme(): void {
@@ -87,18 +88,54 @@ export function parseRoute(hash: string): Route {
   }
 }
 
+// The current route lives in a tiny store so navigation can re-render
+// synchronously inside a View Transition (fluid page transitions).
+let currentHash = typeof location !== 'undefined' ? location.hash : '';
+const routeListeners = new Set<() => void>();
+
+function emitRoute(): void {
+  for (const l of routeListeners) l();
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('hashchange', () => {
+    if (location.hash === currentHash) return;
+    currentHash = location.hash;
+    emitRoute();
+  });
+}
+
 function subscribeHash(cb: () => void): () => void {
-  window.addEventListener('hashchange', cb);
-  return () => window.removeEventListener('hashchange', cb);
+  routeListeners.add(cb);
+  return () => routeListeners.delete(cb);
 }
 
 export function useRoute(): Route {
-  const hash = useSyncExternalStore(subscribeHash, () => location.hash);
+  const hash = useSyncExternalStore(subscribeHash, () => currentHash);
   return parseRoute(hash);
 }
 
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
+
+type ViewTransitionDoc = Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+
 export function navigate(path: string): void {
-  location.hash = path.startsWith('#') ? path : `#${path}`;
+  const next = path.startsWith('#') ? path : `#${path}`;
+  if (next === currentHash) return;
+  const apply = () => {
+    history.pushState(null, '', next);
+    currentHash = next;
+    // Render the new screen synchronously so the transition captures it.
+    flushSync(emitRoute);
+  };
+  const doc = document as ViewTransitionDoc;
+  if (doc.startViewTransition && !prefersReducedMotion() && document.visibilityState === 'visible') {
+    doc.startViewTransition(apply);
+  } else {
+    apply();
+  }
 }
 
 /** Creates an object URL for a blob and revokes it on change/unmount. */

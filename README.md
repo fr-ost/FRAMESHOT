@@ -1,16 +1,16 @@
-# Frameora
+# FrameShot
 
-**Frameora: Free Screenshot & Full Page Capture** — by Unique Labs
+**FrameShot: Free Full Page Screenshot, Screen Capture & Editor** — by Unique Labs
 
 > Capture the web. Edit every detail. Free forever.
 
-Frameora is a local-first Chrome extension (Manifest V3) for capturing, editing, organizing, and exporting screenshots. It combines a quick-capture toolbar popup with **Frameora Studio**, a full application that opens in its own tab: a screenshot library, an editor with annotation and privacy tools, a composer for polished visuals, and an export engine.
+FrameShot is a local-first Chrome extension (Manifest V3) for capturing, editing, organizing, and exporting screenshots. It combines a quick-capture toolbar popup with **FrameShot Studio**, a full application that opens in its own tab: a screenshot library, an editor with annotation and privacy tools, a composer for polished visuals, and an export engine.
 
 Every feature is available to every user. There are no paid plans, premium tiers, subscriptions, watermarks, accounts, ads, or locked features. Screenshots stay on your device.
 
 *Useful technology. Accessible to everyone.*
 
-> **Naming notice.** The name "Frameora" has not been legally cleared. Research (see [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) §8) found no exact use of "Frameora", but it found a **moderate risk** from the registered mark **FRAMEO** (frameo ApS; photo-frame and photo software, Classes 9/42), which is fully contained in the first six letters. A formal clearance search by trademark counsel is recommended **before public launch**. "Frameora" is used here as the working name.
+> **Naming notice — please read before publishing.** The name "FrameShot" has **not** been legally cleared, and a check on 2026-11-08 found a **high** conflict risk: the Chrome Web Store already lists a screenshot extension named "FrameShot" and two other "Frameshot" capture extensions, a near-identical competitor is called "FramedShot", and a US trademark filing for FRAMESHOT (serial 87795731, photo software) exists. Expect search results for the brand to be shared, and possible IP complaints. Have trademark counsel run a clearance search, and consider a more distinctive name, **before public launch**. Details: [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md), addendum.
 
 ---
 
@@ -43,7 +43,7 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 - **Selected area**: drag to select, resize or move with handles, and scroll the page to extend the selection beyond the viewport. Multi-frame stitching is used when needed.
 - **Element**: hover to highlight any DOM element, use ↑/↓ to step to its parent or child, and click to capture it.
 - **Scrolling panel**: captures the full content of an inner scroll container, such as a chat panel, table, or feed.
-- **Honest oversize handling**: pages larger than the browser can hold in one image are saved as several full-resolution parts (default), or scaled into one image. Frameora always tells you which happened, and never truncates silently.
+- **Honest oversize handling**: pages larger than the browser can hold in one image are saved as several full-resolution parts (default), or scaled into one image. FrameShot always tells you which happened, and never truncates silently.
 - Start captures from the toolbar popup, the right-click menu, or keyboard shortcuts. Press **Esc** on the page to cancel.
 
 ### Editor
@@ -80,6 +80,9 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 ### Settings
 Theme (system, light, dark), default format and quality, filename template, download folder, ask where to save, capture behaviour (fixed-element handling, lazy-content preload, animation freezing, horizontal overflow, scroll delay, maximum height, oversize handling, what happens after a capture), PDF page size and margin, a keyboard shortcut overview, storage, privacy, and about.
 
+### Interface
+A calm, minimal design over a slowly drifting aurora background: glass surfaces, one gradient accent, and fluid motion — page transitions, animated dialogs, menus and toasts, staggered card entrances, and hover and press feedback. Light and dark themes (or follow the system), with a one-click theme switch in the library. All animation is turned off when your system asks for reduced motion.
+
 ---
 
 ## Installation
@@ -99,7 +102,7 @@ npm run build
 1. Open `chrome://extensions` in Chrome.
 2. Turn on **Developer mode**.
 3. Click **Load unpacked** and choose the `.output/chrome-mv3` folder.
-4. Pin Frameora: open the puzzle-piece menu and click the pin.
+4. Pin FrameShot: open the puzzle-piece menu and click the pin.
 
 ### Packaged ZIP
 
@@ -107,7 +110,7 @@ npm run build
 npm run zip
 ```
 
-This produces `.output/frameora-1.0.1-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+This produces `.output/frameshot-1.1.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ### Keyboard shortcuts
 
@@ -135,7 +138,7 @@ npm run dev
 |---|---|
 | `npm run dev` | WXT dev mode (development build with reload) |
 | `npm run build` | Production build → `.output/chrome-mv3` |
-| `npm run zip` | Production ZIP → `.output/frameora-<version>-chrome.zip` |
+| `npm run zip` | Production ZIP → `.output/frameshot-<version>-chrome.zip` |
 | `npm run build:e2e` | E2E test build → `.output/chrome-mv3-e2e` |
 | `npm run compile` | TypeScript type check (`tsc --noEmit`) |
 | `npm test` | Unit tests (Vitest) |
@@ -159,7 +162,7 @@ npm run test:e2e
 - **Unit tests** (Vitest, Node) cover the stitching planner, geometry, settings validation, filename templates, pixel effects, editor transforms and store, object geometry, PDF and ZIP writers, IndexedDB storage (`fake-indexeddb`), composer layout, and annotation rendering.
 - **End-to-end tests** (Playwright) load the unpacked extension into Chromium (channel `chromium`, new headless mode; Chrome for Testing). They drive real captures against deterministic fixture pages, then verify the stitched output **pixel by pixel**. They also verify exported PNG/JPEG/WebP/PDF files and the clipboard contents (including that redacted pixels are gone), plus the library, composer, popup, settings, shortcuts, CSP network blocking, and offline use.
 - Branded Google Chrome 137+ no longer supports `--load-extension`, so automated tests use Playwright's Chromium (Chrome for Testing).
-- The E2E build is identical to production except for two things. It adds `host_permissions: ["<all_urls>"]`, because automation cannot click the toolbar to grant `activeTab`. It also includes test hooks (`__frameoraTest` on the service worker, `__frameoraEditor` on the editor window), compiled in only when `__FRAMEORA_E2E__` is true. Production builds contain neither.
+- The E2E build is identical to production except for two things. It adds `host_permissions: ["<all_urls>"]`, because automation cannot click the toolbar to grant `activeTab`. It also includes test hooks (`__frameshotTest` on the service worker, `__frameshotEditor` on the editor window), compiled in only when `__FRAMESHOT_E2E__` is true. Production builds contain neither.
 
 Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
 
@@ -177,7 +180,7 @@ Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
                                                 │ IndexedDB (images, thumbnails, metadata)
                                                 ▼
                                    ┌──────────────────────────┐
-                                   │ Frameora Studio (tab)    │  library · editor · composer · settings
+                                   │ FrameShot Studio (tab)    │  library · editor · composer · settings
                                    └──────────────────────────┘
 ```
 
@@ -206,7 +209,7 @@ Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 - **Nothing leaves your device.** There are no servers, accounts, analytics, telemetry, tracking, ads, or remote code.
 - Screenshots, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
 - Extension pages run under a strict Content Security Policy that **blocks all network connections** (`connect-src 'self' blob: data:`). This is verified by an automated test.
-- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. There are **no host permissions**, so Frameora can access a tab only when you start a capture on it.
+- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it.
 - Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
 
 See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
@@ -216,18 +219,18 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 ## Current limitations
 
 **Unsupported because of browser restrictions**
-- Chrome doesn't allow extensions to capture `chrome://` pages, other extensions' pages, the Chrome Web Store, or some built-in pages. Frameora explains this instead of failing silently.
-- Local `file://` pages require **Allow access to file URLs** to be turned on for Frameora in `chrome://extensions`.
+- Chrome doesn't allow extensions to capture `chrome://` pages, other extensions' pages, the Chrome Web Store, or some built-in pages. FrameShot explains this instead of failing silently.
+- Local `file://` pages require **Allow access to file URLs** to be turned on for FrameShot in `chrome://extensions`.
 - Chrome limits screenshots to **two per second** per extension. A full-page capture therefore takes about half a second per screen of content.
 - Canvas size is limited (up to 32,767 px per side, with a memory budget of about 100 megapixels per image). Larger pages are split into parts or scaled down, depending on your settings.
 - The tab must stay visible during a multi-frame capture. Switching tabs, minimizing the window, or resizing or zooming stops the capture with a clear message.
 
 **Known limitations**
-- On app-shell pages, Frameora captures the full content of the main scrolling panel. Fixed app chrome around that panel (toolbars, sidebars) is not repeated.
+- On app-shell pages, FrameShot captures the full content of the main scrolling panel. Fixed app chrome around that panel (toolbars, sidebars) is not repeated.
 - Sticky and fixed elements inside cross-origin iframes or closed shadow DOM are not adjusted. Open shadow roots are handled.
-- Pages that keep changing while they are captured (auto-rotating carousels, live feeds) may show changes between frames. Frameora warns when page height changes. If it cannot prove the image is complete, it refuses to save and asks you to retry.
+- Pages that keep changing while they are captured (auto-rotating carousels, live feeds) may show changes between frames. FrameShot warns when page height changes. If it cannot prove the image is complete, it refuses to save and asks you to retry.
 - Blur and pixelation can sometimes be reversed for short or predictable text. Use **Redact** for passwords, card numbers, and personal data. The editor shows this warning.
-- "Unlimited captures" means Frameora sets no limits. Your disk space, browser storage quota, and memory still apply. Very large captures can be slow on low-memory machines.
+- "Unlimited captures" means FrameShot sets no limits. Your disk space, browser storage quota, and memory still apply. Very large captures can be slow on low-memory machines.
 - Keyboard shortcuts depend on Chrome assigning them. Conflicting shortcuts stay unset until you choose them.
 - English only for now.
 
@@ -257,4 +260,8 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 
 ---
 
-Frameora by Unique Labs. Free forever.
+FrameShot by Unique Labs. Free forever.
+
+---
+
+A Product of Unique Labs. Developed by [Shahriar Ahmed](https://www.shahriarahmed.net).

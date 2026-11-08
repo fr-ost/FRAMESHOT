@@ -21,7 +21,7 @@ interface Browser {
   /** True (fractional) document height in CSS px. */
   contentH: number;
   /**
-   * How the agent reports the visible height: 'exact' models Frameora's agent
+   * How the agent reports the visible height: 'exact' models FrameShot's agent
    * (visualViewport, float32 like Chrome); a rounding function models the
    * fallback to the integer clientHeight.
    */
@@ -91,7 +91,7 @@ describe('full-page stitching under real browser rounding', () => {
     return failures;
   };
 
-  it('never reports missing pixels when the true viewport size is known (Frameora agent)', () => {
+  it('never reports missing pixels when the true viewport size is known (FrameShot agent)', () => {
     const cases = scenarios(['exact'], ['round', 'ceil', 'floor']);
     expect(cases.length).toBe(1200);
     const failures = failuresOf(cases);

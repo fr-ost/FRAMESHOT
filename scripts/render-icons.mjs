@@ -1,4 +1,4 @@
-// Renders the Frameora SVG logo into the PNG icon sizes Chrome requires.
+// Renders the FrameShot SVG logo into the PNG icon sizes Chrome requires.
 // Usage: node scripts/render-icons.mjs  (uses the locally installed Chromium)
 import { chromium } from '@playwright/test';
 import { readFile, mkdir } from 'node:fs/promises';

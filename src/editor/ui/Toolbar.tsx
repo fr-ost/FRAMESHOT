@@ -61,25 +61,31 @@ export const TOOL_SHORTCUTS: Record<string, ToolId> = Object.fromEntries(
 
 export function Toolbar({ tool, onTool }: { tool: ToolId; onTool: (t: ToolId) => void }) {
   return (
-    <nav aria-label="Editing tools" className="fr-scroll flex w-12 shrink-0 flex-col items-center gap-1 overflow-y-auto border-r border-border bg-surface py-2">
-      {TOOL_GROUPS.map((group, gi) => (
-        <div key={gi} className="flex flex-col items-center gap-1">
-          {gi > 0 && <div className="my-1 h-px w-6 bg-border" aria-hidden />}
-          {group.map((t) => (
-            <IconButton
-              key={t.id}
-              label={t.label}
-              shortcut={t.shortcut}
-              active={tool === t.id}
-              tooltipSide="right"
-              onClick={() => onTool(t.id)}
-              data-tool={t.id}
-            >
-              {t.icon}
-            </IconButton>
-          ))}
-        </div>
-      ))}
-    </nav>
+    <div className="relative z-10 flex shrink-0 py-3 pl-3">
+      <nav
+        aria-label="Editing tools"
+        className="fr-glass fr-scroll flex w-[52px] flex-col items-center gap-1 overflow-y-auto rounded-[18px] border border-border py-2 shadow-pop"
+      >
+        {TOOL_GROUPS.map((group, gi) => (
+          <div key={gi} className="flex flex-col items-center gap-1">
+            {gi > 0 && <div className="my-1 h-px w-6 bg-border" aria-hidden />}
+            {group.map((t) => (
+              <IconButton
+                key={t.id}
+                label={t.label}
+                shortcut={t.shortcut}
+                active={tool === t.id}
+                activeStyle="solid"
+                tooltipSide="right"
+                onClick={() => onTool(t.id)}
+                data-tool={t.id}
+              >
+                {t.icon}
+              </IconButton>
+            ))}
+          </div>
+        ))}
+      </nav>
+    </div>
   );
 }

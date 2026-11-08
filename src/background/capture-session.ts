@@ -56,7 +56,7 @@ interface ActiveCapture {
 
 let active: ActiveCapture | null = null;
 
-const PENDING_KEY = 'frameora.pendingPick';
+const PENDING_KEY = 'frameshot.pendingPick';
 
 interface PendingPick {
   session: string;
@@ -347,7 +347,7 @@ async function resolveTarget(
     const m = await callAgent(capture.tabId, { kind: 'agent.measure' });
     const wide = settings.capture.includeHorizontalOverflow && m.scrollWidth > m.viewport.w + 2;
     if (m.mainScroller.type === 'element') {
-      warnings.push('This page scrolls inside a panel, so Frameora captured the full content of that panel.');
+      warnings.push('This page scrolls inside a panel, so FrameShot captured the full content of that panel.');
     }
     return {
       scroller: m.mainScroller,
@@ -470,9 +470,9 @@ function frameStatus(capture: ActiveCapture, done: number, total: number): void 
 
 async function captureLimits(): Promise<CanvasLimits> {
   const limits: CanvasLimits = { ...DEFAULT_CANVAS_LIMITS, maxDimension: Math.min(32767, probeMaxCanvasDimension()) };
-  if (__FRAMEORA_E2E__) {
+  if (__FRAMESHOT_E2E__) {
     // Test-only: lets E2E tests exercise splitting/scaling without huge pages.
-    const o = (await chrome.storage.local.get('frameora.e2e.limits'))['frameora.e2e.limits'] as Partial<CanvasLimits> | undefined;
+    const o = (await chrome.storage.local.get('frameshot.e2e.limits'))['frameshot.e2e.limits'] as Partial<CanvasLimits> | undefined;
     if (o) return { ...limits, ...o };
   }
   return limits;
@@ -687,7 +687,7 @@ async function runFrames(
       if (gaps.length > 0) {
         const missing = Math.round(gaps.reduce((sum, g) => sum + g.h, 0));
         throw new CaptureError(
-          `Frameora could not capture every part of this page (about ${missing.toLocaleString('en-US')} px missing) because the page kept moving or changing. Nothing was saved. Try again, or increase "Delay between scroll steps" in Settings.`,
+          `FrameShot could not capture every part of this page (about ${missing.toLocaleString('en-US')} px missing) because the page kept moving or changing. Nothing was saved. Try again, or increase "Delay between scroll steps" in Settings.`,
           'incomplete',
         );
       }

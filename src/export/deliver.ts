@@ -84,7 +84,7 @@ export async function copyImageBlob(blob: Blob | Promise<Blob>): Promise<void> {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngPromise })]);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    if (/focus/i.test(message)) throw new Error('Click inside the Frameora window and try copying again.');
+    if (/focus/i.test(message)) throw new Error('Click inside the FrameShot window and try copying again.');
     if (/denied|not allowed|permission/i.test(message)) throw new Error('Clipboard access was blocked by the browser.');
     throw new Error(`Could not copy the image: ${message}`);
   }

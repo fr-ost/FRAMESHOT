@@ -34,7 +34,7 @@ test.beforeEach(async ({ ext }) => {
     afterCapture: 'library',
     capture: { fixedElements: 'smart', preloadLazyContent: true, maxPageHeight: 60000, oversize: 'split', settleDelayMs: 100 },
   });
-  await ext.sw.evaluate(() => chrome.storage.local.remove('frameora.e2e.limits'));
+  await ext.sw.evaluate(() => chrome.storage.local.remove('frameshot.e2e.limits'));
 });
 
 test('visible capture matches the viewport', async ({ ext }) => {
@@ -248,7 +248,7 @@ test('maximum height limit is applied and reported honestly', async ({ ext }) =>
 });
 
 test('pages beyond canvas limits are split into parts at full resolution', async ({ ext }) => {
-  await ext.sw.evaluate(() => chrome.storage.local.set({ 'frameora.e2e.limits': { maxPixels: 1280 * 3000 } }));
+  await ext.sw.evaluate(() => chrome.storage.local.set({ 'frameshot.e2e.limits': { maxPixels: 1280 * 3000 } }));
   const { page, tabId } = await openFixture(ext, 'long.html');
   const status = await captureAndWait(ext, tabId, 'full');
   expect(status.phase, status.message).toBe('done');
@@ -270,7 +270,7 @@ test('pages beyond canvas limits are split into parts at full resolution', async
 });
 
 test('oversize "scale" mode produces one scaled image', async ({ ext }) => {
-  await ext.sw.evaluate(() => chrome.storage.local.set({ 'frameora.e2e.limits': { maxPixels: 1280 * 3000 } }));
+  await ext.sw.evaluate(() => chrome.storage.local.set({ 'frameshot.e2e.limits': { maxPixels: 1280 * 3000 } }));
   await setSettings(ext.sw, { capture: { oversize: 'scale' } });
   const { page, tabId } = await openFixture(ext, 'long.html');
   const status = await captureAndWait(ext, tabId, 'full');
@@ -290,7 +290,7 @@ test('cancel restores the page and saves nothing', async ({ ext }) => {
   const before = await pageState(page);
   await startCapture(ext.sw, tabId, 'full');
   await page.waitForTimeout(1500);
-  await ext.sw.evaluate(() => (globalThis as unknown as { __frameoraTest: { cancel(): void } }).__frameoraTest.cancel());
+  await ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { cancel(): void } }).__frameshotTest.cancel());
   const status = await waitForResult(ext.sw);
   expect(status.phase).toBe('cancelled');
   await page.waitForTimeout(300);
@@ -320,7 +320,7 @@ test('stop & save keeps what was captured and labels it partial', async ({ ext }
     if ((s as { frame?: number }).frame && (s as { frame?: number }).frame! >= 3) break;
     await page.waitForTimeout(100);
   }
-  await ext.sw.evaluate(() => (globalThis as unknown as { __frameoraTest: { stop(): void } }).__frameoraTest.stop());
+  await ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { stop(): void } }).__frameshotTest.stop());
   const status = await waitForResult(ext.sw);
   expect(status.phase, status.message).toBe('done');
   expect(status.warnings?.join(' ')).toContain('stopped the capture early');

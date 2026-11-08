@@ -155,7 +155,7 @@ export function assemblePdf(pages: PdfPageSpec[], title?: string): Uint8Array {
   const w = new PdfWriter();
   const catalog = w.reserve();
   const pagesNum = w.reserve();
-  const info = w.addObject(`<< /Producer ${pdfTextString('Frameora by Unique Labs')} /Creator ${pdfTextString('Frameora')}${title ? ` /Title ${pdfTextString(title)}` : ''} /CreationDate ${pdfDate()} >>`);
+  const info = w.addObject(`<< /Producer ${pdfTextString('FrameShot by Unique Labs')} /Creator ${pdfTextString('FrameShot')}${title ? ` /Title ${pdfTextString(title)}` : ''} /CreationDate ${pdfDate()} >>`);
   const kids: number[] = [];
   for (const page of pages) {
     const xobjs: string[] = [];

@@ -142,12 +142,12 @@ export const AGENT_PROTOCOL_VERSION = 1;
 
 // ── Status port ───────────────────────────────────────────────────────────
 
-export const STATUS_PORT = 'frameora-status';
+export const STATUS_PORT = 'frameshot-status';
 export type StatusPortMessage = { kind: 'status'; status: CaptureStatus };
 
 // ── Broadcast channel between extension pages and the service worker ─────
 
-export const LIBRARY_CHANNEL = 'frameora-library';
+export const LIBRARY_CHANNEL = 'frameshot-library';
 export type LibraryEvent =
   | { kind: 'items-changed'; ids?: string[] }
   | { kind: 'collections-changed' }
@@ -163,7 +163,7 @@ export async function sendToBackground<K extends BgKind>(
 ): Promise<Result<BgResponses[K]>> {
   try {
     const response = (await chrome.runtime.sendMessage(message)) as Result<BgResponses[K]> | undefined;
-    if (!response) return fail('No response from Frameora background service.');
+    if (!response) return fail('No response from FrameShot background service.');
     return response;
   } catch (err) {
     return fail(errorMessage(err));

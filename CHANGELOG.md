@@ -2,6 +2,26 @@
 
 All notable changes to Frameora are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-11-08
+
+### Changed
+- **Renamed from Frameora to FrameShot.** Existing screenshots and settings are kept: the screenshot database and settings storage keep their original internal names. Default file names now start with `frameshot-`.
+- **Store title and summary rewritten for Chrome Web Store search:** "FrameShot: Free Full Page Screenshot, Screen Capture & Editor".
+- **Redesigned interface (design system v2):** a slowly drifting aurora background with fine grain, glass surfaces, a single gradient accent, and fluid motion — page transitions (View Transitions API), animated dialogs, menus, tooltips and toasts, staggered card entrances, shimmer loading states, hover lift and press feedback. Every animation is disabled when the system asks for reduced motion.
+- **Dark theme** refined across every screen, with a quick theme switch in the library header and visual theme tiles in Settings.
+- Popup: hero "Full page" action, animated progress ring, self-drawing success check.
+- Library: glass sidebar and header, quick Copy/Download on hover, floating bulk-action bar, skeleton loading.
+- Editor: floating glass tool rail with a gradient active state, dotted canvas, glass panels.
+- Settings: sticky section navigation that follows your scroll.
+- Welcome page: new hero and feature overview.
+- In-page selection overlay: glass hint and toolbar, glowing selection, gradient size badge.
+
+### Added
+- Footer credit: "A Product of Unique Labs. Developed by Shahriar Ahmed", linking to www.shahriarahmed.net (opens in a new tab only when clicked).
+
+### Fixed
+- Two-column layouts that Tailwind v4 ignored (Settings, Library details, editor info) because of a comma in the arbitrary grid value.
+
 ## [1.0.1] — 2026-11-08
 
 ### Fixed

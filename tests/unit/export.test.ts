@@ -22,7 +22,7 @@ describe('PDF writer', () => {
         { width: 400, height: 300, images: [{ image: img, x: 0, y: 0, w: 400, h: 300 }] },
         { width: 595.28, height: 841.89, images: [{ image: img, x: 24, y: 500, w: 200, h: 150 }] },
       ],
-      'Frameora — test ✓',
+      'FrameShot — test ✓',
     );
     const text = Buffer.from(bytes).toString('latin1');
     expect(text.startsWith('%PDF-1.7')).toBe(true);
@@ -30,8 +30,8 @@ describe('PDF writer', () => {
     const doc = await PDFDocument.load(bytes, { updateMetadata: false });
     expect(doc.getPageCount()).toBe(2);
     expect(doc.getPage(1).getSize()).toEqual({ width: 595.28, height: 841.89 });
-    expect(doc.getTitle()).toBe('Frameora — test ✓');
-    expect(doc.getProducer()).toBe('Frameora by Unique Labs');
+    expect(doc.getTitle()).toBe('FrameShot — test ✓');
+    expect(doc.getProducer()).toBe('FrameShot by Unique Labs');
   });
 
   it('has a correct cross-reference table', async () => {
@@ -92,7 +92,7 @@ describe('ZIP writer', () => {
       { name: 'a.png', data: new Uint8Array([1, 2, 3]) },
       { name: 'folder/ünïcode (2).txt', data: new TextEncoder().encode('hello') },
     ]);
-    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'frameora-zip-')), 'test.zip');
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'frameshot-zip-')), 'test.zip');
     fs.writeFileSync(file, zip);
     const out = execFileSync('python3', ['-c', 'import sys,zipfile; z=zipfile.ZipFile(sys.argv[1]); assert z.testzip() is None; print("|".join(z.namelist())); print(z.read("folder/ünïcode (2).txt").decode())', file]).toString();
     expect(out).toContain('a.png|folder/ünïcode (2).txt');

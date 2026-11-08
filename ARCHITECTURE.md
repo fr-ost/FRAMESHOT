@@ -1,6 +1,6 @@
-# Frameora Architecture
+# FrameShot Architecture
 
-This document describes how Frameora is structured and why. All references are to files under `src/`.
+This document describes how FrameShot is structured and why. All references are to files under `src/`.
 
 ## 1. Overview
 
@@ -16,7 +16,7 @@ This document describes how Frameora is structured and why. All references are t
                                                 │                                                                       │
                                                 │ IndexedDB: items / blobs / docs / collections (db/db.ts)              │
                                                 ▼                                                                       │
-                                         Frameora Studio (app/, library/, editor/, composer/, settings/)                │
+                                         FrameShot Studio (app/, library/, editor/, composer/, settings/)                │
                      └────────────────────────────────────────────┬────────────────────────────────────────────────────┘
                                                                    │ chrome.scripting.executeScript (activeTab, on demand)
                                                                    ▼
@@ -63,8 +63,8 @@ All messages are typed discriminated unions.
 | Pages/commands → SW | `BgRequest` | `capture.start {mode, tabId?, delayMs?}`, `capture.cancel`, `capture.stop`, `capture.status`, `studio.open {route}` |
 | Agent → SW | `AgentEvent` | `agent.selection {session, selection}`, `agent.cancelled`, `agent.escape` |
 | SW → agent | `AgentRequest` | `agent.ping`, `agent.measure`, `agent.resolve`, `agent.prepare`, `agent.preload`, `agent.scroll`, `agent.restore`, `agent.pick`, `agent.cancelPick` |
-| SW → popup | `StatusPortMessage` over the `frameora-status` port | `{ kind: 'status', status: CaptureStatus }` |
-| Any → any page | `BroadcastChannel('frameora-library')` | `items-changed`, `collections-changed`, `cleared` |
+| SW → popup | `StatusPortMessage` over the `frameshot-status` port | `{ kind: 'status', status: CaptureStatus }` |
+| Any → any page | `BroadcastChannel('frameshot-library')` | `items-changed`, `collections-changed`, `cleared` |
 
 Responses use `Result<T> = { ok: true, data } | { ok: false, error, code? }`. The SW accepts messages only when `sender.id === chrome.runtime.id`. The agent accepts only `agent.*` messages from its own extension.
 
@@ -93,11 +93,11 @@ One `captureVisibleTab`. The agent measures the viewport (best effort), and the 
    - Full page uses `detectMainScroller()`. If the document doesn't scroll (for example `overflow: hidden` on html/body), the largest visible vertically-scrollable element covering at least 25% of the viewport becomes the main scroller (the app-shell case).
    - Element captures use the nearest scrollable ancestor.
    - Scrolling-panel captures use the element itself.
-2. **Fast path.** If the region is already fully visible, Frameora takes a single frame with **no page modifications and no scrolling**.
+2. **Fast path.** If the region is already fully visible, FrameShot takes a single frame with **no page modifications and no scrolling**.
 3. **Prepare the page** (otherwise):
    - Inject `CAPTURE_CSS` (and optionally `FREEZE_CSS`) with `chrome.scripting.insertCSS({ origin: 'USER' })`, which page CSP cannot block. It disables smooth scrolling and scroll snapping, and defines rules for two marker attributes.
-   - **Sticky elements** get `data-frameora-unstick` and become `position: relative` with `inset: auto`. They then render at their natural position, with the same layout box.
-   - **Fixed elements** are classified as *top* (centre in the upper half, or taller than 80% of the viewport) or *bottom*. In **smart** mode (the default), the first row shows top-anchored ones, the last row shows bottom-anchored ones, middle rows hide both, and a single-row capture shows all. Hiding uses `data-frameora-hide` (`visibility: hidden; opacity: 0`, no transitions), which doesn't affect layout. The captured element, the scroller, and their ancestors and descendants are never hidden.
+   - **Sticky elements** get `data-frameshot-unstick` and become `position: relative` with `inset: auto`. They then render at their natural position, with the same layout box.
+   - **Fixed elements** are classified as *top* (centre in the upper half, or taller than 80% of the viewport) or *bottom*. In **smart** mode (the default), the first row shows top-anchored ones, the last row shows bottom-anchored ones, middle rows hide both, and a single-row capture shows all. Hiding uses `data-frameshot-hide` (`visibility: hidden; opacity: 0`, no transitions), which doesn't affect layout. The captured element, the scroller, and their ancestors and descendants are never hidden.
    - Optional **lazy preload** scrolls through the page in roughly 0.9-viewport steps (25 s budget, bounded by the max-height setting) and waits for images. It then returns to the top and re-measures, which also expands infinite-scroll pages.
 4. **Plan** with `planScrollSteps(region, view, maxScroll, overlap)`. Steps are viewport-sized, row-major, and the last step is aligned to the region's end. A 2 CSS-px overlap is used when the device scale is fractional.
 5. **Run the frames.** For each step:
@@ -111,7 +111,7 @@ One `captureVisibleTab`. The agent measures the viewport (best effort), and the 
    - With equal capture and output scales, source and destination sizes match exactly, so there is no resampling.
    - In the last row, the strip under bottom-anchored fixed elements is repainted so a fixed footer appears exactly once.
    - **Rounding slivers.** A gap next to a frame that is at most `StitchPlanner.sliver` output pixels (one CSS pixel plus one device pixel) is a rounding artifact — for example the last device-pixel row of a page whose real height is 4999.6 px but whose `scrollHeight` reports 5000 — and is filled by repeating the frame's adjacent edge row (`DrawOp.extra`). Larger gaps are never filled this way.
-7. **Verify completeness.** `uncovered()` computes gaps with a sweep line, and up to two rounds of retry frames fill them (`addGapFill`). Retries are aimed with `retryScrollTarget()` so the gap sits a third of the way into the viewport, not at its edge where device-pixel scroll snapping could miss it again. If gaps remain, the capture **fails and nothing is saved**. Frameora never stores a silently incomplete image.
+7. **Verify completeness.** `uncovered()` computes gaps with a sweep line, and up to two rounds of retry frames fill them (`addGapFill`). Retries are aimed with `retryScrollTarget()` so the gap sits a third of the way into the viewport, not at its edge where device-pixel scroll snapping could miss it again. If gaps remain, the capture **fails and nothing is saved**. FrameShot never stores a silently incomplete image.
 8. **Growing and shrinking pages.** During full-page capture, the page height is re-read every frame. The region grows (up to the max-height setting) or shrinks, the remaining steps are re-planned, and a warning is attached.
 9. **User stop.** *Stop & save* truncates to the contiguous painted height and labels the item **partial**, with a warning.
 10. **Restore** (always, in `finally`): remove the attributes, `removeCSS` with the identical CSS strings, and restore the scroll positions of inner scrollers, then the window. Tests compare `documentElement.outerHTML` and scroll positions before and after.
@@ -190,7 +190,7 @@ EditorDoc {
 - `export/service.ts` loads an item with its document, flattens and encodes it, builds the filename, and handles bulk ZIP and combined PDF.
 - JPEG output is flattened onto white, because Chrome would otherwise turn transparency black. Canvas re-encoding drops EXIF metadata.
 
-## 9. Storage schema (`db/db.ts`, database `frameora` v1)
+## 9. Storage schema (`db/db.ts`, database `frameshot` v1)
 
 | Store | Key | Value |
 |---|---|---|
@@ -200,7 +200,7 @@ EditorDoc {
 | `collections` | `id` | `{ id, name, createdAt }` |
 
 - Quota errors become a friendly `StorageFullError`. `unlimitedStorage` is requested so large libraries aren't evicted.
-- Settings live in `chrome.storage.local` under `frameora.settings` and are always passed through `sanitizeSettings`.
+- Settings live in `chrome.storage.local` under `frameshot.settings` and are always passed through `sanitizeSettings`.
 - Small per-device UI preferences (theme cache, editor tool style, composer settings, popup delay) are kept in `localStorage`.
 
 ## 10. Content Security Policy
@@ -211,11 +211,22 @@ font-src 'self'; connect-src 'self' blob: data:; media-src 'self' blob: data:; w
 object-src 'none'; base-uri 'none'; form-action 'none'
 ```
 
-This applies to every extension page and the service worker. `connect-src` makes network requests from Frameora's own contexts impossible; an E2E test checks that `fetch`, beacons, and remote images are blocked. All fonts (Inter) and icons are bundled. There is no remote code.
+This applies to every extension page and the service worker. `connect-src` makes network requests from FrameShot's own contexts impossible; an E2E test checks that `fetch`, beacons, and remote images are blocked. All fonts (Inter) and icons are bundled. There is no remote code.
 
 ## 11. Builds
 
 | Build | Command | Difference |
 |---|---|---|
 | Production | `npm run build`, `npm run zip` | No host permissions, no test hooks |
-| E2E | `npm run build:e2e` (`FRAMEORA_E2E=1`) | Adds `host_permissions: ["<all_urls>"]`, plus `__frameoraTest` on the SW, `__frameoraEditor` on the editor window, and a test-only canvas-limit override, all gated by the compile-time constant `__FRAMEORA_E2E__` |
+| E2E | `npm run build:e2e` (`FRAMESHOT_E2E=1`) | Adds `host_permissions: ["<all_urls>"]`, plus `__frameshotTest` on the SW, `__frameshotEditor` on the editor window, and a test-only canvas-limit override, all gated by the compile-time constant `__FRAMESHOT_E2E__` |
+
+## 12. UI and design system
+
+- **Tokens** (`styles/globals.css`): semantic colors (`--fr-bg`, `--fr-surface`, `--fr-fg`, `--fr-primary`, …) defined for light and dark (`:root.dark`), exposed to Tailwind v4 via `@theme inline`. Components never use raw palette values.
+- **Surfaces:** `.fr-glass` / `.fr-card` (translucent surface + `backdrop-filter`), `.fr-aurora` (fixed, slowly drifting radial gradients plus an SVG grain texture, animated with transforms only so it stays cheap), `.fr-canvas-bg` (dotted grid behind the editor and composer canvases).
+- **Accent:** one gradient (`.fr-accent-bg`, `.fr-accent-text`, `.fr-btn-primary` with a hover sheen), used only for primary actions, active tools, progress and highlights.
+- **Motion:** an expo-out easing (`--fr-ease`) everywhere; Radix enter/exit animations through `data-state` (`.fr-pop`, `.fr-dialog`, `.fr-overlay`); staggered entrances (`.fr-stagger` with `--i`); skeleton shimmer; toasts with enter/leave animations and a time-remaining bar.
+- **Page transitions:** `navigate()` (`ui/hooks.ts`) keeps the route in a tiny store and re-renders synchronously inside `document.startViewTransition`, so screens cross-fade and slide; the aurora has its own `view-transition-name` and stays still. Heavy screens are lazy-loaded and preloaded in idle time.
+- **Accessibility:** all motion is disabled under `prefers-reduced-motion`; focus rings are global; icon-only buttons have labels and tooltips; Radix provides focus management and keyboard navigation for dialogs and menus.
+- **In-page overlay** (`content/overlay.ts`): styled only through CSSOM and animated with the Web Animations API, both of which page CSP cannot block.
+

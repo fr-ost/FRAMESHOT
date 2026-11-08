@@ -12,7 +12,7 @@ let lastCaptureAt = 0;
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export class TabChangedError extends Error {
-  constructor(message = 'The capture stopped because you switched tabs or windows. Keep the tab visible while Frameora captures it.') {
+  constructor(message = 'The capture stopped because you switched tabs or windows. Keep the tab visible while FrameShot captures it.') {
     super(message);
     this.name = 'TabChangedError';
   }

@@ -51,9 +51,9 @@ function contextFor(state: EditorState): Ctx {
 
 function Section({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
   return (
-    <section className="border-b border-border px-4 py-3.5">
-      <div className="mb-2.5 flex items-center justify-between">
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">{title}</h3>
+    <section className="fr-fade border-b border-border px-4 py-4 last:border-b-0">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">{title}</h3>
         {action}
       </div>
       <div className="space-y-3">{children}</div>
@@ -78,7 +78,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
   const title = ctx === 'none' ? (selected.length > 1 ? `${selected.length} objects` : 'Properties') : ctx === 'roundrect' ? 'Rounded rectangle' : OBJECT_LABELS[ctx];
 
   return (
-    <aside aria-label="Properties" className="fr-scroll flex w-[272px] shrink-0 flex-col overflow-y-auto border-l border-border bg-surface">
+    <aside aria-label="Properties" className="fr-glass fr-scroll flex w-[280px] shrink-0 flex-col overflow-y-auto border-l border-border">
       {ctx !== 'none' && (
         <Section title={title}>
           {['arrow', 'line', 'rect', 'roundrect', 'ellipse', 'pen', 'text', 'marker', 'symbol'].includes(ctx) && (
@@ -149,7 +149,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
                     aria-checked={v.symbol === k}
                     onClick={() => set({ symbol: k })}
                     className={cx(
-                      'h-8 rounded-lg border text-[12px] font-medium',
+                      'fr-press h-8 rounded-[10px] border text-[12px] font-medium transition-colors',
                       v.symbol === k ? 'border-primary bg-primary-soft text-primary-soft-fg' : 'border-border text-fg-muted hover:bg-surface-2',
                     )}
                   >
@@ -246,7 +246,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
             <Maximize2 size={15} />
           </IconButton>
         </div>
-        <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1 text-[12px]">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[12px]">
           <dt className="text-fg-subtle">Size</dt>
           <dd className="tabular-nums text-fg-muted">{formatDimensions(state.doc.output.width, state.doc.output.height)} px</dd>
           <dt className="text-fg-subtle">Original</dt>
@@ -267,7 +267,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
 
 function PrivacyNote({ children }: { children: ReactNode }) {
   return (
-    <div className="flex gap-2 rounded-lg bg-warning-soft p-2.5 text-[12px] leading-snug text-warning">
+    <div className="flex gap-2 rounded-[12px] border border-warning/20 bg-warning-soft p-3 text-[12px] leading-snug text-warning">
       <ShieldAlert size={14} className="mt-0.5 shrink-0" />
       <span>{children}</span>
     </div>
@@ -284,8 +284,8 @@ function LayerList({ store, state }: { store: EditorStore; state: EditorState })
           <li key={o.id}>
             <div
               className={cx(
-                'group flex h-8 items-center gap-2 rounded-lg px-2 text-[13px]',
-                state.selection.includes(o.id) ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-muted hover:bg-surface-2',
+                'group flex h-8 items-center gap-2 rounded-[10px] px-2 text-[13px] transition-colors duration-150',
+                state.selection.includes(o.id) ? 'bg-primary-soft font-medium text-primary-soft-fg' : 'text-fg-muted hover:bg-surface-2',
               )}
             >
               <button

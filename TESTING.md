@@ -1,4 +1,4 @@
-# Frameora Testing
+# FrameShot Testing
 
 Final run: see bottom (section "Final verification run").
 
@@ -27,9 +27,9 @@ npm run compile
 ### E2E environment
 - Playwright launches Chromium with `channel: 'chromium'` (new headless mode, which supports extensions) and loads the unpacked build with `--load-extension`. This is Chrome for Testing; **branded Google Chrome 137+ removed `--load-extension`**, so automated runs cannot use branded Chrome.
 - Fixture pages in `tests/fixtures/` are served from a local HTTP server started by the test harness. The server also generates SVG images with a small delay, to make lazy loading realistic.
-- The E2E build differs from production only by `host_permissions: ["<all_urls>"]` (automation can't click the toolbar to grant `activeTab`) and test hooks gated by `__FRAMEORA_E2E__`:
-  - `globalThis.__frameoraTest` on the service worker: `start`, `status`, `command`, `cancel`, `stop`.
-  - `window.__frameoraEditor` on the editor page, to read the store and map document coordinates to the screen.
+- The E2E build differs from production only by `host_permissions: ["<all_urls>"]` (automation can't click the toolbar to grant `activeTab`) and test hooks gated by `__FRAMESHOT_E2E__`:
+  - `globalThis.__frameshotTest` on the service worker: `start`, `status`, `command`, `cancel`, `stop`.
+  - `window.__frameshotEditor` on the editor page, to read the store and map document coordinates to the screen.
   - A storage key that lowers canvas limits, so the split/scale paths can be tested without enormous pages.
 - Downloads land in Playwright's artifact folder. Tests read the completed file path from `chrome.downloads.search` and inspect the bytes.
 
@@ -79,7 +79,7 @@ These counts come from the development runs in this session. The release run bel
 - **Area handle drags ignored**: listeners on a closed shadow root's host can't see internal targets. Listeners moved into the shadow root.
 - **Text tool lost focus immediately**: the mousedown default focus change. Prevented, and focus is deferred.
 - **Thumbnail not refreshed when leaving the editor quickly**: now rendered synchronously on unmount.
-- **Misleading message on protected pages**: Chrome reports a generic activeTab error there; Frameora now detects protected pages.
+- **Misleading message on protected pages**: Chrome reports a generic activeTab error there; FrameShot now detects protected pages.
 
 ## Manual checks required before release
 
@@ -113,7 +113,7 @@ Run on 2026-11-08 for release 1.0.1 (Chromium / Chrome for Testing 153, headless
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
 | **E2E total** | **50 / 50 passed** (3.3 min) |
 | Production bundle audit (`npm run check:bundle`) | **passed** — MV3, 6 permissions, no host permissions, strict CSP, no remote URLs/code, no eval, no test hooks, no source maps |
-| Packaged ZIP smoke test (`.output/frameora-1.0.1-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
+| Packaged ZIP smoke test (`.output/frameshot-1.0.1-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
 
 Defects found by these suites and fixed during development (each now covered by a test):
 - 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.

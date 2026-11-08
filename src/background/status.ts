@@ -31,8 +31,8 @@ export function getStatus(): CaptureStatus {
 
 export async function restoreStatus(): Promise<void> {
   try {
-    const stored = await chrome.storage.session.get('frameora.status');
-    const s = stored['frameora.status'] as CaptureStatus | undefined;
+    const stored = await chrome.storage.session.get('frameshot.status');
+    const s = stored['frameshot.status'] as CaptureStatus | undefined;
     if (s && s.updatedAt > current.updatedAt) {
       // A capture cannot survive a service-worker restart; report it honestly.
       const busy = ['waiting', 'preparing', 'loading', 'capturing', 'stitching', 'saving'].includes(s.phase);
@@ -48,7 +48,7 @@ export async function restoreStatus(): Promise<void> {
 export function setStatus(patch: Omit<CaptureStatus, 'updatedAt'>): void {
   current = { ...patch, updatedAt: Date.now() };
   for (const port of ports) safePost(port, { kind: 'status', status: current });
-  void chrome.storage.session.set({ 'frameora.status': current }).catch(() => {});
+  void chrome.storage.session.set({ 'frameshot.status': current }).catch(() => {});
   updateBadge(current);
 }
 

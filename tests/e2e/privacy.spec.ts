@@ -2,7 +2,7 @@
  * Privacy guarantees, verified in a real browser:
  *  - extension pages cannot make network requests (CSP connect-src)
  *  - capture/edit/export flows issue no requests beyond the page being captured
- *  - Frameora works fully offline
+ *  - FrameShot works fully offline
  */
 import type { Request } from '@playwright/test';
 import { captureAndWait, expect, openFixture, setSettings, test } from './harness';

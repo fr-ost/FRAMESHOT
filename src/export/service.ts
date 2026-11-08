@@ -99,7 +99,7 @@ export async function exportMany(
 ): Promise<{ blob: Blob; filename: string }> {
   const stamp = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
-  const baseName = `frameora-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${ids.length}-screenshots`;
+  const baseName = `frameshot-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${ids.length}-screenshots`;
   if (format === 'pdf') {
     const canvases: { canvas: OffscreenCanvas; pxPerPt?: number }[] = [];
     for (let i = 0; i < ids.length; i++) {

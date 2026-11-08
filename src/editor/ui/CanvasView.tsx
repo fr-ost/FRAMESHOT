@@ -121,7 +121,7 @@ export function CanvasView({
   const editing = state.editingTextId ? (state.doc.objects.find((o) => o.id === state.editingTextId) as TextObject | undefined) : undefined;
 
   return (
-    <div ref={wrapRef} className="relative min-h-0 min-w-0 flex-1 overflow-hidden bg-canvas" data-testid="editor-canvas-wrap">
+    <div ref={wrapRef} className="relative min-h-0 min-w-0 flex-1 overflow-hidden" data-testid="editor-canvas-wrap">
       <canvas ref={canvasRef} className="absolute inset-0 touch-none outline-none" aria-label="Screenshot editing canvas" role="img" data-testid="editor-canvas" />
       {editing && <TextEditor key={editing.id} store={store} text={editing} />}
     </div>

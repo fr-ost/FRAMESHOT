@@ -28,7 +28,7 @@ import { Button, Field, IconButton, Input, SegmentedControl, Select, Slider, Spi
 import { canvasSizeFor, DEFAULT_COMPOSER, GRADIENTS, PRESETS, sanitizeComposer, type Align, type ComposerSettings, type PresetId } from './layout';
 import { renderComposition } from './render';
 
-const STORE_KEY = 'frameora.composer';
+const STORE_KEY = 'frameshot.composer';
 
 function loadComposer(): ComposerSettings {
   try {
@@ -187,15 +187,15 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
+      <header className="fr-glass relative z-20 flex h-[60px] shrink-0 items-center gap-2 border-b border-border px-3">
         <IconButton label="Back to editor" onClick={() => navigate(`/edit/${encodeURIComponent(item.id)}`)}>
           <ArrowLeft size={18} />
         </IconButton>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-sm font-semibold">Composer</h1>
+          <h1 className="truncate text-[15px] font-semibold tracking-tight">Composer</h1>
           <p className="truncate text-[11px] text-fg-subtle">{item.name}</p>
         </div>
-        <span className="hidden text-[12px] tabular-nums text-fg-subtle sm:inline">{formatDimensions(size.width, size.height)} px</span>
+        <span className="hidden rounded-full bg-surface-2 px-2.5 py-1 text-[12px] font-medium tabular-nums text-fg-muted sm:inline">{formatDimensions(size.width, size.height)} px</span>
         <Button icon={<Save size={16} />} onClick={() => void saveToLibrary()} disabled={!!busy}>
           Save to library
         </Button>
@@ -219,18 +219,18 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
         </DropdownMenu>
       </header>
       <div className="flex min-h-0 flex-1">
-        <div ref={wrapRef} className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-canvas p-8">
+        <div ref={wrapRef} className="fr-canvas-bg flex min-w-0 flex-1 items-center justify-center overflow-hidden p-8">
           <canvas
             ref={previewRef}
-            className={cx('max-h-full max-w-full rounded-sm shadow-pop', checker && 'fr-checker')}
+            className={cx('fr-animate-in max-h-full max-w-full rounded-[4px] shadow-pop', checker && 'fr-checker')}
             aria-label="Composition preview"
             role="img"
             data-testid="composer-preview"
           />
         </div>
-        <aside aria-label="Composition settings" className="fr-scroll w-[300px] shrink-0 space-y-5 overflow-y-auto border-l border-border bg-surface p-4">
+        <aside aria-label="Composition settings" className="fr-glass fr-scroll w-[312px] shrink-0 space-y-6 overflow-y-auto border-l border-border p-5">
           <section className="space-y-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">Canvas</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Canvas</h2>
             <Field label="Size preset" htmlFor="fr-preset">
               <Select id="fr-preset" value={s.preset} onChange={(e) => {
                 const preset = e.target.value as PresetId;
@@ -264,7 +264,7 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">Background</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Background</h2>
             <SegmentedControl
               label="Background type"
               value={s.background.type}
@@ -290,7 +290,7 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
                       aria-label={g.label}
                       title={g.label}
                       onClick={() => update({ background: { ...s.background, from: g.from, to: g.to } })}
-                      className={cx('h-8 rounded-lg border border-black/10', s.background.from === g.from && s.background.to === g.to && 'ring-2 ring-primary ring-offset-2 ring-offset-surface')}
+                      className={cx('fr-press h-9 rounded-[10px] border border-black/10 transition-transform hover:scale-105', s.background.from === g.from && s.background.to === g.to && 'ring-2 ring-primary ring-offset-2 ring-offset-surface')}
                       style={{ background: `linear-gradient(135deg, ${g.from}, ${g.to})` }}
                     />
                   ))}
@@ -311,7 +311,7 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">Screenshot</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Screenshot</h2>
             <SegmentedControl
               label="Scaling"
               value={s.fit}
@@ -342,7 +342,7 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
                       aria-checked={s.alignX === x && s.alignY === y}
                       aria-label={`Align ${y === 'start' ? 'top' : y === 'end' ? 'bottom' : 'middle'} ${x === 'start' ? 'left' : x === 'end' ? 'right' : 'center'}`}
                       onClick={() => update({ alignX: x, alignY: y })}
-                      className={cx('h-7 rounded-md border', s.alignX === x && s.alignY === y ? 'border-primary bg-primary' : 'border-border bg-surface-2 hover:border-border-strong')}
+                      className={cx('fr-press h-7 rounded-[7px] border transition-colors', s.alignX === x && s.alignY === y ? 'fr-accent-bg border-transparent shadow-glow' : 'border-border bg-surface-2 hover:border-border-strong')}
                     />
                   )),
                 )}
@@ -351,7 +351,7 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">Effects</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Effects</h2>
             <Switch label="Shadow" checked={s.shadow.enabled} onChange={(enabled) => update({ shadow: { ...s.shadow, enabled } })} />
             {s.shadow.enabled && (
               <>

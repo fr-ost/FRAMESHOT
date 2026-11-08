@@ -41,7 +41,7 @@ async function annotate(page: Page) {
   await dragDoc(page, [[350, 420], [500, 560]]);
   await page.keyboard.press('t');
   await clickDoc(page, 100, 650);
-  await page.keyboard.type('Hello Frameora');
+  await page.keyboard.type('Hello FrameShot');
   await page.keyboard.press('Escape');
   await page.keyboard.press('n');
   await clickDoc(page, 600, 650);
@@ -241,7 +241,7 @@ test('edits autosave and reopen; library thumbnail reflects edits', async ({ ext
   await expect(page.getByText('Saved locally')).toBeVisible();
   await page.waitForTimeout(800);
   await page.reload();
-  await page.waitForFunction(() => !!(window as unknown as { __frameoraEditor?: unknown }).__frameoraEditor);
+  await page.waitForFunction(() => !!(window as unknown as { __frameshotEditor?: unknown }).__frameshotEditor);
   const st = await editorState(page);
   expect(st.objects.map((o) => o.type)).toEqual(['rect', 'arrow']);
   const item = await page.evaluate(async (itemId) => {
@@ -270,13 +270,13 @@ test('text can be edited by double-clicking it', async ({ ext }) => {
   await page.keyboard.press('v');
   await page.waitForTimeout(100);
   const box = await page.evaluate(() => {
-    const s = (window as unknown as { __frameoraEditor: { getState(): any } }).__frameoraEditor.getState();
+    const s = (window as unknown as { __frameshotEditor: { getState(): any } }).__frameshotEditor.getState();
     const t = s.doc.objects.find((o: { type: string }) => o.type === 'text');
     return { x: t.x + 10, y: t.y + 10, text: t.text };
   });
   expect(box.text).toBe('First');
   const p = await page.evaluate(([x, y]) => {
-    const s = (window as unknown as { __frameoraEditor: { getState(): any } }).__frameoraEditor.getState();
+    const s = (window as unknown as { __frameshotEditor: { getState(): any } }).__frameshotEditor.getState();
     const r = document.querySelector('[data-testid=editor-canvas]')!.getBoundingClientRect();
     return { x: r.left + x * s.view.zoom + s.view.panX, y: r.top + y * s.view.zoom + s.view.panY };
   }, [box.x, box.y] as const);
@@ -285,7 +285,7 @@ test('text can be edited by double-clicking it', async ({ ext }) => {
   await page.keyboard.type('Second line');
   await page.keyboard.press('Escape');
   const text = await page.evaluate(() => {
-    const s = (window as unknown as { __frameoraEditor: { getState(): any } }).__frameoraEditor.getState();
+    const s = (window as unknown as { __frameshotEditor: { getState(): any } }).__frameshotEditor.getState();
     return s.doc.objects.find((o: { type: string }) => o.type === 'text')?.text;
   });
   expect(text).toBe('Second line');

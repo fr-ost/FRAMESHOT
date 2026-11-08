@@ -17,13 +17,13 @@ import {
 } from './capture-session';
 import { getStatus, registerStatusPort, restoreStatus, setStatus } from './status';
 
-const MENU_ROOT = 'frameora';
+const MENU_ROOT = 'frameshot';
 const MENU_ITEMS: { id: string; title: string; mode: CaptureMode }[] = [
-  { id: 'frameora-visible', title: 'Capture visible area', mode: 'visible' },
-  { id: 'frameora-full', title: 'Capture full page', mode: 'full' },
-  { id: 'frameora-area', title: 'Capture selected area', mode: 'area' },
-  { id: 'frameora-element', title: 'Capture an element', mode: 'element' },
-  { id: 'frameora-scrollable', title: 'Capture a scrolling area', mode: 'scrollable' },
+  { id: 'frameshot-visible', title: 'Capture visible area', mode: 'visible' },
+  { id: 'frameshot-full', title: 'Capture full page', mode: 'full' },
+  { id: 'frameshot-area', title: 'Capture selected area', mode: 'area' },
+  { id: 'frameshot-element', title: 'Capture an element', mode: 'element' },
+  { id: 'frameshot-scrollable', title: 'Capture a scrolling area', mode: 'scrollable' },
 ];
 
 const COMMAND_MODES: Record<string, CaptureMode> = {
@@ -100,12 +100,12 @@ async function handleMessage(msg: BgRequest, sender: chrome.runtime.MessageSende
 
 function createMenus(): void {
   chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({ id: MENU_ROOT, title: 'Frameora', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
+    chrome.contextMenus.create({ id: MENU_ROOT, title: 'FrameShot', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
     for (const item of MENU_ITEMS) {
       chrome.contextMenus.create({ id: item.id, parentId: MENU_ROOT, title: item.title, contexts: ['page', 'frame', 'selection', 'image', 'link'] });
     }
-    chrome.contextMenus.create({ id: 'frameora-sep', parentId: MENU_ROOT, type: 'separator', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
-    chrome.contextMenus.create({ id: 'frameora-library', parentId: MENU_ROOT, title: 'Open screenshot library', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
+    chrome.contextMenus.create({ id: 'frameshot-sep', parentId: MENU_ROOT, type: 'separator', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
+    chrome.contextMenus.create({ id: 'frameshot-library', parentId: MENU_ROOT, title: 'Open screenshot library', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
   });
 }
 
@@ -152,7 +152,7 @@ export function registerBackground(): void {
   });
 
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'frameora-library') {
+    if (info.menuItemId === 'frameshot-library') {
       void openStudio('/');
       return;
     }
@@ -163,13 +163,13 @@ export function registerBackground(): void {
 
   chrome.runtime.onInstalled.addListener((details) => {
     createMenus();
-    if (details.reason === 'install' && !__FRAMEORA_E2E__) void openStudio('/welcome');
+    if (details.reason === 'install' && !__FRAMESHOT_E2E__) void openStudio('/welcome');
   });
   chrome.runtime.onStartup.addListener(createMenus);
 
-  if (__FRAMEORA_E2E__) {
+  if (__FRAMESHOT_E2E__) {
     // Test-only hook (excluded from production builds by a compile-time flag).
-    (globalThis as unknown as Record<string, unknown>).__frameoraTest = {
+    (globalThis as unknown as Record<string, unknown>).__frameshotTest = {
       start: (tabId: number, mode: CaptureMode, delayMs?: number) => beginCapture(mode, tabId, delayMs),
       status: () => getStatus(),
       command: (command: string, tabId?: number) =>

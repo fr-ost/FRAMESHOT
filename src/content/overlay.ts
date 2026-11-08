@@ -11,8 +11,31 @@
  */
 import type { Rect } from '../core/types';
 
-const BRAND = '#4f46e5';
-const BRAND_LIGHT = '#818cf8';
+const BRAND = '#6366f1';
+const BRAND_LIGHT = '#8b8cff';
+const GRADIENT = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const GLASS: Styles = {
+  background: 'rgba(17, 17, 26, 0.78)',
+  '-webkit-backdrop-filter': 'saturate(170%) blur(14px)',
+  'backdrop-filter': 'saturate(170%) blur(14px)',
+  border: '1px solid rgba(255, 255, 255, 0.12)',
+};
+
+/** Fade/slide an element in (Web Animations API: unaffected by page CSP). */
+function appear(node: HTMLElement, from = 'translateY(-6px)', base = ''): void {
+  try {
+    node.animate(
+      [
+        { opacity: 0, transform: `${base} ${from}`.trim() },
+        { opacity: 1, transform: `${base} translateY(0)`.trim() },
+      ],
+      { duration: 260, easing: EASE },
+    );
+  } catch {
+    /* animations are cosmetic */
+  }
+}
 const Z = '2147483647';
 
 type Styles = Record<string, string>;
@@ -32,25 +55,27 @@ function el(tag: string, styles: Styles = {}, text?: string): HTMLElement {
 const FONT = "13px/1.35 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 
 function pill(text: string): HTMLElement {
-  return el(
+  const node = el(
     'div',
     {
       position: 'fixed',
-      top: '14px',
+      top: '16px',
       left: '50%',
       transform: 'translateX(-50%)',
-      background: 'rgba(17,17,24,0.92)',
+      ...GLASS,
       color: '#fff',
-      font: FONT,
-      padding: '8px 14px',
+      font: "500 13px/1.35 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      padding: '9px 16px',
       'border-radius': '999px',
-      'box-shadow': '0 8px 24px rgba(0,0,0,0.25)',
+      'box-shadow': '0 12px 32px rgba(0, 0, 0, 0.28)',
       'pointer-events': 'none',
       'white-space': 'nowrap',
       'letter-spacing': '0.01em',
     },
     text,
   );
+  appear(node, 'translateY(-8px)', 'translateX(-50%)');
+  return node;
 }
 
 export interface OverlayHandle {
@@ -59,7 +84,7 @@ export interface OverlayHandle {
 
 function createHost(interactive: boolean): { host: HTMLElement; root: ShadowRoot } {
   const host = document.createElement('div');
-  host.setAttribute('data-frameora-overlay', '');
+  host.setAttribute('data-frameshot-overlay', '');
   css(host, {
     all: 'initial',
     position: 'fixed',
@@ -126,7 +151,8 @@ export function startAreaSelection(
     el('div', {
       position: 'fixed',
       border: `1.5px solid ${BRAND_LIGHT}`,
-      outline: '1px solid rgba(255,255,255,0.7)',
+      'box-shadow': '0 0 0 1px rgba(255,255,255,0.65), 0 10px 40px rgba(99,102,241,0.35)',
+      'border-radius': '2px',
       display: 'none',
       cursor: 'move',
       'pointer-events': 'auto',
@@ -151,7 +177,8 @@ export function startAreaSelection(
         height: '10px',
         background: '#fff',
         border: `1.5px solid ${BRAND}`,
-        'border-radius': '2px',
+        'border-radius': '3px',
+        'box-shadow': '0 1px 4px rgba(0,0,0,0.3)',
         cursor: cursors[h],
         'pointer-events': 'auto',
       }),
@@ -162,11 +189,12 @@ export function startAreaSelection(
     el('div', {
       position: 'fixed',
       display: 'none',
-      background: BRAND,
+      background: GRADIENT,
       color: '#fff',
       font: "600 12px/1 ui-sans-serif, system-ui, sans-serif",
-      padding: '5px 7px',
-      'border-radius': '6px',
+      padding: '6px 8px',
+      'border-radius': '7px',
+      'box-shadow': '0 6px 16px rgba(99,102,241,0.4)',
       'pointer-events': 'none',
       'font-variant-numeric': 'tabular-nums',
     }),
@@ -176,10 +204,10 @@ export function startAreaSelection(
       position: 'fixed',
       display: 'none',
       gap: '6px',
-      padding: '5px',
-      background: 'rgba(17,17,24,0.94)',
-      'border-radius': '10px',
-      'box-shadow': '0 8px 24px rgba(0,0,0,0.3)',
+      padding: '6px',
+      ...GLASS,
+      'border-radius': '13px',
+      'box-shadow': '0 16px 40px rgba(0,0,0,0.35)',
       'pointer-events': 'auto',
       cursor: 'default',
     }),
@@ -190,10 +218,11 @@ export function startAreaSelection(
         'button',
         {
           font: "600 13px/1 ui-sans-serif, system-ui, sans-serif",
-          padding: '8px 12px',
+          padding: '9px 14px',
           border: '0',
-          'border-radius': '7px',
-          background: primary ? BRAND : 'transparent',
+          'border-radius': '9px',
+          background: primary ? GRADIENT : 'transparent',
+          'box-shadow': primary ? '0 6px 18px rgba(99,102,241,0.45)' : 'none',
           color: '#fff',
           cursor: 'pointer',
         },
@@ -459,22 +488,24 @@ export function startElementPicker(opts: PickerOptions, onDone: (el: Element | n
     el('div', {
       position: 'fixed',
       display: 'none',
-      border: `2px solid ${BRAND}`,
-      background: 'rgba(99,102,241,0.14)',
-      'border-radius': '2px',
+      border: `2px solid ${BRAND_LIGHT}`,
+      background: 'rgba(124,124,255,0.12)',
+      'border-radius': '4px',
+      'box-shadow': '0 0 0 1px rgba(255,255,255,0.5), 0 10px 36px rgba(99,102,241,0.3)',
       'pointer-events': 'none',
-      transition: 'all 60ms ease-out',
+      transition: `all 140ms ${EASE}`,
     }),
   );
   const label = root.appendChild(
     el('div', {
       position: 'fixed',
       display: 'none',
-      background: BRAND,
+      background: GRADIENT,
       color: '#fff',
       font: "600 12px/1.2 ui-sans-serif, system-ui, sans-serif",
-      padding: '5px 8px',
-      'border-radius': '6px',
+      padding: '6px 9px',
+      'border-radius': '7px',
+      'box-shadow': '0 6px 16px rgba(99,102,241,0.4)',
       'pointer-events': 'none',
       'max-width': '60vw',
       overflow: 'hidden',
