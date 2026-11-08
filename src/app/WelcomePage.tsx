@@ -75,7 +75,7 @@ export function WelcomePage() {
           </div>
           <ul className="fr-animate-in mt-10 flex flex-wrap justify-center gap-2" style={{ animationDelay: '240ms' }} aria-label="Promises">
             {PROMISES.map((t) => (
-              <li key={t} className="rounded-full border border-border bg-surface px-3 py-1 text-[12px] font-medium text-fg-muted backdrop-blur-xl">
+              <li key={t} className="rounded-full border border-border bg-surface-solid/85 px-3 py-1 text-[12px] font-medium text-fg-muted">
                 {t}
               </li>
             ))}

@@ -13,7 +13,8 @@ const test = base.extend<object, { ext: ExtFixture }>({
     async ({}, use) => {
       const server = await startServer();
       const { context, sw, extId } = await launchExtension({
-        extraArgs: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--autoplay-policy=no-user-gesture-required'],
+        // Chrome's real desktop autoplay rule, so sounds are tested as users get them.
+        extraArgs: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--autoplay-policy=document-user-activation-required'],
       });
       await use({ context, sw, extId, server: server.url, requests: server.requests });
       await context.close();
@@ -519,4 +520,208 @@ test('opening the library re-uses an open library tab, but never takes over a pl
   await new Promise((r) => setTimeout(r, 800));
   expect(studioTabs().length).toBe(2);
   for (const p of studioTabs()) await p.close();
+});
+
+
+// ── GIF export ──
+
+/** Walks a GIF's blocks: size, frame count, total delay, loop setting. */
+function inspectGif(bytes: Buffer) {
+  let p = 6;
+  const width = bytes.readUInt16LE(p);
+  const height = bytes.readUInt16LE(p + 2);
+  const packed = bytes[p + 4];
+  p += 7;
+  if (packed & 0x80) p += 3 * (2 << (packed & 7));
+  let frames = 0;
+  let delayCs = 0;
+  let loop: number | null = null;
+  const skipSubBlocks = () => {
+    const out: number[] = [];
+    for (let len = bytes[p++]; len !== 0; len = bytes[p++]) {
+      for (let i = 0; i < len; i++) out.push(bytes[p + i]);
+      p += len;
+    }
+    return out;
+  };
+  for (;;) {
+    const b = bytes[p++];
+    if (b === 0x3b || b === undefined) break;
+    if (b === 0x21) {
+      const label = bytes[p++];
+      const data = skipSubBlocks();
+      if (label === 0xf9) delayCs += data[1] | (data[2] << 8);
+      if (label === 0xff && String.fromCharCode(...data.slice(0, 11)) === 'NETSCAPE2.0') loop = data[12] | (data[13] << 8);
+    } else if (b === 0x2c) {
+      const ip = bytes[p + 8];
+      p += 9;
+      if (ip & 0x80) p += 3 * (2 << (ip & 7));
+      p++; // LZW minimum code size
+      skipSubBlocks();
+      frames++;
+    } else throw new Error(`unexpected GIF block 0x${b.toString(16)}`);
+  }
+  return { header: bytes.subarray(0, 6).toString('latin1'), width, height, frames, delayCs, loop, trailer: bytes[bytes.length - 1] };
+}
+
+/** Sets a React-controlled range input. */
+async function setRange(page: Page, testId: string, value: number) {
+  await page.getByTestId(testId).evaluate((el, v) => {
+    const input = el as HTMLInputElement;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, String(v));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, value);
+}
+
+test('exports part of a recording as a looping GIF, made on this device', async ({ ext }) => {
+  await configure(ext, {});
+  const page = await openStudio(ext, '/record');
+  await startRecording(page);
+  await page.waitForTimeout(3200);
+  await page.getByTestId('record-stop').click();
+  await waitForPlayer(page);
+  await videoMeta(page);
+
+  await page.getByTestId('player-gif').click();
+  const dialog = page.getByRole('dialog', { name: 'Export as GIF' });
+  await expect(dialog).toBeVisible();
+  await setRange(page, 'gif-start', 0.5);
+  await setRange(page, 'gif-end', 2.5);
+  await dialog.getByRole('radio', { name: '320' }).click();
+  await dialog.getByRole('radio', { name: '10' }).click();
+  await expect(page.getByTestId('gif-summary')).toContainText('20 frames');
+  const before = await lastDownloadId(ext);
+  await page.getByTestId('gif-create').click();
+  const file = await nextDownload(ext, before, 60000);
+  await expect(dialog).toBeHidden();
+  expect(file.mime).toBe('image/gif');
+  const gif = inspectGif(file.bytes);
+  expect(gif.header).toBe('GIF89a');
+  expect(gif.width).toBe(320);
+  expect(gif.trailer).toBe(0x3b);
+  expect(gif.loop).toBe(0);
+  // 20 frames at 10 fps = 2 s; identical neighbours may be merged, the length is kept.
+  expect(gif.frames).toBeGreaterThanOrEqual(2);
+  expect(gif.frames).toBeLessThanOrEqual(20);
+  expect(gif.delayCs).toBe(200);
+  await page.close();
+});
+
+test('“Export as GIF…” in the library opens the GIF dialog for that recording', async ({ ext }) => {
+  await configure(ext, {});
+  const rec = await openStudio(ext, '/record');
+  await startRecording(rec);
+  await rec.waitForTimeout(1500);
+  await rec.getByTestId('record-stop').click();
+  const id = await waitForPlayer(rec);
+  await rec.close();
+  const page = await openStudio(ext, '/');
+  const card = page.locator(`[data-testid="library-card"][data-id="${id}"]`);
+  await card.getByRole('button', { name: /^Actions for / }).click();
+  await page.getByRole('menuitem', { name: 'Export as GIF…' }).click();
+  await expect(page.getByRole('dialog', { name: 'Export as GIF' })).toBeVisible();
+  expect(page.url()).toContain(`#/play/${encodeURIComponent(id)}`);
+  await page.close();
+});
+
+// ── Sounds ──
+
+test('recording plays countdown, start and stop sounds under Chrome’s autoplay rules', async ({ ext }) => {
+  await configure(ext, { countdown: 3 });
+  const page = await openStudio(ext, '/record');
+  await startRecording(page);
+  await page.getByTestId('record-pause').click();
+  await expect(page.getByTestId('record-status')).toHaveText('Paused');
+  await page.getByTestId('record-resume').click();
+  await expect(page.getByTestId('record-status')).toHaveText('Recording');
+  await page.getByTestId('record-stop').click();
+  await waitForPlayer(page);
+  const sounds = await page.evaluate(() => (window as unknown as { __frameshotSounds: { name: string; state: string }[] }).__frameshotSounds);
+  expect(sounds.map((s) => s.name)).toEqual(['tick', 'tick', 'tick', 'rec-start', 'pause', 'resume', 'rec-stop']);
+  // The audio context was allowed to run (it was created during the click).
+  expect(sounds.every((s) => s.state === 'running')).toBe(true);
+  await page.close();
+});
+
+test('a saved capture plays the camera shutter from the background, and sounds can be turned off', async ({ ext }) => {
+  await configure(ext, {});
+  const fixture = await ext.context.newPage();
+  await fixture.goto(`${ext.server}/long.html`);
+  await fixture.bringToFront();
+  const tabId = await ext.sw.evaluate(async (u) => (await chrome.tabs.query({})).find((t) => t.url === u)!.id!, `${ext.server}/long.html`);
+  const capture = async () => {
+    const since = await ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { status(): { updatedAt: number } } }).__frameshotTest.status().updatedAt);
+    await ext.sw.evaluate((id) => (globalThis as unknown as { __frameshotTest: { start(t: number, m: string): Promise<void> } }).__frameshotTest.start(id, 'visible'), tabId);
+    await expect
+      .poll(() => ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { status(): { phase: string; updatedAt: number } } }).__frameshotTest.status()), { timeout: 30000 })
+      .toMatchObject({ phase: 'done' });
+    expect(since).toBeDefined();
+  };
+  const heard = () => ext.sw.evaluate(() => (globalThis as unknown as { __frameshotTest: { sounds(): { name: string; state: string }[] } }).__frameshotTest.sounds());
+  const before = (await heard()).length;
+  await capture();
+  await expect.poll(async () => (await heard()).slice(before)).toEqual([{ name: 'shutter', state: 'running' }]);
+
+  // Off in Settings: silence.
+  await setSettings(ext.sw, { sounds: { enabled: false, volume: 0.6 } });
+  const n = (await heard()).length;
+  await capture();
+  await new Promise((r) => setTimeout(r, 1200));
+  expect((await heard()).length).toBe(n);
+  await setSettings(ext.sw, { sounds: { enabled: true, volume: 0.6 } });
+  await fixture.close();
+});
+
+test('every sound effect is audible and never clips', async ({ ext }) => {
+  const page = await openStudio(ext, '/__test');
+  const levels = await page.evaluate(() => (window as unknown as { __frameshotSoundCheck(): Promise<Record<string, { rms: number; peak: number }>> }).__frameshotSoundCheck());
+  expect(Object.keys(levels).sort()).toEqual(['error', 'pause', 'rec-start', 'rec-stop', 'resume', 'shutter', 'success', 'tick']);
+  for (const [name, { rms, peak }] of Object.entries(levels)) {
+    expect(rms, name).toBeGreaterThan(0.003);
+    expect(peak, name).toBeLessThan(0.9);
+  }
+  await page.close();
+});
+
+// ── Regressions found in review ──
+
+test('a Discard confirmed after the recording already ended deletes the saved copy', async ({ ext }) => {
+  await configure(ext, {});
+  const page = await openStudio(ext, '/record');
+  await startRecording(page);
+  const id = (await snapshot(page)).sessionId!;
+  await page.waitForTimeout(1500);
+  await page.getByTestId('record-discard').click();
+  const dialog = page.getByRole('dialog', { name: 'Discard this recording?' });
+  await expect(dialog).toBeVisible();
+  // Meanwhile the recording ends (Chrome's "Stop sharing") and is saved.
+  await page.evaluate(() => (window as unknown as { __frameshotRecorder: { endShare(): void } }).__frameshotRecorder.endShare());
+  await expect.poll(async () => (await dbState(page, id)).item?.kind ?? null, { timeout: 15000 }).toBe('recording');
+  await dialog.getByRole('button', { name: 'Discard' }).click();
+  await expect.poll(async () => (await dbState(page, id)).item ?? null).toBeNull();
+  expect((await dbState(page, id)).chunks).toBe(0);
+  await expect(page.getByTestId('record-start')).toBeVisible();
+  await page.close();
+});
+
+test('“Clear all local data” is refused while recording, and another tab cannot clear the REC badge', async ({ ext }) => {
+  await configure(ext, {});
+  const rec = await openStudio(ext, '/record');
+  await startRecording(rec);
+  await expect.poll(() => ext.sw.evaluate(() => chrome.action.getBadgeText({}))).toBe('REC');
+  // A second Studio tab: the recorder there sees the running recording and stays idle.
+  const other = await openStudio(ext, '/record');
+  await expect(other.getByText(/already running in another FrameShot tab/)).toBeVisible();
+  await expect(other.getByTestId('record-start')).toBeDisabled();
+  await other.goto(`chrome-extension://${ext.extId}/studio.html#/settings`);
+  await other.getByRole('button', { name: 'Clear all local data' }).click();
+  await other.getByRole('dialog').getByRole('button', { name: 'Delete everything' }).click();
+  await expect(other.getByText(/Stop it before clearing all data/)).toBeVisible();
+  expect((await dbState(rec, (await snapshot(rec)).sessionId!)).sessions).toBeGreaterThan(0);
+  await other.close();
+  await expect.poll(() => ext.sw.evaluate(() => chrome.action.getBadgeText({}))).toBe('REC');
+  await rec.getByTestId('record-stop').click();
+  await waitForPlayer(rec);
+  await rec.close();
 });

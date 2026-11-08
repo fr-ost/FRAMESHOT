@@ -235,3 +235,60 @@ describe('EditorStore', () => {
 });
 
 export type { EditorDoc };
+
+import { aspectResize } from '../../src/editor/model/objects';
+
+describe('aspect-locked crop', () => {
+  const bounds = { w: 1000, h: 800 };
+  const orig = { x: 100, y: 100, w: 320, h: 180 }; // 16:9
+  const r = 16 / 9;
+  const ratioOf = (x: { w: number; h: number }) => x.w / x.h;
+
+  it('corners keep the opposite corner fixed', () => {
+    const se = aspectResize(orig, 'se', { x: 0, y: 0 }, { x: 740, y: 300 }, r, bounds);
+    expect([se.x, se.y]).toEqual([100, 100]);
+    expect(se.w).toBeCloseTo(640, 6);
+    expect(ratioOf(se)).toBeCloseTo(r, 9);
+    const nw = aspectResize(orig, 'nw', { x: 0, y: 0 }, { x: 0, y: 0 }, r, bounds);
+    expect(nw.x + nw.w).toBeCloseTo(420, 6);
+    expect(nw.y + nw.h).toBeCloseTo(280, 6);
+    expect(ratioOf(nw)).toBeCloseTo(r, 9);
+  });
+
+  it('the bottom edge grows the height (and width around the centre); the top edge keeps the bottom fixed', () => {
+    const s = aspectResize(orig, 's', { x: 0, y: 0 }, { x: 260, y: 370 }, r, bounds);
+    expect(s.y).toBe(100);
+    expect(s.h).toBeCloseTo(270, 6);
+    expect(s.x + s.w / 2).toBeCloseTo(260, 6);
+    expect(ratioOf(s)).toBeCloseTo(r, 9);
+    const n = aspectResize(orig, 'n', { x: 0, y: 0 }, { x: 260, y: 190 }, r, bounds);
+    expect(n.y + n.h).toBeCloseTo(280, 6);
+    expect(n.h).toBeCloseTo(90, 6);
+    expect(ratioOf(n)).toBeCloseTo(r, 9);
+  });
+
+  it('side edges grow the width and stay centred vertically', () => {
+    const e = aspectResize(orig, 'e', { x: 0, y: 0 }, { x: 580, y: 0 }, r, bounds);
+    expect(e.x).toBe(100);
+    expect(e.w).toBeCloseTo(480, 6);
+    expect(e.y + e.h / 2).toBeCloseTo(190, 6);
+  });
+
+  it('never leaves the image and keeps the ratio when clamped', () => {
+    for (const handle of ['se', 'sw', 'ne', 'nw', 'n', 's', 'e', 'w', 'new'] as const) {
+      const out = aspectResize(orig, handle, { x: 500, y: 400 }, { x: 5000, y: -3000 }, r, bounds);
+      expect(out.x).toBeGreaterThanOrEqual(-1e-6);
+      expect(out.y).toBeGreaterThanOrEqual(-1e-6);
+      expect(out.x + out.w).toBeLessThanOrEqual(bounds.w + 1e-6);
+      expect(out.y + out.h).toBeLessThanOrEqual(bounds.h + 1e-6);
+      expect(ratioOf(out)).toBeCloseTo(r, 6);
+    }
+  });
+
+  it('draws a new rectangle from its start point in any direction', () => {
+    const up = aspectResize(orig, 'new', { x: 600, y: 500 }, { x: 440, y: 300 }, 1, bounds);
+    expect(up.x + up.w).toBe(600);
+    expect(up.y + up.h).toBe(500);
+    expect(up.w).toBeCloseTo(up.h, 9);
+  });
+});

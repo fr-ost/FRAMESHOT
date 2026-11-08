@@ -45,7 +45,8 @@ export default defineConfig({
     description:
       'Screen recorder & full page screen capture. Record tab, window or desktop with mic & camera. Annotate, blur, export MP4, PNG, PDF.',
     minimum_chrome_version: '116',
-    permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage', 'downloads', 'contextMenus'],
+    // `offscreen` lets the service worker play sound effects (camera shutter, countdown).
+    permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage', 'downloads', 'contextMenus', 'offscreen'],
     ...(E2E ? { host_permissions: ['<all_urls>'] } : {}),
     action: {
       default_title: 'FrameShot — screenshot or record your screen',

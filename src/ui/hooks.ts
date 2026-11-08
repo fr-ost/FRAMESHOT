@@ -66,12 +66,22 @@ export type Route =
   | { name: 'welcome' }
   | { name: 'compare'; a: string; b: string }
   | { name: 'record' }
-  | { name: 'play'; id: string }
+  | { name: 'play'; id: string; gif?: boolean }
   | { name: 'test' };
 
 export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#/, '') || '/';
-  const parts = path.split('?')[0].split('/').filter(Boolean).map(decodeURIComponent);
+  const [pathname, search = ''] = path.split('?');
+  // A malformed address (e.g. "#/edit/%") must not crash the app.
+  const decode = (part: string) => {
+    try {
+      return decodeURIComponent(part);
+    } catch {
+      return part;
+    }
+  };
+  const parts = pathname.split('/').filter(Boolean).map(decode);
+  const query = new URLSearchParams(search);
   switch (parts[0]) {
     case 'edit':
       return parts[1] ? { name: 'edit', id: parts[1] } : { name: 'library' };
@@ -86,7 +96,7 @@ export function parseRoute(hash: string): Route {
     case 'record':
       return { name: 'record' };
     case 'play':
-      return parts[1] ? { name: 'play', id: parts[1] } : { name: 'library' };
+      return parts[1] ? { name: 'play', id: parts[1], gif: query.get('gif') === '1' } : { name: 'library' };
     case '__test':
       return { name: 'test' };
     default:

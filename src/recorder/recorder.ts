@@ -16,12 +16,14 @@
  */
 import { defaultItemName } from '../core/filename';
 import { recordReviewSuccess } from '../core/review';
+import { playSound, primeSounds, waitAudio } from '../ui/sounds';
 import { newId } from '../core/format';
 import type { RecorderSettings } from '../core/settings';
 import type { DisplaySurfaceKind, LibraryItem } from '../core/types';
 import {
   appendRecordingChunk,
   createRecordingSession,
+  deleteItems,
   discardRecordingSession,
   finalizeRecording,
   getRecordingChunks,
@@ -31,7 +33,7 @@ import {
   type RecordingSessionRecord,
 } from '../db/db';
 import { makeThumbnail } from '../imaging/image-io';
-import { isActivePhase, RECORDER_CHANNEL, RECORDER_STATE_KEY, type RecorderCommand, type RecorderMessage, type RecorderPublicState } from './channel';
+import { isActivePhase, queryRecorder, RECORDER_CHANNEL, RECORDER_STATE_KEY, type RecorderCommand, type RecorderMessage, type RecorderPublicState } from './channel';
 import { createCompositor, type VideoCompositor } from './compositor';
 import { AUDIO_BITS_PER_SECOND, baseMimeType, chooseMimeType, containerOf, QUALITY_PRESETS, videoBitsPerSecond } from './formats';
 import { AudioMixer } from './mixer';
@@ -140,6 +142,8 @@ function update(patch: Partial<RecorderSnapshot>): void {
 // ── Publishing state to the popup / service worker ──────────────────────
 
 let lastPublished = '';
+/** Set while this page has published a live recording state (only then may it clear it). */
+let ownsPublishedState = false;
 
 function publicState(): RecorderPublicState {
   const { phase, sessionId, countdown, activeMs, since, hasMic, micMuted, updatedAt } = snapshot;
@@ -152,8 +156,14 @@ function publish(): void {
   if (key === lastPublished) return;
   lastPublished = key;
   try {
-    if (isActivePhase(state.phase)) void chrome.storage.session.set({ [RECORDER_STATE_KEY]: state }).catch(() => {});
-    else void chrome.storage.session.remove(RECORDER_STATE_KEY).catch(() => {});
+    if (isActivePhase(state.phase)) {
+      ownsPublishedState = true;
+      void chrome.storage.session.set({ [RECORDER_STATE_KEY]: state }).catch(() => {});
+    } else if (ownsPublishedState) {
+      // Another tab may be recording: never clear a state this page did not write.
+      ownsPublishedState = false;
+      void chrome.storage.session.remove(RECORDER_STATE_KEY).catch(() => {});
+    }
   } catch {
     // Not running as an extension page (unit tests).
   }
@@ -167,10 +177,12 @@ function ensureChannel(): void {
   channel = new BroadcastChannel(RECORDER_CHANNEL);
   channel.onmessage = (e: MessageEvent<RecorderMessage>) => {
     const msg = e.data;
-    // Only the page that owns a live recording answers.
-    if (!session || !isActivePhase(snapshot.phase) || !msg) return;
+    if (!msg) return;
+    // A page that is choosing what to share also answers, so a second tab cannot start a parallel recording.
+    const live = (session && isActivePhase(snapshot.phase)) || snapshot.phase === 'acquiring';
+    if (!live) return;
     if (msg.type === 'ping') channel?.postMessage({ type: 'pong', nonce: msg.nonce, state: publicState() } satisfies RecorderMessage);
-    else if (msg.type === 'command') handleCommand(msg.command);
+    else if (msg.type === 'command' && session) handleCommand(msg.command);
   };
 }
 
@@ -201,14 +213,14 @@ if (typeof window !== 'undefined') {
   ensureChannel();
   // Leaving the page would end the recording: ask first.
   window.addEventListener('beforeunload', (e) => {
-    if (isActivePhase(snapshot.phase)) {
+    if (isActivePhase(snapshot.phase) || snapshot.phase === 'acquiring' || snapshot.unsaved) {
       e.preventDefault();
       e.returnValue = '';
     }
   });
   window.addEventListener('pagehide', () => {
     // Chunks already written stay recoverable; clear the "recording" badge.
-    if (session) {
+    if (session && ownsPublishedState) {
       try {
         void chrome.storage.session.remove(RECORDER_STATE_KEY);
       } catch {
@@ -355,7 +367,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ── Recording ───────────────────────────────────────────────────────────
 
@@ -384,7 +395,8 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
   if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices?.getDisplayMedia) {
     throw new RecorderError('This browser cannot record the screen.', 'unsupported');
   }
-  // Created synchronously, inside the user's gesture, so it is allowed to run.
+  // Created synchronously, inside the user's gesture, so they are allowed to run.
+  primeSounds();
   let audioCtx: AudioContext | null = opts.systemAudio || opts.mic ? new AudioContext() : null;
   const live = (s: MediaStream | null | undefined) => (s && s.getTracks().some((t) => t.readyState === 'live') ? s : null);
   let mic = live(handoff.mic);
@@ -400,11 +412,17 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
     audioCtx = null;
   };
 
+  let endedEarly = false;
   try {
     // The picker first, while the click still counts as a user gesture.
     display = await openDisplay(opts);
+    // Notice "Stop sharing" even while the microphone or camera prompt is open.
+    display.getVideoTracks()[0]?.addEventListener('ended', () => (endedEarly = true), { once: true });
     if (opts.mic && !mic) mic = await openMicrophone(opts.micDeviceId);
     if (opts.camera && !camera) camera = await openCamera(opts.cameraDeviceId);
+    if (endedEarly || display.getVideoTracks()[0]?.readyState !== 'live') {
+      throw new RecorderError('Sharing stopped before the recording started.', 'cancelled');
+    }
   } catch (err) {
     const e = err instanceof RecorderError ? err : displayError(err);
     // Streams handed over by the setup preview are stopped too; the page reopens its preview.
@@ -413,122 +431,125 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
     throw e;
   }
 
-  const warnings: string[] = [];
-  const displayTrack = display.getVideoTracks()[0];
-  const settings = displayTrack.getSettings();
-  const surface = (settings.displaySurface as DisplaySurfaceKind | undefined) ?? undefined;
-  const label = surface === 'browser' ? cleanLabel(displayTrack.label) : undefined;
-  const preset = QUALITY_PRESETS[opts.quality];
-  let width = settings.width ?? preset.width;
-  let height = settings.height ?? preset.height;
-
-  // Video: the shared surface, or the surface with the camera bubble on top.
-  let videoTrack = displayTrack;
+  // Everything below can still fail (an ended track, an unsupported format, full storage):
+  // in that case release every device and return to the start, never leaving a half-open recorder.
   let compositor: VideoCompositor | null = null;
-  const cameraTrack = camera?.getVideoTracks()[0] ?? null;
-  if (cameraTrack) {
-    compositor = createCompositor(displayTrack, cameraTrack, { fps: opts.fps, layout: { position: opts.cameraPosition, size: opts.cameraSize } });
-    if (compositor) videoTrack = compositor.track;
-    else {
-      warnings.push('This version of Chrome cannot add the camera bubble, so only the screen was recorded.');
-      camera?.getTracks().forEach((t) => t.stop());
-      camera = null;
-    }
-  }
-
-  // Sound: tab/system audio and the microphone, mixed into one track.
-  const displayAudio = opts.systemAudio ? (display.getAudioTracks()[0] ?? null) : null;
-  if (opts.systemAudio && !displayAudio) {
-    warnings.push(
-      surface === 'browser'
-        ? 'The tab was shared without its sound. To include it, keep “Also share tab audio” switched on in Chrome’s picker.'
-        : 'This window or screen was shared without sound. Chrome records sound from tabs (and from the whole screen on Windows and ChromeOS).',
-    );
-  }
-  const micTrack = mic?.getAudioTracks()[0] ?? null;
-  const sources: { track: MediaStreamTrack; kind: 'system' | 'mic' }[] = [];
-  if (displayAudio) sources.push({ track: displayAudio, kind: 'system' });
-  if (micTrack) sources.push({ track: micTrack, kind: 'mic' });
-  let audioTrack: MediaStreamTrack | null = null;
   let mixer: AudioMixer | null = null;
-  if (sources.length && audioCtx) {
-    if (audioCtx.state !== 'running') await withTimeout(audioCtx.resume(), 600).catch(() => {});
-    if (audioCtx.state === 'running') {
-      mixer = new AudioMixer(audioCtx);
-      for (const s of sources) mixer.add(s.track, s.kind);
-      audioTrack = mixer.track;
-    }
-  }
-  if (!mixer) {
-    void audioCtx?.close().catch(() => {});
-    if (sources.length) {
-      audioTrack = sources.find((s) => s.kind === 'mic')?.track ?? sources[0].track;
-      if (sources.length > 1) warnings.push('Only the microphone could be recorded: Chrome did not allow mixing it with the tab sound.');
-    }
-  }
-
-  const choice = chooseMimeType(opts.format, !!audioTrack, (t) => MediaRecorder.isTypeSupported(t));
-  if (!choice) {
-    display.getTracks().forEach((t) => t.stop());
-    mic?.getTracks().forEach((t) => t.stop());
-    camera?.getTracks().forEach((t) => t.stop());
-    compositor?.stop();
-    void mixer?.close();
-    const e = new RecorderError('This browser cannot record video.', 'unsupported');
-    update({ ...idleSnapshot(), error: e.message, errorCode: e.code });
-    throw e;
-  }
-  if (choice.fallback) {
-    warnings.push(
-      opts.format === 'mp4'
-        ? 'This browser cannot write MP4 (H.264) video, so the recording is saved as WebM.'
-        : 'This browser cannot write WebM video, so the recording is saved as MP4.',
-    );
-  }
-
-  const stream = new MediaStream(audioTrack ? [videoTrack, audioTrack] : [videoTrack]);
-  const recorder = new MediaRecorder(stream, {
-    mimeType: choice.mimeType,
-    videoBitsPerSecond: videoBitsPerSecond(width, height, opts.fps),
-    audioBitsPerSecond: audioTrack ? AUDIO_BITS_PER_SECOND : undefined,
-    // Ignored by Chrome versions that do not support it.
-    videoKeyFrameIntervalDuration: KEYFRAME_INTERVAL_MS,
-  } as MediaRecorderOptions);
-
-  const now = Date.now();
-  const s: Session = {
-    id: newId(),
-    opts,
-    display,
-    displayTrack,
-    videoTrack,
-    mic,
-    micTrack,
-    camera,
-    compositor,
-    mixer,
-    recorder,
-    mimeType: choice.mimeType,
-    chunks: [],
-    seq: 0,
-    bytes: 0,
-    writes: Promise.resolve(),
-    writeError: null,
-    activeMs: 0,
-    since: null,
-    startedAt: now,
-    width,
-    height,
-    label,
-    surface,
-    hasAudio: !!audioTrack,
-    warnings,
-    finishing: null,
-    discarded: false,
-  };
-  session = s;
-
+  let s: Session;
+  let displayTrack: MediaStreamTrack;
+  let videoTrack: MediaStreamTrack;
+  let micTrack: MediaStreamTrack | null;
+  let cameraTrack: MediaStreamTrack | null;
+  let displayAudio: MediaStreamTrack | null;
+  let surface: DisplaySurfaceKind | undefined;
+  let choice: NonNullable<ReturnType<typeof chooseMimeType>>;
+  const warnings: string[] = [];
   try {
+    displayTrack = display.getVideoTracks()[0];
+    const settings = displayTrack.getSettings();
+    surface = (settings.displaySurface as DisplaySurfaceKind | undefined) ?? undefined;
+    const label = surface === 'browser' ? cleanLabel(displayTrack.label) : undefined;
+    const preset = QUALITY_PRESETS[opts.quality];
+    const width = settings.width ?? preset.width;
+    const height = settings.height ?? preset.height;
+
+    // Video: the shared surface, or the surface with the camera bubble on top.
+    videoTrack = displayTrack;
+    cameraTrack = camera?.getVideoTracks()[0] ?? null;
+    if (cameraTrack) {
+      compositor = createCompositor(displayTrack, cameraTrack, { fps: opts.fps, layout: { position: opts.cameraPosition, size: opts.cameraSize } });
+      if (compositor) videoTrack = compositor.track;
+      else {
+        warnings.push('This version of Chrome cannot add the camera bubble, so only the screen was recorded.');
+        camera?.getTracks().forEach((t) => t.stop());
+        camera = null;
+        cameraTrack = null;
+      }
+    }
+
+    // Sound: tab/system audio and the microphone, mixed into one track.
+    displayAudio = opts.systemAudio ? (display.getAudioTracks()[0] ?? null) : null;
+    if (opts.systemAudio && !displayAudio) {
+      warnings.push(
+        surface === 'browser'
+          ? 'The tab was shared without its sound. To include it, keep “Also share tab audio” switched on in Chrome’s picker.'
+          : 'This window or screen was shared without sound. Chrome records sound from tabs (and from the whole screen on Windows and ChromeOS).',
+      );
+    }
+    micTrack = mic?.getAudioTracks()[0] ?? null;
+    const sources: { track: MediaStreamTrack; kind: 'system' | 'mic' }[] = [];
+    if (displayAudio) sources.push({ track: displayAudio, kind: 'system' });
+    if (micTrack) sources.push({ track: micTrack, kind: 'mic' });
+    let audioTrack: MediaStreamTrack | null = null;
+    if (sources.length && audioCtx) {
+      if (audioCtx.state !== 'running') await withTimeout(audioCtx.resume(), 600).catch(() => {});
+      if (audioCtx.state === 'running') {
+        mixer = new AudioMixer(audioCtx);
+        for (const src of sources) mixer.add(src.track, src.kind);
+        audioTrack = mixer.track;
+      }
+    }
+    if (!mixer) {
+      void audioCtx?.close().catch(() => {});
+      audioCtx = null;
+      if (sources.length) {
+        audioTrack = sources.find((src) => src.kind === 'mic')?.track ?? sources[0].track;
+        if (sources.length > 1) warnings.push('Only the microphone could be recorded: Chrome did not allow mixing it with the tab sound.');
+      }
+    }
+
+    const picked = chooseMimeType(opts.format, !!audioTrack, (t) => MediaRecorder.isTypeSupported(t));
+    if (!picked) throw new RecorderError('This browser cannot record video.', 'unsupported');
+    choice = picked;
+    if (choice.fallback) {
+      warnings.push(
+        opts.format === 'mp4'
+          ? 'This browser cannot write MP4 (H.264) video, so the recording is saved as WebM.'
+          : 'This browser cannot write WebM video, so the recording is saved as MP4.',
+      );
+    }
+
+    const stream = new MediaStream(audioTrack ? [videoTrack, audioTrack] : [videoTrack]);
+    const recorder = new MediaRecorder(stream, {
+      mimeType: choice.mimeType,
+      videoBitsPerSecond: videoBitsPerSecond(width, height, opts.fps),
+      audioBitsPerSecond: audioTrack ? AUDIO_BITS_PER_SECOND : undefined,
+      // Ignored by Chrome versions that do not support it.
+      videoKeyFrameIntervalDuration: KEYFRAME_INTERVAL_MS,
+    } as MediaRecorderOptions);
+
+    const now = Date.now();
+    s = {
+      id: newId(),
+      opts,
+      display,
+      displayTrack,
+      videoTrack,
+      mic,
+      micTrack,
+      camera,
+      compositor,
+      mixer,
+      recorder,
+      mimeType: choice.mimeType,
+      chunks: [],
+      seq: 0,
+      bytes: 0,
+      writes: Promise.resolve(),
+      writeError: null,
+      activeMs: 0,
+      since: null,
+      startedAt: now,
+      width,
+      height,
+      label,
+      surface,
+      hasAudio: !!audioTrack,
+      warnings,
+      finishing: null,
+      discarded: false,
+    };
+    session = s;
     await createRecordingSession({
       id: s.id,
       startedAt: now,
@@ -546,15 +567,17 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
     });
   } catch (err) {
     session = null;
-    display.getTracks().forEach((t) => t.stop());
-    mic?.getTracks().forEach((t) => t.stop());
-    camera?.getTracks().forEach((t) => t.stop());
     compositor?.stop();
-    void mixer?.close();
-    const e = new RecorderError(err instanceof Error ? err.message : 'The recording could not be stored.', 'storage');
+    if (mixer) void mixer.close();
+    releaseAll();
+    const e =
+      err instanceof RecorderError
+        ? err
+        : new RecorderError(/quota|storage/i.test(String((err as Error)?.name ?? '')) ? 'There is not enough browser storage to start a recording.' : `The recording could not start: ${(err as Error)?.message ?? String(err)}`, 'unknown');
     update({ ...idleSnapshot(), error: e.message, errorCode: e.code });
     throw e;
   }
+  const recorder = s.recorder;
 
   recorder.ondataavailable = (e) => {
     if (!e.data || e.data.size === 0 || s.discarded) return;
@@ -578,11 +601,16 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
   };
   // "Stop sharing" in Chrome's bar (or the shared window closing) ends the recording.
   displayTrack.addEventListener('ended', () => void finish());
+  if (endedEarly || displayTrack.readyState !== 'live') void finish();
   micTrack?.addEventListener('ended', () => warn(s, 'The microphone was disconnected; the rest of the recording has no microphone sound.'));
   cameraTrack?.addEventListener('ended', () => warn(s, 'The camera was disconnected.'));
 
+  // Heartbeat: keeps the session from looking abandoned, and re-publishes the
+  // state in case another page cleared it. Runs until saving is finished.
   s.heartbeat = setInterval(() => {
     void updateRecordingSession(s.id, { durationMs: currentActiveMs(s) }).catch(() => {});
+    lastPublished = '';
+    publish();
   }, HEARTBEAT_MS);
 
   const preview = new MediaStream([videoTrack]);
@@ -607,12 +635,18 @@ export async function startRecording(opts: RecorderSettings, handoff: RecordingH
     errorCode: undefined,
   });
 
-  // Countdown (shown on the toolbar badge and in the recorder page).
+  // Countdown (shown on the toolbar badge and in the recorder page), timed by
+  // the audio clock so it stays accurate while this tab is in the background.
   for (let left = opts.countdown; left > 0; left--) {
     if (s.finishing || s.discarded) return;
     update({ countdown: left });
-    await sleep(1000);
+    playSound('tick');
+    await waitAudio(1);
   }
+  if (s.finishing || s.discarded) return;
+  // The "go" chime finishes before recording starts, so it is not recorded.
+  const chime = playSound('rec-start');
+  if (chime > 0) await waitAudio(chime);
   if (s.finishing || s.discarded) return;
 
   recorder.start(TIMESLICE_MS);
@@ -660,15 +694,26 @@ export function pauseRecording(): void {
   s.since = null;
   s.compositor?.setPaused(true);
   update({ phase: 'paused', activeMs: s.activeMs, since: undefined });
+  // Played after pausing, so it is not recorded.
+  playSound('pause');
 }
+
+let resuming = false;
 
 export function resumeRecording(): void {
   const s = session;
-  if (!s || snapshot.phase !== 'paused' || s.recorder.state !== 'paused') return;
-  s.recorder.resume();
-  s.since = Date.now();
-  s.compositor?.setPaused(false);
-  update({ phase: 'recording', since: s.since });
+  if (!s || resuming || snapshot.phase !== 'paused' || s.recorder.state !== 'paused') return;
+  resuming = true;
+  // The chime plays first and recording resumes when it ends, so it is not recorded.
+  const chime = playSound('resume');
+  void (chime > 0 ? waitAudio(chime) : Promise.resolve()).then(() => {
+    resuming = false;
+    if (session !== s || s.finishing || snapshot.phase !== 'paused' || s.recorder.state !== 'paused') return;
+    s.recorder.resume();
+    s.since = Date.now();
+    s.compositor?.setPaused(false);
+    update({ phase: 'recording', since: s.since });
+  });
 }
 
 export function setMicMuted(muted: boolean): void {
@@ -738,8 +783,17 @@ function finish(): Promise<void> {
   if (!s) return Promise.resolve();
   if (s.finishing) return s.finishing;
   s.finishing = (async () => {
-    clearInterval(s.heartbeat);
+    // The heartbeat keeps running until saving is done, so a slow save never
+    // looks like an abandoned recording to another tab.
     const started = s.recorder.state !== 'inactive';
+    // Stop taking in new frames right away (the poster below can take a moment).
+    if (s.recorder.state === 'recording') {
+      try {
+        s.recorder.pause();
+      } catch {
+        /* already stopping */
+      }
+    }
     if (s.since) {
       s.activeMs += Date.now() - s.since;
       s.since = null;
@@ -748,9 +802,11 @@ function finish(): Promise<void> {
     if (started && !s.thumb && !s.discarded) await grabPoster(s).catch(() => {});
     await stopRecorder(s.recorder);
     releaseMedia(s);
+    if (started) playSound('rec-stop');
     await s.writes;
 
     if (s.discarded || s.seq === 0) {
+      clearInterval(s.heartbeat);
       await discardRecordingSession(s.id).catch(() => {});
       session = null;
       update({ ...idleSnapshot(), warnings: [], error: !s.discarded && started ? 'Nothing was recorded.' : undefined });
@@ -760,10 +816,19 @@ function finish(): Promise<void> {
     update({ phase: 'saving', preview: undefined });
     try {
       const item = await saveSession(s);
+      clearInterval(s.heartbeat);
+      if (s.discarded) {
+        // Discard was confirmed while the recording was being saved.
+        await deleteItems([item.id]).catch(() => {});
+        session = null;
+        update({ ...idleSnapshot(), warnings: [] });
+        return;
+      }
       session = null;
       update({ phase: 'done', itemId: item.id, activeMs: item.durationMs ?? s.activeMs, warnings: [...item.warnings], preview: undefined });
       focusThisTab();
     } catch (err) {
+      clearInterval(s.heartbeat);
       session = null;
       update({
         phase: 'error',
@@ -827,8 +892,13 @@ async function saveSession(s: Session): Promise<LibraryItem> {
   const durationMs = Math.round(s.activeMs);
   const fixed = await repairedFirstChunk(s.chunks[0], s.mimeType, durationMs).catch(() => null);
   if (fixed) {
-    s.chunks[0] = fixed;
-    await replaceRecordingChunk(s.id, 0, fixed);
+    try {
+      await replaceRecordingChunk(s.id, 0, fixed);
+      s.chunks[0] = fixed;
+    } catch {
+      // Every chunk is stored; only the length marker is missing.
+      s.warnings.push('The video’s length could not be written into the file, so some players may not show it.');
+    }
   }
   const bytes = s.chunks.reduce((n, c) => n + c.size, 0);
   const thumb = s.thumb ?? (await posterFromVideo(new Blob(s.chunks, { type: baseMimeType(s.mimeType) })).catch(() => undefined));
@@ -873,8 +943,27 @@ export async function posterFromVideo(blob: Blob, at = 0.4): Promise<Blob> {
 /** Unfinished recordings that no open page is still writing. */
 export async function findRecoverableSessions(): Promise<RecordingSessionRecord[]> {
   const all = await listRecordingSessions().catch(() => [] as RecordingSessionRecord[]);
+  if (all.length === 0) return [];
+  // A recording another tab is still writing (or saving) answers a ping: never offer it.
+  const live = await queryRecorder(400);
   const now = Date.now();
-  return all.filter((r) => r.id !== session?.id && now - r.updatedAt > STALE_SESSION_MS).sort((a, b) => b.startedAt - a.startedAt);
+  return all
+    .filter((r) => r.id !== session?.id && r.id !== live?.sessionId && now - r.updatedAt > STALE_SESSION_MS)
+    .sort((a, b) => b.startedAt - a.startedAt);
+}
+
+/**
+ * Discards a recording the user chose to throw away: the live one if it is
+ * still running, otherwise the copy that was saved meanwhile.
+ */
+export async function discardById(id: string | undefined): Promise<void> {
+  if (!id) return;
+  if (session?.id === id) {
+    await discardRecording();
+    return;
+  }
+  await deleteItems([id]).catch(() => {});
+  await discardRecordingSession(id).catch(() => {});
 }
 
 export async function recoverSession(rec: RecordingSessionRecord): Promise<LibraryItem> {
@@ -886,8 +975,12 @@ export async function recoverSession(rec: RecordingSessionRecord): Promise<Libra
   const durationMs = rec.durationMs > 0 ? rec.durationMs : chunks.length * TIMESLICE_MS;
   const fixed = await repairedFirstChunk(chunks[0], rec.mimeType, durationMs).catch(() => null);
   if (fixed) {
-    chunks[0] = fixed;
-    await replaceRecordingChunk(rec.id, 0, fixed);
+    try {
+      await replaceRecordingChunk(rec.id, 0, fixed);
+      chunks[0] = fixed;
+    } catch {
+      /* keep the original header; the video still plays */
+    }
   }
   const blob = new Blob(chunks, { type: baseMimeType(rec.mimeType) });
   const thumb = rec.thumb ?? (await posterFromVideo(blob).catch(() => undefined));

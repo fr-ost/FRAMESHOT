@@ -27,7 +27,7 @@ type Size = 'sm' | 'md' | 'lg';
 const VARIANTS: Record<Variant, string> = {
   primary: 'fr-btn-primary disabled:opacity-50',
   secondary:
-    'border border-border bg-surface text-fg shadow-card backdrop-blur-md hover:border-border-strong hover:bg-surface-solid disabled:opacity-50',
+    'border border-border bg-surface-solid/85 text-fg shadow-card hover:border-border-strong hover:bg-surface-solid disabled:opacity-50',
   ghost: 'text-fg-muted hover:bg-surface-2 hover:text-fg disabled:opacity-40',
   danger: 'bg-danger text-white shadow-card hover:bg-danger-hover disabled:opacity-50',
   soft: 'bg-primary-soft text-primary-soft-fg hover:bg-primary-soft/80 disabled:opacity-50',
@@ -257,7 +257,7 @@ export function Switch({
 }
 
 const fieldBase =
-  'h-9 rounded-[11px] border border-border bg-surface text-sm text-fg shadow-[inset_0_1px_0_var(--fr-surface-2)] backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-fg-subtle hover:border-border-strong focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 focus-visible:outline-none disabled:opacity-60';
+  'h-9 rounded-[11px] border border-border bg-surface-solid/85 text-sm text-fg shadow-[inset_0_1px_0_var(--fr-surface-2)] transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-fg-subtle hover:border-border-strong focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 focus-visible:outline-none disabled:opacity-60';
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...rest }, ref) {
   return <input ref={ref} className={cx(fieldBase, 'px-3', !/(^|\s)w-/.test(className ?? '') && 'w-full', className)} {...rest} />;

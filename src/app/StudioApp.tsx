@@ -2,6 +2,8 @@ import { Pause, Play, Square } from 'lucide-react';
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { formatDuration } from '../core/format';
 import { LibraryPage } from '../library/LibraryPage';
+import { ShortcutsDialog } from './ShortcutsDialog';
+import { ErrorBoundary } from './ErrorBoundary';
 import { STUDIO_CHANNEL, type StudioMessage } from '../core/studio-channel';
 import { elapsedMs, isActivePhase } from '../recorder/channel';
 import { focusThisTab, getRecorderSnapshot, pauseRecording, resetRecorder, resumeRecording, stopRecording } from '../recorder/recorder';
@@ -108,7 +110,7 @@ export function StudioApp() {
       page = <RecorderPage settings={settings} />;
       break;
     case 'play':
-      page = <PlayerPage id={route.id} settings={settings} />;
+      page = <PlayerPage id={route.id} settings={settings} openGif={route.gif} />;
       break;
     default:
       page = <LibraryPage settings={settings} />;
@@ -119,7 +121,7 @@ export function StudioApp() {
       <ToastProvider>
         <ConfirmProvider>
           <Aurora />
-          <div className="relative z-10 h-screen w-screen overflow-hidden">
+          <div className="fr-page-layer relative z-10 h-screen w-screen overflow-clip">
             <Suspense
               fallback={
                 <div className="flex h-full items-center justify-center gap-2 text-sm text-fg-subtle">
@@ -127,10 +129,11 @@ export function StudioApp() {
                 </div>
               }
             >
-              {page}
+              <ErrorBoundary resetKey={location.hash}>{page}</ErrorBoundary>
             </Suspense>
           </div>
           <RecorderWatcher route={route} />
+          <ShortcutsDialog />
         </ConfirmProvider>
       </ToastProvider>
     </TooltipProvider>
@@ -148,6 +151,12 @@ function RecorderWatcher({ route }: { route: Route }) {
   const now = useNow(rec.phase === 'recording', 500);
 
   useEffect(() => {
+    if (rec.phase === 'error' && rec.unsaved && route.name !== 'record') {
+      // The recorder screen shows the reason and a Download button for the unsaved recording.
+      navigate('/record');
+      toast.error('The recording could not be saved to the library. You can still download it.');
+      return;
+    }
     if (rec.phase === 'done' && rec.itemId && handled.current !== rec.itemId) {
       handled.current = rec.itemId;
       const id = rec.itemId;
@@ -155,7 +164,7 @@ function RecorderWatcher({ route }: { route: Route }) {
       navigate(`/play/${encodeURIComponent(id)}`);
       toast.success('Recording saved to your library.');
     }
-  }, [rec.phase, rec.itemId, toast]);
+  }, [rec.phase, rec.itemId, rec.unsaved, route.name, toast]);
 
   if (!isActivePhase(rec.phase) || route.name === 'record') return null;
   const busy = rec.phase === 'stopping' || rec.phase === 'saving';

@@ -2,6 +2,33 @@
 
 All notable changes to FrameShot (formerly Frameora) are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-11-08
+
+### Added
+- **Export recordings as animated GIFs.** Pick the part to keep with a two-handle trim slider (with a live preview), choose the width (320–800 px), the frame rate (10, 15 or 20 fps) and whether it loops. GIFs are made on your device in a background worker, with one steady colour palette, unchanged pixels stored once and identical frames merged, so screen recordings make small, clean GIFs. Available from the player (button or **G**) and from a recording's menu in the library.
+- **Sound effects**: a camera shutter when a screenshot is saved (also for captures started from the toolbar, menu or keyboard), a countdown tick, start/stop and pause/resume chimes for recordings, a chime when a download or copy is ready, and a soft tone when something fails. Sounds are synthesized (no audio files). Recording chimes finish *before* recording starts or resumes, so they are not recorded. Turn them off or set the volume in **Settings → Sounds**, or with the speaker button in the popup.
+- **Keyboard shortcuts sheet**: press **?** anywhere in the Studio (or the keyboard button in the library).
+- Library: **Ctrl/⌘ + A** selects everything shown, **Delete** deletes the selection, **Esc** clears it; hovering a recording plays a silent preview.
+- Player: keyboard shortcuts (Space, ←/→, , and . for single frames, F, M, S, G) and playback speed (0.5×–2×).
+
+### Changed
+- Smoother scrolling and animation: cards, buttons and fields no longer apply a background blur over the animated backdrop (that was recomputed for every card on every frame); frosted glass is kept for headers, sidebars and dialogs. Off-screen library cards skip rendering until scrolled near.
+- New permission: **`offscreen`**, used only to play sound effects for captures run in the background (the service worker cannot play audio). Chrome shows no warning for it.
+
+### Fixed
+- Recorder (found in an internal review):
+  - Deleting an "unfinished recording" in one tab could delete the video of the same recording that another tab had just recovered; leftover sessions of saved recordings now keep their video, and recordings still being written are never offered for recovery.
+  - If something failed after Chrome's share picker (for example "Stop sharing" while the microphone prompt was open), the recorder could stay stuck on "Choose what to share" with the microphone and camera on; it now always releases them and explains what happened.
+  - A recording that could not be saved was invisible if you stopped it from another Studio screen, and closing the tab dropped the only copy; FrameShot now takes you to the recorder with a Download button, and asks before closing.
+  - Discard confirmed after the recording had already ended (and been saved) was ignored; it now deletes the saved copy.
+  - "Clear all local data" during a recording could leave a corrupt video; it is now refused until the recording stops, and recordings are never saved into removed storage.
+  - Another Studio tab could clear the toolbar's REC badge and the popup's controls while a recording continued.
+  - An interrupted recording was not offered for recovery if the recorder was reopened within 15 seconds.
+  - A failed write of the WebM length marker failed the whole save.
+  - An unplugged camera froze the camera bubble on its last frame.
+  - The last moment after pressing Stop could be recorded while the poster frame was taken.
+- GIF dialog: the real video length arriving after opening no longer resets a trim you already made.
+
 ## [1.2.0] — 2026-11-08
 
 ### Added

@@ -35,6 +35,7 @@ import { elapsedMs, isActivePhase, queryRecorder, sendRecorderCommand, type Reco
 import { BUBBLE_SCALE, supportsCameraOverlay } from './compositor';
 import { chooseMimeType, containerOf, describeMimeType, QUALITY_PRESETS } from './formats';
 import {
+  discardById,
   discardRecording,
   discardRecordingSession,
   findRecoverableSessions,
@@ -76,9 +77,9 @@ export function RecorderPage({ settings }: { settings: Settings }) {
   useEffect(() => {
     if (!setup) return;
     let alive = true;
-    const check = () => void queryRecorder().then((s) => alive && setElsewhere(s && isActivePhase(s.phase) ? s : null));
+    const check = () => void queryRecorder().then((s) => alive && setElsewhere(s && (isActivePhase(s.phase) || s.phase === 'acquiring') ? s : null));
     check();
-    const t = setInterval(check, 4000);
+    const t = setInterval(check, 2000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -87,8 +88,16 @@ export function RecorderPage({ settings }: { settings: Settings }) {
 
   useEffect(() => {
     if (!setup) return;
-    void findRecoverableSessions().then(setRecoverable);
-  }, [setup, snap.updatedAt]);
+    let alive = true;
+    // A recording interrupted moments ago becomes recoverable once its heartbeat is clearly stale.
+    const look = () => void findRecoverableSessions().then((list) => alive && setRecoverable(list));
+    look();
+    const t = setInterval(look, 4000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, [setup]);
 
   const mp4Available = useMemo(() => typeof MediaRecorder !== 'undefined' && chooseMimeType('mp4', false, (t) => MediaRecorder.isTypeSupported(t))?.container === 'mp4', []);
   const overlaySupported = useMemo(() => supportsCameraOverlay(), []);
@@ -104,13 +113,18 @@ export function RecorderPage({ settings }: { settings: Settings }) {
   };
 
   const discard = async () => {
+    const id = snap.sessionId;
     const ok = await confirm({
       title: 'Discard this recording?',
       message: 'What you recorded so far will be deleted. This cannot be undone.',
       confirmLabel: 'Discard',
       danger: true,
     });
-    if (ok) await discardRecording();
+    if (!ok) return;
+    // If the recording ended while the dialog was open, delete the copy that was saved.
+    await discardById(id);
+    if (id && location.hash.includes(`/play/${encodeURIComponent(id)}`)) navigate('/record');
+    toast.info('Recording discarded.');
   };
 
   const downloadUnsaved = async () => {

@@ -16,6 +16,7 @@ Prepared answers for the **Privacy practices** tab of the Chrome Web Store Devel
 | `unlimitedStorage` | The local library stores full-resolution images and screen recordings in IndexedDB. Long full-page screenshots can be tens of megabytes and recordings hundreds; without this permission the browser could evict the user's library. |
 | `downloads` | Saves exported images, PDFs, and ZIP archives to the user's Downloads folder when the user clicks Download, and confirms the download completed before telling the user it was saved. |
 | `contextMenus` | Adds a "FrameShot" right-click menu with capture options and a shortcut to the library. |
+| `offscreen` | Creates a hidden offscreen document (reason: audio playback) that plays FrameShot's sound effects, such as the camera shutter, for captures run by the background service worker, which cannot play audio. It reads no page content and makes no network requests. |
 
 **Screen recording, microphone, camera:** no manifest permission is used. Recording goes through Chrome's own share picker (`getDisplayMedia`), and the microphone and camera through Chrome's permission prompt (`getUserMedia`), only after the user switches them on in the recorder.
 

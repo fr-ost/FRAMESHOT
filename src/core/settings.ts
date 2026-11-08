@@ -18,6 +18,13 @@ export type RecordingCountdown = 0 | 3 | 5 | 10;
 export type CameraPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type CameraSize = 'small' | 'medium' | 'large';
 
+export interface SoundSettings {
+  /** Camera shutter, recording and countdown sounds. */
+  enabled: boolean;
+  /** 0–1. */
+  volume: number;
+}
+
 export interface RecorderSettings {
   /** Which tab of Chrome's share picker opens first. */
   surface: DisplaySurfaceKind;
@@ -67,6 +74,7 @@ export interface Settings {
     marginPt: number;
   };
   recorder: RecorderSettings;
+  sounds: SoundSettings;
 }
 
 export const DEFAULT_FILENAME_TEMPLATE = 'frameshot-{domain}-{date}-{time}';
@@ -106,6 +114,7 @@ export const DEFAULT_SETTINGS: Settings = Object.freeze({
     fps: 30,
     countdown: 3,
   }),
+  sounds: Object.freeze({ enabled: true, volume: 0.6 }),
 }) as Settings;
 
 // Storage key kept from the product's former name (Frameora) so existing
@@ -171,6 +180,7 @@ export function sanitizeSettings(input: unknown): Settings {
   const l = obj(s.library);
   const p = obj(s.pdf);
   const r = obj(s.recorder);
+  const snd = obj(s.sounds);
   const d = DEFAULT_SETTINGS;
   const dr = d.recorder;
   const template =
@@ -220,6 +230,10 @@ export function sanitizeSettings(input: unknown): Settings {
       fps: pickNumber(r.fps, [15, 30, 60] as const, dr.fps),
       countdown: pickNumber(r.countdown, [0, 3, 5, 10] as const, dr.countdown),
     },
+    sounds: {
+      enabled: bool(snd.enabled, d.sounds.enabled),
+      volume: Math.round(num(snd.volume, 0, 1, d.sounds.volume) * 100) / 100,
+    },
   };
 }
 
@@ -237,6 +251,7 @@ export function mergeSettings(current: Settings, patch: DeepPartial<Settings>): 
     library: { ...current.library, ...(patch.library ?? {}) },
     pdf: { ...current.pdf, ...(patch.pdf ?? {}) },
     recorder: { ...current.recorder, ...(patch.recorder ?? {}) },
+    sounds: { ...current.sounds, ...(patch.sounds ?? {}) },
   });
 }
 

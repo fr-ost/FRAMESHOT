@@ -111,7 +111,7 @@ function drawBubble(ctx: Ctx, cam: VideoFrame, w: number, h: number, layout: Cam
   ctx.restore();
 }
 
-async function pump(readable: ReadableStream<VideoFrame>, onFrame: (f: VideoFrame) => void, isStopped: () => boolean): Promise<void> {
+async function pump(readable: ReadableStream<VideoFrame>, onFrame: (f: VideoFrame) => void, isStopped: () => boolean, onEnd?: () => void): Promise<void> {
   const reader = readable.getReader();
   try {
     for (;;) {
@@ -127,6 +127,7 @@ async function pump(readable: ReadableStream<VideoFrame>, onFrame: (f: VideoFram
     // The source track ended.
   } finally {
     reader.releaseLock();
+    onEnd?.();
   }
 }
 
@@ -194,6 +195,11 @@ export function createCompositor(display: MediaStreamTrack, camera: MediaStreamT
       render();
     },
     () => stopped,
+    () => {
+      // Camera unplugged: drop the bubble rather than freeze its last frame.
+      latestCamera?.close();
+      latestCamera = null;
+    },
   );
 
   return {

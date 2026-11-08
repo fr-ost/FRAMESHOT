@@ -3,7 +3,7 @@
  * drawing every annotation type, cropping, panning and zooming.
  */
 import type { Point, Rect } from '../../core/types';
-import {
+import { aspectResize,
   fitObject,
   handleAt,
   hitTest,
@@ -88,6 +88,10 @@ export class CanvasInteraction {
     // Prevent the browser's default focus change / text selection, which would
     // otherwise steal focus from the inline text editor we may open.
     e.preventDefault();
+    // ...but do move keyboard focus off panel controls (a slider, a field), so
+    // arrow keys and shortcuts act on the canvas again, not on that control.
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active !== document.body && active.matches('input, select, textarea, button, [contenteditable="true"]')) active.blur();
     const p = this.toDoc(e);
     this.canvas.setPointerCapture(e.pointerId);
     this.pointerId = e.pointerId;
@@ -467,9 +471,7 @@ export class CanvasInteraction {
     } else next = resizeBounds(d.orig, d.mode, clampP(p), shift);
     const ratio = this.cropAspect;
     if (ratio && d.mode !== 'move') {
-      const h = next.w / ratio;
-      next = { ...next, h: Math.min(h, H - next.y) };
-      next.w = next.h * ratio;
+      next = aspectResize(d.orig, d.mode === 'new' ? 'new' : d.mode, d.start, clampP(p), ratio, { w: W, h: H });
     }
     this.store.setCropRect(next);
   }

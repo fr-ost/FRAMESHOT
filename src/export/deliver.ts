@@ -3,6 +3,8 @@
  * Chrome confirms the download completed) and clipboard copy.
  */
 
+import { playSound } from '../ui/sounds';
+
 export class DownloadCancelledError extends Error {
   constructor() {
     super('Download cancelled.');
@@ -21,7 +23,9 @@ export async function downloadBlob(blob: Blob, filename: string, opts: { saveAs?
   try {
     const id = await chrome.downloads.download({ url, filename, saveAs: !!opts.saveAs, conflictAction: 'uniquify' });
     if (id === undefined) throw new Error(chrome.runtime.lastError?.message || 'The download could not be started.');
-    return await waitForDownload(id);
+    const result = await waitForDownload(id);
+    playSound('success');
+    return result;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (/USER_CANCELED|cancel/i.test(message)) throw new DownloadCancelledError();
@@ -82,6 +86,7 @@ export async function copyImageBlob(blob: Blob | Promise<Blob>): Promise<void> {
   const pngPromise = Promise.resolve(blob).then(async (b) => (b.type === 'image/png' ? b : toPng(b)));
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngPromise })]);
+    playSound('success');
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (/focus/i.test(message)) throw new Error('Click inside the FrameShot window and try copying again.');

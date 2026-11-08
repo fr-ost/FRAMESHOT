@@ -21,6 +21,8 @@ import {
   Square,
   SquareDashedMousePointer,
   Video,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { formatDuration, formatRelative } from '../core/format';
@@ -28,6 +30,7 @@ import { sendToBackground, STATUS_PORT, type StatusPortMessage } from '../core/m
 import { checkPageAccess } from '../core/restricted';
 import type { CaptureMode, CaptureStatus, LibraryItem } from '../core/types';
 import { getThumb, listItems } from '../db/db';
+import { updateSettings } from '../core/settings';
 import {
   elapsedMs,
   isActivePhase,
@@ -154,6 +157,17 @@ export function PopupApp() {
           <div className="flex items-center gap-0.5">
             <button
               type="button"
+              aria-label={settings.sounds.enabled ? 'Turn sounds off' : 'Turn sounds on'}
+              title={settings.sounds.enabled ? 'Sounds on' : 'Sounds off'}
+              aria-pressed={!settings.sounds.enabled}
+              onClick={() => void updateSettings({ sounds: { enabled: !settings.sounds.enabled } })}
+              data-testid="popup-sound"
+              className="fr-press inline-flex h-8 w-8 items-center justify-center rounded-[10px] text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+            >
+              {settings.sounds.enabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            </button>
+            <button
+              type="button"
               onClick={() => open('/')}
               className="fr-press inline-flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
             >
@@ -222,7 +236,7 @@ export function PopupApp() {
                 type="button"
                 onClick={() => open('/record')}
                 data-testid="record-screen"
-                className="fr-stagger fr-lift fr-press group flex h-[58px] w-full items-center gap-3 rounded-[16px] border border-border bg-surface px-3 text-left shadow-card backdrop-blur-xl"
+                className="fr-stagger fr-lift fr-press group flex h-[58px] w-full items-center gap-3 rounded-[16px] border border-border bg-surface-solid/90 px-3 text-left shadow-card"
                 style={{ '--i': 4 } as CSSProperties}
               >
                 <span className="fr-rec-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px]">
@@ -241,13 +255,13 @@ export function PopupApp() {
                 type="button"
                 disabled={disabled}
                 onClick={() => void start('scrollable')}
-                className="fr-press flex h-10 flex-1 items-center gap-2 rounded-[13px] border border-border bg-surface px-3 text-[13px] font-medium text-fg-muted shadow-card backdrop-blur-xl transition-colors hover:border-border-strong hover:text-fg disabled:opacity-50"
+                className="fr-press flex h-10 flex-1 items-center gap-2 rounded-[13px] border border-border bg-surface-solid/90 px-3 text-[13px] font-medium text-fg-muted shadow-card transition-colors hover:border-border-strong hover:text-fg disabled:opacity-50"
                 data-testid="capture-scrollable"
               >
                 <FileStack size={15} className="text-primary" /> Scrolling panel
               </button>
               <label
-                className="flex h-10 items-center gap-1.5 rounded-[13px] border border-border bg-surface px-2.5 text-[12px] text-fg-muted shadow-card backdrop-blur-xl"
+                className="flex h-10 items-center gap-1.5 rounded-[13px] border border-border bg-surface-solid/90 px-2.5 text-[12px] text-fg-muted shadow-card"
                 title="Delay before capturing the visible area (useful for menus and hover states)"
               >
                 <Clock size={14} className="text-primary" />
@@ -320,7 +334,7 @@ function ModeCard({
       data-testid={testId}
       aria-label={fullLabel}
       title={`${fullLabel} (${hint})`}
-      className="fr-stagger fr-lift fr-press group flex h-[88px] flex-col items-center justify-center gap-2 rounded-[16px] border border-border bg-surface text-center shadow-card backdrop-blur-xl disabled:cursor-not-allowed disabled:opacity-50"
+      className="fr-stagger fr-lift fr-press group flex h-[88px] flex-col items-center justify-center gap-2 rounded-[16px] border border-border bg-surface-solid/90 text-center shadow-card disabled:cursor-not-allowed disabled:opacity-50"
       style={{ '--i': i } as CSSProperties}
     >
       <span
@@ -472,7 +486,7 @@ function StatusView({ status, onDismiss, onOpen }: { status: CaptureStatus; onDi
 
 function Recent({ items, onOpen, onLibrary }: { items: LibraryItem[]; onOpen: (id: string) => void; onLibrary: () => void }) {
   return (
-    <section aria-label="Recent captures" className="fr-stagger rounded-[16px] border border-border bg-surface p-3 shadow-card backdrop-blur-xl" style={{ '--i': 6 } as CSSProperties}>
+    <section aria-label="Recent captures" className="fr-stagger rounded-[16px] border border-border bg-surface-solid/90 p-3 shadow-card" style={{ '--i': 6 } as CSSProperties}>
       <div className="mb-2.5 flex items-center justify-between">
         <h2 className="text-[12px] font-semibold text-fg-muted">Recent</h2>
         <button type="button" onClick={onLibrary} className="group inline-flex items-center gap-1 text-[12px] font-semibold text-primary">

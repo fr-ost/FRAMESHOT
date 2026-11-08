@@ -1,4 +1,4 @@
-import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Info, Keyboard, Lock, Mic, Palette, Shield, Star, Trash2, Video } from 'lucide-react';
+import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Info, Keyboard, Lock, Mic, Palette, Play, Shield, Star, Trash2, Video, Volume2 } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { BRAND } from '../core/brand';
 import { buildFilename, FILENAME_TOKENS } from '../core/filename';
@@ -6,6 +6,8 @@ import { formatBytes } from '../core/format';
 import { DEFAULT_SETTINGS, LIMITS, saveSettings, sanitizeFolder, type Settings, type DeepPartial, mergeSettings, type RecorderSettings } from '../core/settings';
 import { QUALITY_PRESETS } from '../recorder/formats';
 import { hasStoreListing, markReviewDone, reviewUrl } from '../core/review';
+import { playSound } from '../ui/sounds';
+import { queryRecorder } from '../recorder/channel';
 import { clearAllData, storageStats, type StorageStats } from '../db/db';
 import { navigate } from '../ui/hooks';
 import { useConfirm, useToast } from '../ui/overlays';
@@ -13,6 +15,7 @@ import { Button, Credits, Field, Input, Logo, SegmentedControl, Select, Slider, 
 
 const SECTIONS = [
   { id: 'appearance', label: 'Appearance', icon: <Palette size={15} /> },
+  { id: 'sounds', label: 'Sounds', icon: <Volume2 size={15} /> },
   { id: 'capture', label: 'Capture', icon: <Camera size={15} /> },
   { id: 'recording', label: 'Screen recording', icon: <Video size={15} /> },
   { id: 'export', label: 'Export & downloads', icon: <Download size={15} /> },
@@ -76,6 +79,27 @@ function ThemeTile({ value, label, current, onSelect }: { value: Settings['theme
         </span>
       </span>
     </button>
+  );
+}
+
+function VolumeSlider({ value, onCommit }: { value: number; onCommit: (v: number) => void }) {
+  const [local, setLocal] = useState(Math.round(value * 100));
+  useEffect(() => setLocal(Math.round(value * 100)), [value]);
+  return (
+    <Slider
+      label="Volume"
+      id="fr-s-volume"
+      min={0}
+      max={100}
+      value={local}
+      onChange={setLocal}
+      onCommit={(v) => {
+        onCommit(v / 100);
+        // Let the user hear the new level.
+        playSound('shutter', { force: true, volume: v / 100 });
+      }}
+      format={(v) => `${v}%`}
+    />
   );
 }
 
@@ -165,6 +189,24 @@ export function SettingsPage({ settings }: { settings: Settings }) {
             <ThemeTile value="system" label="System" current={settings.theme} onSelect={() => void update({ theme: 'system' })} />
             <ThemeTile value="light" label="Light" current={settings.theme} onSelect={() => void update({ theme: 'light' })} />
             <ThemeTile value="dark" label="Dark" current={settings.theme} onSelect={() => void update({ theme: 'dark' })} />
+          </div>
+        </Card>
+
+        <Card title="Sounds" id="sounds" description="Short sounds confirm what happened, even when FrameShot is in the background.">
+          <Switch
+            label="Sound effects"
+            description="A camera shutter when a screenshot is saved, a countdown and start/stop chimes for recordings, and a chime when an export is ready."
+            checked={settings.sounds.enabled}
+            onChange={(v) => void update({ sounds: { enabled: v } })}
+            id="fr-s-sounds"
+          />
+          <div className={cx('flex items-end gap-4', !settings.sounds.enabled && 'pointer-events-none opacity-50')}>
+            <div className="w-full max-w-xs">
+              <VolumeSlider value={settings.sounds.volume} onCommit={(v) => void update({ sounds: { volume: v } })} />
+            </div>
+            <Button size="sm" icon={<Play size={14} />} onClick={() => playSound('shutter', { force: true })} data-testid="sound-test">
+              Play a test sound
+            </Button>
           </div>
         </Card>
 
@@ -332,6 +374,10 @@ export function SettingsPage({ settings }: { settings: Settings }) {
                 danger: true,
               });
               if (!ok) return;
+              if (await queryRecorder(400)) {
+                toast.error('A screen recording is in progress. Stop it before clearing all data.');
+                return;
+              }
               await clearAllData();
               setStats(await storageStats());
               toast.success('All local data deleted.');

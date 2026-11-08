@@ -347,6 +347,7 @@ describe('recording storage', () => {
 
     await createRecordingSession(session('r2'));
     await appendRecordingChunk('r2', 0, new Blob(['a']), {});
+    await createRecordingSession(session('r3'));
     await finalizeRecording(recordingItem('r3'));
     await clearAllData();
     expect(await listRecordingSessions()).toEqual([]);
@@ -354,9 +355,30 @@ describe('recording storage', () => {
     expect(await listItems()).toEqual([]);
   });
 
+  it('never writes into or saves a recording whose session was removed', async () => {
+    await createRecordingSession(session('gone'));
+    await appendRecordingChunk('gone', 0, new Blob(['a']), {});
+    await clearAllData();
+    await expect(appendRecordingChunk('gone', 1, new Blob(['b']), {})).rejects.toThrow(/removed/);
+    await expect(finalizeRecording(recordingItem('gone'))).rejects.toThrow(/removed/);
+    expect(await getRecordingChunks('gone')).toEqual([]);
+    expect(await getItem('gone')).toBeUndefined();
+  });
+
+  it('deleting a leftover session never deletes the video of a recording saved meanwhile', async () => {
+    await createRecordingSession(session('r9'));
+    await appendRecordingChunk('r9', 0, new Blob(['video']), {});
+    await finalizeRecording(recordingItem('r9'));
+    // A stale "unfinished recording" banner in another tab, then Delete:
+    await discardRecordingSession('r9');
+    expect((await getRecordingChunks('r9')).length).toBe(1);
+    expect((await getItem('r9'))?.kind).toBe('recording');
+  });
+
   it('filters recordings in the library and finds them by search', async () => {
     const image = { ...recordingItem('i1'), kind: 'capture' as const, mimeType: 'image/png', name: 'Pricing page' };
     await addItem(image, new Blob(['p']));
+    await createRecordingSession(session('r1'));
     await finalizeRecording(recordingItem('r1', { name: 'Demo walkthrough' }));
     const items = await listItems();
     const q = { search: '', domain: '', sort: 'newest' as const };

@@ -27,6 +27,7 @@ export function ComparePage({ a, b }: { a: string; b: string }) {
   }, [a, b]);
 
   useEffect(() => {
+    if (mode === 'side') setDiffStats('');
     if (!data || mode === 'side' || !ref.current) return;
     const ca = data.a.canvas;
     const cb = data.b.canvas;

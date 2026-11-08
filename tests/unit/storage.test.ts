@@ -139,3 +139,25 @@ describe('library filtering', () => {
     expect(groups[0].map((i) => i.id).sort()).toEqual(['d1', 'd2']);
   });
 });
+
+describe('duplicate detection at scale', () => {
+  it('groups 4,000 screenshots quickly and reuses the result until a hash changes', () => {
+    let seed = 7;
+    const rand = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 0xffffffff);
+    const hex = () => Array.from({ length: 16 }, () => Math.floor(rand() * 16).toString(16)).join('');
+    const many: LibraryItem[] = Array.from({ length: 4000 }, (_, k) => item(`d${k}`, { dhash: hex(), width: 1280, height: 800 }));
+    // Two near-identical pairs (1 bit apart).
+    many[10] = { ...many[10], dhash: 'ffffffffffffffff' };
+    many[20] = { ...many[20], dhash: 'fffffffffffffffe' };
+    const t0 = performance.now();
+    const groups = findDuplicateGroups(many);
+    const first = performance.now() - t0;
+    expect(groups.some((g) => g.map((i) => i.id).sort().join() === 'd10,d20')).toBe(true);
+    const t1 = performance.now();
+    findDuplicateGroups(many.map((i) => ({ ...i, favorite: !i.favorite })));
+    const second = performance.now() - t1;
+    expect(first).toBeLessThan(1500);
+    expect(second).toBeLessThan(first);
+    console.log(`duplicates: 4000 items ${first.toFixed(0)} ms, cached ${second.toFixed(1)} ms`);
+  });
+});

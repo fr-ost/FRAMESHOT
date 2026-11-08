@@ -5,6 +5,7 @@
  */
 import { STATUS_PORT, type StatusPortMessage } from '../core/messages';
 import type { CaptureStatus } from '../core/types';
+import { playBackgroundSound, soundForStatus } from './sound';
 import { isActivePhase, onRecorderState, queryRecorder, readRecorderState, RECORDER_STATE_KEY, recorderBadge, type RecorderPublicState } from '../recorder/channel';
 
 const ports = new Set<chrome.runtime.Port>();
@@ -47,7 +48,10 @@ export async function restoreStatus(): Promise<void> {
 }
 
 export function setStatus(patch: Omit<CaptureStatus, 'updatedAt'>): void {
+  const previous = current;
   current = { ...patch, updatedAt: Date.now() };
+  const sound = soundForStatus(previous, current);
+  if (sound) void playBackgroundSound(sound);
   for (const port of ports) safePost(port, { kind: 'status', status: current });
   void chrome.storage.session.set({ 'frameshot.status': current }).catch(() => {});
   updateBadge(current);

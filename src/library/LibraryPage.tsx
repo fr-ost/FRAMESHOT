@@ -11,7 +11,9 @@ import {
   HardDrive,
   ImagePlus,
   Images,
+  ImagePlay,
   Info,
+  Keyboard,
   LayoutTemplate,
   List,
   MoreHorizontal,
@@ -31,7 +33,7 @@ import {
   Sun,
   Video,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { formatBytes, formatDate, formatDimensions, formatDuration, formatRelative, newId } from '../core/format';
 import { isSafeLink } from '../core/restricted';
 import { type Settings, updateSettings } from '../core/settings';
@@ -44,11 +46,14 @@ import { describeMimeType } from '../recorder/formats';
 import { isActivePhase } from '../recorder/channel';
 import { useRecorder } from '../recorder/useMedia';
 import { ReviewCard, useReviewPrompt } from '../ui/ReviewPrompt';
-import { navigate } from '../ui/hooks';
+import { isTypingTarget, navigate } from '../ui/hooks';
+import { getRecordingBlob } from '../db/db';
+import { baseMimeType } from '../recorder/formats';
 import { Dialog, DropdownContent, DropdownItem, DropdownMenu, DropdownSeparator, DropdownTrigger, useConfirm, useToast } from '../ui/overlays';
 import { Badge, Button, Credits, EmptyState, Field, IconButton, Input, Kbd, Logo, Select, Spinner, cx } from '../ui/primitives';
 import { withFolder } from '../core/filename';
 import { importImageFile } from './importer';
+import { openShortcuts } from '../app/ShortcutsDialog';
 import { domainsOf, filterItems, findDuplicateGroups, useLibraryData, type SortKey, type ViewFilter } from './useLibrary';
 
 const PAGE = 60;
@@ -80,6 +85,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   const layout = settings.library.view;
   const recorder = useRecorder();
   // Never while recording; only once the library has something in it.
@@ -91,6 +97,27 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   const selectedItems = visible.filter((i) => selected.has(i.id));
 
   useEffect(() => setLimit(PAGE), [search, domain, sort, view]);
+  // Selection always matches what is shown, so every bulk action acts on the same items.
+  useEffect(() => {
+    if (!items) return;
+    const shown = new Set(visible.map((i) => i.id));
+    setSelected((prev) => {
+      const next = new Set([...prev].filter((id) => shown.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [visible, items]);
+  // Drag-and-drop overlay: also clear it when a drag ends or the window loses focus.
+  useEffect(() => {
+    const clear = () => setDragOver(false);
+    window.addEventListener('dragend', clear);
+    window.addEventListener('drop', clear);
+    window.addEventListener('blur', clear);
+    return () => {
+      window.removeEventListener('dragend', clear);
+      window.removeEventListener('drop', clear);
+      window.removeEventListener('blur', clear);
+    };
+  }, []);
   useEffect(() => {
     // Drop selections that no longer exist.
     if (!items) return;
@@ -107,9 +134,18 @@ export function LibraryPage({ settings }: { settings: Settings }) {
       }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
+      if (e.defaultPrevented || isTypingTarget(e.target) || document.querySelector('[role="dialog"], [role="menu"]')) return;
+      if (e.key === '/') {
         e.preventDefault();
         searchRef.current?.focus();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setSelected(new Set(visible.map((i) => i.id)));
+      } else if (e.key === 'Escape' && selected.size > 0) {
+        setSelected(new Set());
+      } else if ((e.key === 'Delete' || e.key === 'Backspace') && selected.size > 0 && !e.repeat) {
+        e.preventDefault();
+        void remove([...selected]);
       }
     };
     window.addEventListener('paste', onPaste);
@@ -196,7 +232,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
     setBusy(`Exporting 0 of ${ids.length}…`);
     try {
       const s: Settings = { ...settings, jpegQuality: choice.quality, webpQuality: choice.quality, pdf: { ...settings.pdf, pageSize: choice.pageSize } };
-      const { blob, filename, skippedRecordings } = await exportMany(ids, choice.format, s, (d, t) => setBusy(`Exporting ${d} of ${t}…`));
+      const { blob, filename, skippedRecordings } = await exportMany(ids, choice.format, s, (d, t) => setBusy(`Exporting ${d} of ${t}…`), { compactPdf: choice.compactPdf });
       const res = await downloadBlob(blob, filename, { saveAs: choice.saveAs });
       toast.success(<span>Saved <strong>{displayPath(res.path || filename)}</strong></span>);
       if (skippedRecordings > 0) toast.info(`${skippedRecordings} recording${skippedRecordings > 1 ? 's were' : ' was'} left out: PDF files hold images only.`);
@@ -232,7 +268,10 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           setDragOver(true);
         }
       }}
-      onDragLeave={(e) => e.currentTarget === e.target && setDragOver(false)}
+      onDragLeave={(e) => {
+        // Leaving for a child element is not leaving the page.
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragOver(false);
+      }}
       onDrop={(e) => {
         e.preventDefault();
         setDragOver(false);
@@ -298,6 +337,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
             <Button variant="ghost" size="sm" className="flex-1 justify-start" icon={<SettingsIcon size={15} />} onClick={() => navigate('/settings')}>
               Settings
             </Button>
+            <Button variant="ghost" size="sm" icon={<Keyboard size={15} />} onClick={openShortcuts} aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)" />
             <Button variant="ghost" size="sm" icon={<Sparkles size={15} />} onClick={() => navigate('/welcome')} aria-label="Welcome guide" title="Welcome guide" />
           </div>
           <Credits align="start" className="px-1" />
@@ -306,12 +346,12 @@ export function LibraryPage({ settings }: { settings: Settings }) {
 
       {/* Main */}
       <main className="relative flex min-w-0 flex-1 flex-col">
-        <header className="fr-glass z-20 flex h-16 shrink-0 items-center gap-2.5 border-b border-border px-5">
+        <header className="fr-glass z-20 flex min-h-16 shrink-0 flex-wrap items-center gap-x-2.5 gap-y-2 border-b border-border px-5 py-3">
           <div className="mr-1 flex min-w-0 shrink-0 items-baseline gap-2">
             <h1 className="truncate text-[17px] font-semibold tracking-tight">{viewTitle}</h1>
             {items && <span className="text-[13px] tabular-nums text-fg-subtle">{visible.length}</span>}
           </div>
-          <div className="relative ml-auto w-full min-w-[160px] max-w-xs">
+          <div className="relative ml-auto w-full min-w-[140px] max-w-xs flex-1 basis-[180px]">
             <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
             <Input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, site, tag…" aria-label="Search screenshots" className="pl-9 pr-9" />
             {search ? (
@@ -322,7 +362,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
               <Kbd className="absolute right-2.5 top-1/2 -translate-y-1/2">/</Kbd>
             )}
           </div>
-          <Select aria-label="Filter by website" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-40">
+          <Select aria-label="Filter by website" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-36 min-w-0 shrink">
             <option value="">All websites</option>
             {domains.map((d) => (
               <option key={d.domain} value={d.domain}>
@@ -330,7 +370,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
               </option>
             ))}
           </Select>
-          <Select aria-label="Sort" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="w-36">
+          <Select aria-label="Sort" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="w-32 min-w-0 shrink">
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
             <option value="name">Name A–Z</option>
@@ -372,7 +412,8 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           />
         </header>
 
-        <div className="fr-scroll min-h-0 flex-1 overflow-y-auto px-6 pb-28 pt-6" data-testid="library-scroll">
+        <ScrollRootContext.Provider value={scrollRoot}>
+        <div ref={setScrollRoot} className="fr-scroll min-h-0 flex-1 overflow-y-auto px-6 pb-28 pt-6" data-testid="library-scroll">
           {error && <p className="mb-4 text-sm text-danger">{error}</p>}
           {review.visible && (
             <div className="mb-5">
@@ -435,7 +476,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           ) : layout === 'grid' ? (
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-5" aria-label="Screenshots">
               {visible.slice(0, limit).map((item, index) => (
-                <li key={item.id} className="fr-stagger" style={{ '--i': index % PAGE } as CSSProperties}>
+                <li key={item.id} className="fr-stagger fr-cv" style={{ '--i': index % PAGE } as CSSProperties}>
                   <Card
                     item={item}
                     selected={selected.has(item.id)}
@@ -451,13 +492,14 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           ) : (
             <ListView items={visible.slice(0, limit)} selected={selected} onToggle={toggle} renderMenu={(item) => <ItemMenu item={item} onDownload={download} onCopy={copy} onDetails={setDetails} onDelete={(i) => void remove([i.id])} />} />
           )}
-          {visible.length > limit && <LoadMore onVisible={() => setLimit((l) => l + PAGE)} />}
+          {visible.length > limit && <LoadMore key={limit} onVisible={() => setLimit((l) => l + PAGE)} />}
         </div>
+        </ScrollRootContext.Provider>
 
         {/* Floating bulk-action bar */}
         {selected.size > 0 && (
           <div
-            className="fr-glass absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-[18px] border border-border p-2 pl-4 shadow-pop"
+            className="fr-glass absolute bottom-6 left-1/2 z-30 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-[18px] border border-border p-2 pl-4 shadow-pop"
             style={{ animation: 'fr-slide-up 420ms var(--fr-ease)' }}
           >
             <span className="mr-1 text-[13px] font-semibold">{selected.size} selected</span>
@@ -579,16 +621,20 @@ function useThumbUrl(item: LibraryItem, enabled: boolean): string | null {
   return url;
 }
 
+/** The library's own scroll area: observers must use it as their root, or their margin is clipped away. */
+const ScrollRootContext = createContext<HTMLElement | null>(null);
+
 function useInView<T extends Element>(): [React.RefObject<T | null>, boolean] {
   const ref = useRef<T>(null);
+  const root = useContext(ScrollRootContext);
   const [inView, setInView] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el || inView) return;
-    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setInView(true), { rootMargin: '400px' });
+    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setInView(true), { root, rootMargin: '400px' });
     io.observe(el);
     return () => io.disconnect();
-  }, [inView]);
+  }, [inView, root]);
   return [ref, inView];
 }
 
@@ -614,6 +660,7 @@ function Card({
   const [loaded, setLoaded] = useState(false);
   const [pop, setPop] = useState(false);
   const video = isRecording(item);
+  const [hover, setHover] = useState(false);
   const open = () => openItem(item);
   const w = item.editedWidth ?? item.width;
   const h = item.editedHeight ?? item.height;
@@ -625,7 +672,11 @@ function Card({
       data-kind={item.kind}
       className={cx('fr-card fr-lift group overflow-hidden', selected && '!border-primary ring-[3px] ring-primary/25')}
     >
-      <div className={cx('relative aspect-[4/3] overflow-hidden', !loaded && 'fr-skeleton')}>
+      <div
+        className={cx('relative aspect-[4/3] overflow-hidden', !loaded && !video && 'fr-skeleton')}
+        onPointerEnter={video ? () => setHover(true) : undefined}
+        onPointerLeave={video ? () => setHover(false) : undefined}
+      >
         <button
           type="button"
           className="fr-checker block h-full w-full overflow-hidden"
@@ -647,12 +698,13 @@ function Card({
             </span>
           ) : null}
         </button>
+        {video && <HoverPreview item={item} active={hover} />}
         {video && (
           <>
-            <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white shadow-pop ring-1 ring-white/30 backdrop-blur-md transition-transform duration-300 group-hover:scale-110" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }} aria-hidden>
+            <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white shadow-pop ring-1 ring-white/30 transition-transform duration-300 group-hover:scale-110" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }} aria-hidden>
               <Play size={20} fill="currentColor" className="translate-x-[1px]" />
             </span>
-            <span className="pointer-events-none absolute bottom-2.5 left-2.5 rounded-md bg-black/65 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white backdrop-blur" data-testid="card-duration">
+            <span className="pointer-events-none absolute bottom-2.5 left-2.5 rounded-md bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white" data-testid="card-duration">
               {formatDuration(item.durationMs ?? 0)}
             </span>
           </>
@@ -661,11 +713,11 @@ function Card({
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="absolute bottom-2.5 right-2.5 flex translate-y-2 gap-1.5 opacity-0 transition-all duration-300 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
           {!video && (
-            <button type="button" aria-label={`Copy ${item.name}`} title="Copy image" onClick={onCopy} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
+            <button type="button" aria-label={`Copy ${item.name}`} title="Copy image" onClick={onCopy} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/95 text-[#111118] shadow-card hover:bg-white">
               <ClipboardCopy size={15} />
             </button>
           )}
-          <button type="button" aria-label={`Download ${item.name}`} title={video ? 'Download video' : 'Download'} onClick={onDownload} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
+          <button type="button" aria-label={`Download ${item.name}`} title={video ? 'Download video' : 'Download'} onClick={onDownload} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/95 text-[#111118] shadow-card hover:bg-white">
             <Download size={15} />
           </button>
         </div>
@@ -675,7 +727,7 @@ function Card({
           aria-pressed={selected}
           onClick={(e) => onToggle(e.shiftKey)}
           className={cx(
-            'fr-press absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-[9px] shadow-card backdrop-blur transition-all duration-200',
+            'fr-press absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-[9px] shadow-card transition-all duration-200',
             selected ? 'fr-accent-bg text-white opacity-100' : 'bg-white/90 text-[#111118]',
             selected || selecting ? 'opacity-100' : 'opacity-0 focus:opacity-100 group-hover:opacity-100',
           )}
@@ -692,7 +744,7 @@ function Card({
           }}
           onAnimationEnd={() => setPop(false)}
           className={cx(
-            'fr-press absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/90 shadow-card backdrop-blur transition-opacity duration-200',
+            'fr-press absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/95 shadow-card transition-opacity duration-200',
             item.favorite ? 'text-amber-500 opacity-100' : 'text-[#55556a] opacity-0 focus:opacity-100 group-hover:opacity-100',
           )}
         >
@@ -727,8 +779,16 @@ function Card({
 
 function ListView({ items, selected, onToggle, renderMenu }: { items: LibraryItem[]; selected: Set<string>; onToggle: (id: string, range?: boolean) => void; renderMenu: (i: LibraryItem) => ReactNode }) {
   return (
-    <div className="fr-card overflow-hidden">
-      <table className="w-full border-separate border-spacing-0 text-[13px]" aria-label="Screenshots">
+    <div className="fr-card overflow-x-auto">
+      <table className="w-full min-w-[560px] table-fixed border-separate border-spacing-0 text-[13px]" aria-label="Screenshots">
+        <colgroup>
+          <col className="w-12" />
+          <col />
+          <col className="w-[18%]" />
+          <col className="w-[19%]" />
+          <col className="w-20" />
+          <col className="w-12" />
+        </colgroup>
         <thead>
           <tr className="text-left text-[11px] uppercase tracking-[0.08em] text-fg-subtle">
             <th className="w-12 border-b border-border py-3 pl-4 font-semibold">
@@ -807,6 +867,9 @@ function ItemMenu({ item, onDownload, onCopy, onDetails, onDelete }: { item: Lib
             <DropdownItem icon={<Download size={14} />} onSelect={() => onDownload(item)}>
               Download video
             </DropdownItem>
+            <DropdownItem icon={<ImagePlay size={14} />} onSelect={() => navigate(`/play/${encodeURIComponent(item.id)}?gif=1`)}>
+              Export as GIF…
+            </DropdownItem>
           </>
         ) : (
           <>
@@ -839,11 +902,14 @@ function ItemMenu({ item, onDownload, onCopy, onDetails, onDelete }: { item: Lib
   );
 }
 
+/** Loads the next page once each time it scrolls into view (it is re-mounted per page). */
 function LoadMore({ onVisible }: { onVisible: () => void }) {
   const [ref, inView] = useInView<HTMLDivElement>();
+  const callback = useRef(onVisible);
+  callback.current = onVisible;
   useEffect(() => {
-    if (inView) onVisible();
-  }, [inView, onVisible]);
+    if (inView) callback.current();
+  }, [inView]);
   return (
     <div ref={ref} className="flex justify-center py-8 text-sm text-fg-subtle">
       <Spinner className="text-primary" />
@@ -1003,4 +1069,32 @@ function kindLabel(item: LibraryItem): string {
     default:
       return '';
   }
+}
+
+/** Plays a silent preview of a recording while its card is hovered. */
+function HoverPreview({ item, active }: { item: LibraryItem; active: boolean }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!active || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    let alive = true;
+    let objectUrl: string | null = null;
+    // A short delay so sweeping the pointer across the grid doesn't load every video.
+    const timer = setTimeout(() => {
+      void getRecordingBlob(item.id, baseMimeType(item.mimeType))
+        .then((blob) => {
+          if (!alive || !blob) return;
+          objectUrl = URL.createObjectURL(blob);
+          setUrl(objectUrl);
+        })
+        .catch(() => {});
+    }, 350);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setUrl(null);
+    };
+  }, [active, item.id, item.mimeType]);
+  if (!url) return null;
+  return <video src={url} muted autoPlay loop playsInline className="pointer-events-none absolute inset-0 h-full w-full object-cover fr-fade" aria-hidden data-testid="card-preview" />;
 }

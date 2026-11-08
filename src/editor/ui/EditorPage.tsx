@@ -320,15 +320,24 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
     setItem(await updateItem(item.id, { name: trimmed.slice(0, 200) }));
   };
 
+  // Leaving or re-entering the crop tool forgets a locked aspect ratio (the bar starts at "Free").
+  useEffect(() => {
+    const it = canvasHandle.current?.interaction;
+    if (it) it.cropAspect = null;
+  }, [state.tool]);
+
   // ── Keyboard shortcuts ──
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target) || store.getState().editingTextId) return;
+      if (e.defaultPrevented || isTypingTarget(e.target) || store.getState().editingTextId) return;
+      // Keys inside an open menu or dialog belong to it.
+      if ((e.target as HTMLElement | null)?.closest?.('[role="menu"], [role="dialog"], [role="listbox"]') || document.querySelector('[role="dialog"]')) return;
       const mod = e.ctrlKey || e.metaKey;
       const key = e.key.toLowerCase();
       const s = store.getState();
-      if (e.key === ' ' && !e.repeat) {
-        canvasHandle.current?.interaction?.setSpace(true);
+      if (e.key === ' ') {
+        // Hold to pan. Every Space press is consumed, so a focused button is never clicked by it.
+        if (!e.repeat) canvasHandle.current?.interaction?.setSpace(true);
         e.preventDefault();
         return;
       }
@@ -380,13 +389,19 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
       else if (TOOL_SHORTCUTS[key] && !e.altKey) store.setTool(TOOL_SHORTCUTS[key] as ToolId);
     };
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key === ' ') canvasHandle.current?.interaction?.setSpace(false);
+      if (e.key !== ' ') return;
+      canvasHandle.current?.interaction?.setSpace(false);
+      if (!isTypingTarget(e.target) && (e.target as HTMLElement | null)?.tagName === 'BUTTON') e.preventDefault();
     };
+    // Releasing Space in another window must not leave pan mode stuck on.
+    const onBlur = () => canvasHandle.current?.interaction?.setSpace(false);
     window.addEventListener('keydown', onKey);
     window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onBlur);
     return () => {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', onBlur);
     };
   });
 

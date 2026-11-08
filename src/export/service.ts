@@ -130,6 +130,7 @@ export async function exportMany(
   format: ExportFormat,
   settings: Settings,
   onProgress?: (done: number, total: number) => void,
+  opts: { compactPdf?: boolean } = {},
 ): Promise<{ blob: Blob; filename: string; skippedRecordings: number }> {
   const stamp = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -146,7 +147,7 @@ export async function exportMany(
       canvases.push({ canvas, pxPerPt: item.scale && item.scale > 0 ? item.scale : 1 });
       onProgress?.(i + 1, imageIds.length);
     }
-    const blob = await canvasesToPdf(canvases, { ...pdfOptions(settings), title: `${imageIds.length} screenshots` });
+    const blob = await canvasesToPdf(canvases, { ...pdfOptions(settings, undefined, !!opts.compactPdf), title: `${imageIds.length} screenshots` });
     return { blob, filename: withFolder(settings.downloadFolder, `${baseName}.pdf`), skippedRecordings: recordingIds.size };
   }
   const videoBytes = kinds.reduce((n, i) => n + (i && recordingIds.has(i.id) ? i.byteSize : 0), 0);

@@ -17,6 +17,8 @@
   --fr-bg: #f4f4f8;
   --fr-surface: rgb(255 255 255 / 0.74);
   --fr-surface-solid: #ffffff;
+  /* Cards: near-opaque instead of frosted, so long lists scroll smoothly. */
+  --fr-card: rgb(255 255 255 / 0.9);
   --fr-surface-2: rgb(15 15 35 / 0.04);
   --fr-surface-3: rgb(15 15 35 / 0.08);
   --fr-border: rgb(15 15 35 / 0.08);
@@ -65,6 +67,7 @@
   --fr-bg: #07070c;
   --fr-surface: rgb(19 19 28 / 0.68);
   --fr-surface-solid: #111119;
+  --fr-card: rgb(23 23 33 / 0.9);
   --fr-surface-2: rgb(255 255 255 / 0.045);
   --fr-surface-3: rgb(255 255 255 / 0.09);
   --fr-border: rgb(255 255 255 / 0.075);
@@ -188,7 +191,6 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--fr-bg);
-  view-transition-name: fr-aurora;
 }
 .fr-aurora > span {
   position: absolute;
@@ -269,14 +271,23 @@
   backdrop-filter: saturate(170%) blur(22px);
 }
 
+/*
+ * Cards are not frosted: a backdrop blur over the animated background would be
+ * recomputed for every card on every frame, which makes scrolling janky.
+ * Frosted glass is kept for the few large chrome surfaces (.fr-glass).
+ */
 .fr-card {
   position: relative;
   border-radius: 18px;
   border: 1px solid var(--fr-border);
-  background: var(--fr-surface);
+  background: var(--fr-card);
   box-shadow: var(--fr-shadow), var(--fr-highlight);
-  -webkit-backdrop-filter: saturate(160%) blur(18px);
-  backdrop-filter: saturate(160%) blur(18px);
+}
+
+/* Off-screen list items skip layout and paint until scrolled near. */
+.fr-cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
 }
 
 .fr-lift {
@@ -555,16 +566,23 @@
   opacity: 1;
 }
 
-/* Page transitions (View Transitions API). The aurora stays put. */
-::view-transition-old(root) {
-  animation: 180ms ease-in both fr-vt-out;
-}
+/*
+ * Page transitions (View Transitions API). Only the page layer (fr-page)
+ * animates; the root, which holds the aurora background, swaps instantly, so
+ * the background stays still and never covers the pages mid-transition.
+ */
+::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: 340ms var(--fr-ease) both fr-vt-in;
-}
-::view-transition-old(fr-aurora),
-::view-transition-new(fr-aurora) {
   animation: none;
+}
+::view-transition-old(fr-page) {
+  animation: 160ms ease-in both fr-vt-out;
+}
+::view-transition-new(fr-page) {
+  animation: 320ms var(--fr-ease) both fr-vt-in;
+}
+.fr-page-layer {
+  view-transition-name: fr-page;
 }
 @keyframes fr-vt-out {
   to {
@@ -646,6 +664,65 @@
 .fr-select option {
   background: var(--fr-surface-solid);
   color: var(--fr-fg);
+}
+
+/* ── Dual-handle range (GIF trim) ───────────────────────────────── */
+.fr-dual-range {
+  position: relative;
+  height: 28px;
+}
+.fr-dual-range .fr-dual-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 6px;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: var(--fr-surface-3);
+}
+.fr-dual-range .fr-dual-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 9999px;
+  background-image: linear-gradient(90deg, var(--fr-accent-1), var(--fr-accent-2));
+}
+.fr-dual-range input[type='range'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.fr-dual-range input[type='range']::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+.fr-dual-range input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 5px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--fr-accent-1);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+  cursor: grab;
+  transition: transform 160ms var(--fr-ease);
+}
+.fr-dual-range input[type='range']:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.12);
+}
+.fr-dual-range input[type='range']:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--fr-ring);
+  outline-offset: 2px;
 }
 
 /* ── Screen recorder ─────────────────────────────────────────────── */

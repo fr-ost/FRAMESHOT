@@ -311,3 +311,54 @@ export function nextMarkerNumber(objects: EditorObject[]): number {
   for (const o of objects) if (o.type === 'marker') max = Math.max(max, o.n);
   return max + 1;
 }
+
+/**
+ * Resizes (or draws) a crop rectangle locked to `ratio` (width / height).
+ * Corners keep the opposite corner fixed; edges keep the opposite edge fixed
+ * and grow the other dimension around the centre. The result stays inside
+ * `bounds` and keeps the ratio exactly.
+ */
+export function aspectResize(orig: Rect, handle: HandleId | 'new', start: Point, p: Point, ratio: number, bounds: { w: number; h: number }): Rect {
+  const r = ratio > 0 ? ratio : 1;
+  const fit = (w: number, h: number, maxW: number, maxH: number) => {
+    const scale = Math.min(1, maxW / Math.max(w, 1e-9), maxH / Math.max(h, 1e-9));
+    // The smallest box is 1 px on its short side, still at the exact ratio.
+    const width = Math.max(w * scale, Math.max(1, r));
+    return { w: width, h: width / r };
+  };
+  if (handle === 'n' || handle === 's') {
+    const ay = handle === 's' ? orig.y : orig.y + orig.h;
+    const dir = handle === 's' ? 1 : -1;
+    let h = Math.max(1, (p.y - ay) * dir);
+    const cx = orig.x + orig.w / 2;
+    const size = fit(h * r, h, 2 * Math.min(cx, bounds.w - cx), dir > 0 ? bounds.h - ay : ay);
+    h = size.h;
+    return { x: cx - size.w / 2, y: dir > 0 ? ay : ay - h, w: size.w, h };
+  }
+  if (handle === 'e' || handle === 'w') {
+    const ax = handle === 'e' ? orig.x : orig.x + orig.w;
+    const dir = handle === 'e' ? 1 : -1;
+    const w = Math.max(1, (p.x - ax) * dir);
+    const cy = orig.y + orig.h / 2;
+    const size = fit(w, w / r, dir > 0 ? bounds.w - ax : ax, 2 * Math.min(cy, bounds.h - cy));
+    return { x: dir > 0 ? ax : ax - size.w, y: cy - size.h / 2, w: size.w, h: size.h };
+  }
+  // Corners (and drawing a new rectangle from its start point).
+  let ax: number;
+  let ay: number;
+  if (handle === 'new') {
+    ax = start.x;
+    ay = start.y;
+  } else {
+    ax = handle.includes('w') ? orig.x + orig.w : orig.x;
+    ay = handle.includes('n') ? orig.y + orig.h : orig.y;
+  }
+  const dirX = handle === 'new' ? Math.sign(p.x - ax) || 1 : handle.includes('w') ? -1 : 1;
+  const dirY = handle === 'new' ? Math.sign(p.y - ay) || 1 : handle.includes('n') ? -1 : 1;
+  let w = Math.max(0, (p.x - ax) * dirX);
+  let h = Math.max(0, (p.y - ay) * dirY);
+  if (h === 0 || w / h > r) h = w / r;
+  else w = h * r;
+  const size = fit(w, h, dirX > 0 ? bounds.w - ax : ax, dirY > 0 ? bounds.h - ay : ay);
+  return { x: dirX > 0 ? ax : ax - size.w, y: dirY > 0 ? ay : ay - size.h, w: size.w, h: size.h };
+}

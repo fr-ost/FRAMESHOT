@@ -19,6 +19,7 @@ import {
 import { initReviewState } from '../core/review';
 import { askStudioToOpen, findStudioPages, isLibraryRoute, isRecorderRoute, type StudioPresence } from '../core/studio-channel';
 import { isActivePhase, queryRecorder, sendRecorderCommand } from '../recorder/channel';
+import { playBackgroundSound } from './sound';
 import { getStatus, registerStatusPort, restoreStatus, setStatus, watchRecorderBadge } from './status';
 
 const MENU_ROOT = 'frameshot';
@@ -82,7 +83,15 @@ function reportStartError(err: unknown, mode: CaptureMode): string {
   return message;
 }
 
+/** E2E builds only: sounds the offscreen document reports having played. */
+const testSounds: { name: string; state: string }[] = [];
+
 async function handleMessage(msg: BgRequest, sender: chrome.runtime.MessageSender): Promise<Result<unknown>> {
+  if (__FRAMESHOT_E2E__ && (msg as { kind: string }).kind === 'test.sound') {
+    const m = msg as unknown as { name: string; state: string };
+    testSounds.push({ name: m.name, state: m.state });
+    return ok({ recorded: true });
+  }
   switch (msg.kind) {
     case 'capture.start': {
       let tabId = msg.tabId;
@@ -220,6 +229,8 @@ export function registerBackground(): void {
         handleCommand(command, tabId === undefined ? undefined : ({ id: tabId } as chrome.tabs.Tab)),
       cancel: () => cancelCapture(),
       stop: () => stopCapture(),
+      sounds: () => [...testSounds],
+      playSound: (name: string) => playBackgroundSound(name as never),
     };
   }
 }

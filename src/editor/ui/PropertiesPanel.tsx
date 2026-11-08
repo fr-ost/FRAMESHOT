@@ -20,6 +20,7 @@ import {
 import type { ReactNode } from 'react';
 import { formatDimensions } from '../../core/format';
 import { ColorPicker, HIGHLIGHT_PALETTE } from '../../ui/color';
+import { isPristine } from '../model/transform';
 import { Button, IconButton, SegmentedControl, Select, Slider, Switch, cx } from '../../ui/primitives';
 import { styleOf, type EditorState, type EditorStore, type ToolId, type ToolStyle } from '../model/store';
 import { FONT_LABELS, OBJECT_LABELS, SYMBOL_LABELS, type EditorObject, type FontKey, type ObjectType, type SymbolKey } from '../model/types';
@@ -257,7 +258,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
       <LayerList store={store} state={state} />
 
       <div className="mt-auto px-4 py-3">
-        <Button variant="ghost" size="sm" icon={<Undo2 size={14} />} onClick={store.reset} disabled={!state.doc.objects.length && state.doc.output.width === state.doc.source.width && state.doc.crop.w === state.doc.source.width && state.doc.orientation[0] === 1}>
+        <Button variant="ghost" size="sm" icon={<Undo2 size={14} />} onClick={store.reset} disabled={isPristine(state.doc)}>
           Reset all edits
         </Button>
       </div>

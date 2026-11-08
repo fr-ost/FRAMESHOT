@@ -1,5 +1,5 @@
 /** Plays a screen recording from the library; download it or save a frame as a screenshot. */
-import { AlertTriangle, ArrowLeft, Camera, Clock, Download, Film, HardDrive, Maximize, Pencil, Star, Trash2, Video, Volume2, VolumeX } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Camera, Clock, Download, Film, Gauge, HardDrive, ImagePlay, Maximize, Pencil, Star, Trash2, Video, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { formatBytes, formatDate, formatDuration, newId } from '../core/format';
 import type { Settings } from '../core/settings';
@@ -9,13 +9,17 @@ import { displayPath, downloadBlob, DownloadCancelledError } from '../export/del
 import { exportRecording } from '../export/service';
 import { withFolder } from '../core/filename';
 import { canvasToBlob, dHash, makeThumbnail } from '../imaging/image-io';
-import { navigate, useObjectUrl } from '../ui/hooks';
+import { isTypingTarget, navigate, useObjectUrl } from '../ui/hooks';
+import { playSound } from '../ui/sounds';
 import { Dialog, useConfirm, useToast } from '../ui/overlays';
-import { Button, EmptyState, Field, IconButton, Input, Spinner } from '../ui/primitives';
+import { Button, EmptyState, Field, IconButton, Input, Kbd, Spinner } from '../ui/primitives';
 import { ReviewCard, useReviewPrompt } from '../ui/ReviewPrompt';
 import { baseMimeType, describeMimeType } from './formats';
+import { GifExportDialog } from './GifExportDialog';
 
-export function PlayerPage({ id, settings }: { id: string; settings: Settings }) {
+const SPEEDS = [0.5, 1, 1.5, 2] as const;
+
+export function PlayerPage({ id, settings, openGif = false }: { id: string; settings: Settings; openGif?: boolean }) {
   const toast = useToast();
   const confirm = useConfirm();
   const [item, setItem] = useState<LibraryItem | null | undefined>(undefined);
@@ -26,6 +30,17 @@ export function PlayerPage({ id, settings }: { id: string; settings: Settings })
   const videoRef = useRef<HTMLVideoElement>(null);
   const url = useObjectUrl(blob);
   const review = useReviewPrompt(!!item && !!blob, 1500);
+  const [gifOpen, setGifOpen] = useState(false);
+  const [speed, setSpeed] = useState(1);
+
+  // "Export as GIF…" from the library opens the dialog directly.
+  useEffect(() => {
+    if (openGif && blob) setGifOpen(true);
+  }, [openGif, blob]);
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.playbackRate = speed;
+  }, [speed, url]);
 
   useEffect(() => {
     let alive = true;
@@ -117,6 +132,7 @@ export function PlayerPage({ id, settings }: { id: string; settings: Settings })
         png,
         thumb,
       );
+      playSound('shutter');
       toast.show(`Frame at ${at} saved as a screenshot.`, 'success', { label: 'Edit', onClick: () => navigate(`/edit/${encodeURIComponent(frameId)}`) });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'The frame could not be saved.');
@@ -138,6 +154,65 @@ export function PlayerPage({ id, settings }: { id: string; settings: Settings })
     toast.success('Recording deleted.');
     navigate('/');
   };
+
+  // Player keyboard shortcuts (ignored while typing or when a dialog is open).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const v = videoRef.current;
+      if (!v || e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
+      if (gifOpen || renaming || document.querySelector('[role="dialog"]')) return;
+      const target = e.target as HTMLElement | null;
+      const onVideo = target === v;
+      const step = 1 / 30;
+      switch (e.key) {
+        case ' ':
+        case 'k':
+        case 'K':
+          // The native controls already toggle when the video itself has focus.
+          if (onVideo && e.key === ' ') return;
+          if (target?.tagName === 'BUTTON' && e.key === ' ') return;
+          e.preventDefault();
+          if (v.paused) void v.play().catch(() => {});
+          else v.pause();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowRight':
+          if (onVideo) return;
+          e.preventDefault();
+          v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + (e.key === 'ArrowLeft' ? -5 : 5)));
+          break;
+        case ',':
+        case '.':
+          e.preventDefault();
+          v.pause();
+          v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + (e.key === ',' ? -step : step)));
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+          else void v.requestFullscreen().catch(() => {});
+          break;
+        case 'm':
+        case 'M':
+          e.preventDefault();
+          v.muted = !v.muted;
+          break;
+        case 's':
+        case 'S':
+          e.preventDefault();
+          void saveFrame();
+          break;
+        case 'g':
+        case 'G':
+          e.preventDefault();
+          if (blob) setGifOpen(true);
+          break;
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   if (item === null || (error && !item)) {
     return (
@@ -181,8 +256,11 @@ export function PlayerPage({ id, settings }: { id: string; settings: Settings })
             <IconButton label="Delete recording" onClick={() => void remove()}>
               <Trash2 size={16} />
             </IconButton>
-            <Button icon={busy === 'frame' ? <Spinner /> : <Camera size={15} />} onClick={() => void saveFrame()} disabled={!url || !!busy} data-testid="save-frame" title="Save the frame you are looking at as a screenshot">
+            <Button icon={busy === 'frame' ? <Spinner /> : <Camera size={15} />} onClick={() => void saveFrame()} disabled={!url || !!busy} data-testid="save-frame" title="Save the frame you are looking at as a screenshot (S)">
               Save frame
+            </Button>
+            <Button icon={<ImagePlay size={15} />} onClick={() => setGifOpen(true)} disabled={!blob || !!busy} data-testid="player-gif" title="Turn part of this recording into an animated GIF (G)">
+              Export GIF
             </Button>
             <Button variant="primary" icon={busy === 'download' ? <Spinner /> : <Download size={15} />} onClick={() => void download()} disabled={!blob || !!busy} data-testid="player-download">
               Download
@@ -239,6 +317,23 @@ export function PlayerPage({ id, settings }: { id: string; settings: Settings })
                   {SURFACE_LABELS[item.surface]}
                 </Meta>
               )}
+              <label className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-solid/85 px-3 py-1.5 text-[12.5px] shadow-card" title="Playback speed">
+                <Gauge size={14} className="text-primary" />
+                <span className="sr-only">Playback speed</span>
+                <select
+                  aria-label="Playback speed"
+                  value={speed}
+                  onChange={(e) => setSpeed(Number(e.target.value))}
+                  className="cursor-pointer bg-transparent font-medium tabular-nums text-fg-muted focus:outline-none"
+                  data-testid="player-speed"
+                >
+                  {SPEEDS.map((s) => (
+                    <option key={s} value={s}>
+                      {s}×
+                    </option>
+                  ))}
+                </select>
+              </label>
               <span className="ml-auto text-[12px] text-fg-subtle">{formatDate(item.createdAt)}</span>
             </div>
           )}
@@ -254,11 +349,20 @@ export function PlayerPage({ id, settings }: { id: string; settings: Settings })
             </ul>
           )}
           <ReviewCard controls={review} />
-          <p className="text-center text-[12px] text-fg-subtle">Tip: pause on any moment and press “Save frame” to turn it into a screenshot you can annotate.</p>
+          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12px] text-fg-subtle" aria-label="Keyboard shortcuts">
+            <span><Kbd>Space</Kbd> play / pause</span>
+            <span><Kbd>←</Kbd> <Kbd>→</Kbd> 5 s</span>
+            <span><Kbd>,</Kbd> <Kbd>.</Kbd> one frame</span>
+            <span><Kbd>F</Kbd> full screen</span>
+            <span><Kbd>M</Kbd> mute</span>
+            <span><Kbd>S</Kbd> save frame</span>
+            <span><Kbd>G</Kbd> GIF</span>
+          </p>
         </div>
       </div>
 
       {item && renaming && <RenameDialog item={item} onClose={() => setRenaming(false)} />}
+      {item && blob && <GifExportDialog item={item} blob={blob} open={gifOpen} onOpenChange={setGifOpen} settings={settings} />}
     </div>
   );
 }
@@ -278,7 +382,7 @@ function Shell({ children }: { children: ReactNode }) {
 
 function Meta({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[12.5px] shadow-card backdrop-blur-md" title={label}>
+    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-solid/85 px-3 py-1.5 text-[12.5px] shadow-card" title={label}>
       <span className="text-primary">{icon}</span>
       <span className="sr-only">{label}:</span>
       <span className="font-medium tabular-nums text-fg-muted">{children}</span>

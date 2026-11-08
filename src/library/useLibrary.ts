@@ -1,8 +1,7 @@
 /** Library data hooks and pure filtering/sorting logic. */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Collection, LibraryItem } from '../core/types';
 import { listCollections, listItems, onLibraryEvent, storageStats, type StorageStats } from '../db/db';
-import { hammingDistanceHex } from '../imaging/image-io';
 
 export type SortKey = 'newest' | 'oldest' | 'name' | 'largest';
 export type ViewFilter = { kind: 'all' } | { kind: 'favorites' } | { kind: 'recordings' } | { kind: 'duplicates' } | { kind: 'collection'; id: string };
@@ -20,12 +19,19 @@ export function useLibraryData() {
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Skip re-rendering the whole library when a refresh finds nothing new
+  // (for example every time the window regains focus).
+  const lastSig = useRef('');
   const refresh = useCallback(async () => {
     try {
       const [i, c, s] = await Promise.all([listItems(), listCollections(), storageStats()]);
-      setItems(i);
-      setCollections(c);
-      setStats(s);
+      const sig = `${i.map((x) => `${x.id}:${x.updatedAt}`).join('|')}#${c.map((x) => `${x.id}:${x.name}`).join('|')}#${s.count}:${s.usage ?? s.imageBytes}`;
+      if (sig !== lastSig.current) {
+        lastSig.current = sig;
+        setItems(i);
+        setCollections(c);
+        setStats(s);
+      }
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not open the library.');
@@ -38,6 +44,8 @@ export function useLibraryData() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const off = onLibraryEvent(() => {
       clearTimeout(timer);
+      // A change elsewhere (e.g. a new thumbnail) must always re-render.
+      lastSig.current = '';
       timer = setTimeout(() => void refresh(), 120);
     });
     const onFocus = () => void refresh();
@@ -52,28 +60,64 @@ export function useLibraryData() {
   return { items, collections, stats, error, refresh };
 }
 
-/** Groups items whose perceptual hashes are within `threshold` bits. */
+function popcount32(x: number): number {
+  x -= (x >>> 1) & 0x55555555;
+  x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
+  return (((x + (x >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24;
+}
+
+/** Last result, keyed by the exact set of hashes (most refreshes change none). */
+let duplicateCache: { key: string; groups: string[][] } | null = null;
+
+/**
+ * Groups items whose perceptual hashes are within `threshold` bits.
+ * Hashes are compared as two 32-bit integers (a bit count, not string work),
+ * and the result is reused until an item's hash or shape changes.
+ */
 export function findDuplicateGroups(items: LibraryItem[], threshold = 4): LibraryItem[][] {
   const withHash = items.filter((i) => i.dhash && i.dhash.length === 16);
-  const parent = withHash.map((_, i) => i);
-  const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
-  for (let i = 0; i < withHash.length; i++) {
-    for (let j = i + 1; j < withHash.length; j++) {
-      const a = withHash[i];
-      const b = withHash[j];
-      // Same hash but very different shapes are not duplicates.
-      const ar = a.width / a.height;
-      const br = b.width / b.height;
-      if (Math.abs(ar - br) / Math.max(ar, br) > 0.05) continue;
-      if (hammingDistanceHex(a.dhash!, b.dhash!) <= threshold) parent[find(i)] = find(j);
+  const key = `${threshold}#${withHash.map((i) => `${i.id}:${i.dhash}:${i.width}x${i.height}`).join('|')}`;
+  let groupIds: string[][];
+  if (duplicateCache?.key === key) {
+    groupIds = duplicateCache.groups;
+  } else {
+    const n = withHash.length;
+    const hi = new Uint32Array(n);
+    const lo = new Uint32Array(n);
+    const ratio = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const h = withHash[i].dhash!;
+      hi[i] = parseInt(h.slice(0, 8), 16) >>> 0;
+      lo[i] = parseInt(h.slice(8), 16) >>> 0;
+      ratio[i] = withHash[i].width / Math.max(1, withHash[i].height);
     }
+    const parent = Array.from({ length: n }, (_, i) => i);
+    const find = (i: number): number => {
+      while (parent[i] !== i) {
+        parent[i] = parent[parent[i]];
+        i = parent[i];
+      }
+      return i;
+    };
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        // Same hash but very different shapes are not duplicates.
+        if (Math.abs(ratio[i] - ratio[j]) / Math.max(ratio[i], ratio[j]) > 0.05) continue;
+        if (popcount32(hi[i] ^ hi[j]) + popcount32(lo[i] ^ lo[j]) <= threshold) parent[find(i)] = find(j);
+      }
+    }
+    const groups = new Map<number, string[]>();
+    withHash.forEach((item, i) => {
+      const root = find(i);
+      const g = groups.get(root);
+      if (g) g.push(item.id);
+      else groups.set(root, [item.id]);
+    });
+    groupIds = [...groups.values()].filter((g) => g.length > 1);
+    duplicateCache = { key, groups: groupIds };
   }
-  const groups = new Map<number, LibraryItem[]>();
-  withHash.forEach((item, i) => {
-    const root = find(i);
-    groups.set(root, [...(groups.get(root) ?? []), item]);
-  });
-  return [...groups.values()].filter((g) => g.length > 1);
+  const byId = new Map(items.map((i) => [i.id, i]));
+  return groupIds.map((g) => g.map((id) => byId.get(id)!).filter(Boolean)).filter((g) => g.length > 1);
 }
 
 export function filterItems(items: LibraryItem[], q: LibraryQuery): LibraryItem[] {

@@ -50,7 +50,7 @@ SCREEN RECORDER
 • Add a camera bubble in the corner of your choice
 • Countdown, pause and resume (paused time is left out), live timer and toolbar badge
 • Save as MP4 (H.264) that plays on every phone, Mac and PC, or as WebM; 720p to 4K, 15 to 60 fps
-• Play recordings in your library, download them, or save any frame as a screenshot to annotate
+• Play recordings in your library, download them, export any part as an animated GIF, or save any frame as a screenshot to annotate
 • Recordings are saved as you record, so a crash or a closed tab loses only the last few seconds
 
 SCREEN CAPTURE, YOUR WAY
@@ -90,7 +90,7 @@ PRIVATE BY DESIGN
 • Works offline; FrameShot's pages block all network connections
 • FrameShot can only access a tab when you ask it to, and records only what you pick in Chrome's share picker
 • The microphone and camera are used only while you record, after you switch them on
-• Light and dark themes
+• Light and dark themes, gentle sound effects (can be turned off) and keyboard shortcuts for everything
 
 Good to know: Chrome blocks extensions from browser pages (chrome://) and the Chrome Web Store, and allows two screenshots per second, so long pages take a few seconds. Chrome records sound from tabs (and from the whole screen on Windows and ChromeOS). Blur and pixelation can sometimes be reversed for short text; use Redact for confidential information.
 
@@ -121,6 +121,7 @@ Produce these from real captures of FrameShot's own fixture or demo pages. Don't
 | `unlimitedStorage` | Keeps your full-resolution screenshot and recording library from being evicted by the browser. Long screenshots and recordings can be large. |
 | `downloads` | Saves exported images, videos, PDFs, and ZIP files to your Downloads folder and confirms they finished. |
 | `contextMenus` | Adds FrameShot capture options to the right-click menu. |
+| `offscreen` | Plays FrameShot's sound effects (camera shutter, countdown) for captures started from the toolbar, menu or keyboard: the background service worker cannot play audio, so it uses a hidden offscreen page with the "audio playback" reason. No content is read or shown. |
 
 - **Screen recording, microphone, camera:** no manifest permission. Recording uses Chrome's share picker (`getDisplayMedia`); the microphone and camera use Chrome's permission prompt, only after the user switches them on.
 - **Host permissions:** none.

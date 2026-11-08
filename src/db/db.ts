@@ -248,19 +248,29 @@ export async function createRecordingSession(session: RecordingSessionRecord): P
   await wrapQuota((await getDb()).put('recSessions', session));
 }
 
-/** Stores one recorded chunk and updates the session's running totals atomically. */
+export class RecordingRemovedError extends Error {
+  constructor() {
+    super('This recording was removed from storage (for example by "Clear all local data").');
+    this.name = 'RecordingRemovedError';
+  }
+}
+
+/**
+ * Stores one recorded chunk and updates the session's running totals
+ * atomically. Fails if the session was removed meanwhile, so the recorder
+ * never keeps writing into a deleted recording.
+ */
 export async function appendRecordingChunk(id: string, seq: number, chunk: Blob, patch: Partial<Omit<RecordingSessionRecord, 'id'>>): Promise<void> {
   const db = await getDb();
   const tx = db.transaction(['recChunks', 'recSessions'], 'readwrite');
   const sessions = tx.objectStore('recSessions');
   const existing = await sessions.get(id);
-  await wrapQuota(
-    Promise.all([
-      tx.objectStore('recChunks').put(chunk, [id, seq]),
-      existing ? sessions.put({ ...existing, ...patch, id, updatedAt: Date.now() }) : Promise.resolve(),
-      tx.done,
-    ]),
-  );
+  if (!existing) {
+    tx.abort();
+    await tx.done.catch(() => {});
+    throw new RecordingRemovedError();
+  }
+  await wrapQuota(Promise.all([tx.objectStore('recChunks').put(chunk, [id, seq]), sessions.put({ ...existing, ...patch, id, updatedAt: Date.now() }), tx.done]));
 }
 
 export async function updateRecordingSession(id: string, patch: Partial<Omit<RecordingSessionRecord, 'id'>>): Promise<void> {
@@ -294,10 +304,19 @@ export async function getRecordingBlob(id: string, mimeType: string): Promise<Bl
   return new Blob(chunks, { type: mimeType });
 }
 
-/** Turns a finished (or recovered) session into a library item. The chunks stay where they are. */
+/**
+ * Turns a finished (or recovered) session into a library item. The chunks stay
+ * where they are. Fails if the session no longer exists (discarded, cleared, or
+ * already saved by another tab).
+ */
 export async function finalizeRecording(item: LibraryItem, thumb?: Blob): Promise<void> {
   const db = await getDb();
   const tx = db.transaction(['items', 'blobs', 'recSessions'], 'readwrite');
+  if (!(await tx.objectStore('recSessions').get(item.id))) {
+    tx.abort();
+    await tx.done.catch(() => {});
+    throw new RecordingRemovedError();
+  }
   await wrapQuota(
     Promise.all([
       tx.objectStore('items').put(item),
@@ -309,11 +328,16 @@ export async function finalizeRecording(item: LibraryItem, thumb?: Blob): Promis
   notifyLibrary({ kind: 'items-changed', ids: [item.id] });
 }
 
-/** Deletes an unfinished recording and its data. */
+/**
+ * Deletes an unfinished recording and its data. A recording that has already
+ * been saved to the library (for example recovered in another tab) keeps its
+ * video: only its leftover session row is removed.
+ */
 export async function discardRecordingSession(id: string): Promise<void> {
   const db = await getDb();
-  const tx = db.transaction(['recChunks', 'recSessions'], 'readwrite');
-  await Promise.all([tx.objectStore('recChunks').delete(chunkRange(id)), tx.objectStore('recSessions').delete(id), tx.done]);
+  const tx = db.transaction(['items', 'recChunks', 'recSessions'], 'readwrite');
+  const saved = await tx.objectStore('items').get(id);
+  await Promise.all([saved ? Promise.resolve() : tx.objectStore('recChunks').delete(chunkRange(id)), tx.objectStore('recSessions').delete(id), tx.done]);
 }
 
 // ── Editor documents ────────────────────────────────────────────────────

@@ -83,12 +83,12 @@ export function renderTemplate(template: string, ctx: FilenameContext): string {
 }
 
 /** Builds a complete, safe filename (with extension) from a template. */
-export function buildFilename(template: string, ctx: FilenameContext, format: ExportFormat | 'zip' | 'mp4' | 'webm'): string {
+export function buildFilename(template: string, ctx: FilenameContext, format: ExportFormat | 'zip' | 'mp4' | 'webm' | 'gif'): string {
   const rendered = renderTemplate(template, ctx)
     // Collapse separators left behind by empty tokens, e.g. "frameshot--2024".
     .replace(/([-_ ]){2,}/g, '$1');
   const base = sanitizeBasename(rendered);
-  const ext = format === 'zip' || format === 'mp4' || format === 'webm' ? format : FORMAT_EXTENSION[format];
+  const ext = format === 'zip' || format === 'mp4' || format === 'webm' || format === 'gif' ? format : FORMAT_EXTENSION[format];
   return `${base}.${ext}`;
 }
 
