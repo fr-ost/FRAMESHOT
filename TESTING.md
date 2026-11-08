@@ -135,7 +135,7 @@ Run on 2026-11-08 for release 1.0.0, the first public release, after the interfa
 | Suite | Result |
 |---|---|
 | Type check (`npm run compile`) | **passed** |
-| Unit (`npm test`, 10 files, including the GIF encoder checked by an independent decoder and a 4,000-item duplicate-detection benchmark) | **139 / 139 passed** |
+| Unit (`npm test`, 11 files, including the GIF encoder checked by an independent decoder, a 4,000-item duplicate-detection benchmark and the donation addresses) | **141 / 141 passed** |
 | E2E `capture.spec.ts` | **23 / 23 passed** |
 | E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
 | E2E `fractional-dpi.spec.ts` (real 1.25× / 1.5× / 1.75× device scale) | **9 / 9 passed** |
@@ -143,14 +143,16 @@ Run on 2026-11-08 for release 1.0.0, the first public release, after the interfa
 | E2E `app.spec.ts` (library, composer, popup, shortcuts, settings, import) | **8 / 8 passed** |
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
 | E2E `recorder.spec.ts` (recorder, GIF export, sounds under Chrome's real autoplay rule) | **21 / 21 passed** |
-| E2E `review.spec.ts` (review prompt) | **5 / 5 passed** |
+| E2E `review.spec.ts` (review prompt, clickable stars, sidebar link) | **6 / 6 passed** |
+| E2E `donate.spec.ts` (Support FrameShot page) | **1 / 1 passed** |
 | E2E `ux.spec.ts` (new in this release) | **5 / 5 passed** |
-| **E2E total** | **83 / 83 passed** (5.7 min) |
+| **E2E total** | **85 / 85 passed** (5.7 min) |
 | Production bundle audit (`npm run check:bundle`) | **passed**: MV3, the 7 expected permissions (the earlier six plus `offscreen`), no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
 | Packaged ZIP smoke test (`frameshot-1.0.0-chrome.zip`, unzipped and loaded unpacked, Chrome's real autoplay rule, fake media devices) | **passed**: name, version and permissions as expected; welcome page on install; context menus and all 9 commands including `toggle-recording`; no test hooks in the service worker or pages; the offscreen document loads from the package and accepts a sound; no review prompt on a fresh install; Studio, Settings, Popup (with the sound toggle), Options and Recorder render with zero console errors; "?" opens the shortcut sheet; a recording made through the UI (3 s countdown with sounds) saved and played as MP4 (H.264 · Opus, 3.5 s) with the `REC` badge during and none after; **Export as GIF** from the shipped build produced a valid GIF89a (320×206, 65 KB) |
 | Store assets | Generated from the real UI by `npm run store:assets` and reviewed by eye: 6 screenshots (1280×800) and 2 promotional tiles, all 24-bit PNG without alpha |
 
 Defects found while preparing 1.0.0 and fixed (details in [CHANGELOG.md](CHANGELOG.md)):
+- A full run failed once in `ux.spec.ts` because the test read the list view's "Actions" button before React had swapped the grid out (a race in the test, not the app); it now waits for the list rows.
 - One full E2E run during the interface upgrade failed once: Stop pressed in the popup never reached the recorder (the command was posted on a channel closed 50 ms later). Fixed with a long-lived channel and a resend; the recorder spec then passed 21/21 and the full suite 83/83.
 - Two internal reviews, of the recorder (10 findings) and of the interface (18 findings). All are fixed; regression tests were added to `recorder.spec.ts` (Discard after the recording ended, "Clear all local data" during a recording, the REC badge from another tab) and in the new `ux.spec.ts` (paging, narrow windows, editor focus, composer typing, broken addresses).
 - GIF dialog: a trim was reset when the video's real length arrived (found while testing the dialog).

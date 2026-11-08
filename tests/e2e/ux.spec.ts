@@ -109,7 +109,10 @@ test('the library header, bulk bar and list view stay usable in a 900 px window'
   await expect(page.getByText('6 selected')).toBeHidden();
   // List view: the actions menu of a row with a long name is still on screen.
   await page.getByRole('button', { name: 'List view' }).click();
-  const actions = page.getByRole('button', { name: /^Actions for / }).first();
+  const row = page.getByTestId('library-row').first();
+  await expect(row).toBeVisible();
+  const actions = row.getByRole('button', { name: /^Actions for / });
+  await expect(actions).toBeVisible();
   const a = (await actions.boundingBox())!;
   expect(a.x + a.width).toBeLessThanOrEqual(900);
   await page.getByRole('button', { name: 'Grid view' }).click();
