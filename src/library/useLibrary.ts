@@ -5,7 +5,7 @@ import { listCollections, listItems, onLibraryEvent, storageStats, type StorageS
 import { hammingDistanceHex } from '../imaging/image-io';
 
 export type SortKey = 'newest' | 'oldest' | 'name' | 'largest';
-export type ViewFilter = { kind: 'all' } | { kind: 'favorites' } | { kind: 'duplicates' } | { kind: 'collection'; id: string };
+export type ViewFilter = { kind: 'all' } | { kind: 'favorites' } | { kind: 'recordings' } | { kind: 'duplicates' } | { kind: 'collection'; id: string };
 
 export interface LibraryQuery {
   search: string;
@@ -79,6 +79,7 @@ export function findDuplicateGroups(items: LibraryItem[], threshold = 4): Librar
 export function filterItems(items: LibraryItem[], q: LibraryQuery): LibraryItem[] {
   let list = items;
   if (q.view.kind === 'favorites') list = list.filter((i) => i.favorite);
+  else if (q.view.kind === 'recordings') list = list.filter((i) => i.kind === 'recording');
   else if (q.view.kind === 'collection') {
     const id = q.view.id;
     list = list.filter((i) => i.collectionId === id);
@@ -90,7 +91,8 @@ export function filterItems(items: LibraryItem[], q: LibraryQuery): LibraryItem[
   const terms = q.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length) {
     list = list.filter((i) => {
-      const hay = [i.name, i.source?.domain, i.source?.title, i.source?.url, ...i.tags, i.mode].filter(Boolean).join(' ').toLowerCase();
+      const kindWords = i.kind === 'recording' ? 'recording video' : i.kind === 'frame' ? 'frame screenshot' : 'screenshot';
+      const hay = [i.name, i.source?.domain, i.source?.title, i.source?.url, ...i.tags, i.mode, kindWords].filter(Boolean).join(' ').toLowerCase();
       return terms.every((t) => hay.includes(t));
     });
   }

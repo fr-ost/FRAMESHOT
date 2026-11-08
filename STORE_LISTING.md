@@ -6,13 +6,13 @@ Draft listing copy for *FrameShot*. **Do not submit without explicit owner appro
 
 ## Name
 
-**FrameShot: Free Full Page Screenshot, Screen Capture & Editor**
+**FrameShot: Free Screen Recorder & Full Page Screenshot**
 
-(61 characters; the Web Store limit is 75.) Matches the manifest `name`.
+(54 characters; the Web Store limit is 75.) Matches the manifest `name`. Built from the owner's proposal "FrameShot: Free Screen Recorder & Full Page Capture", with "Capture" swapped for "Screenshot", the most-searched word in this category; "capture" moves into the summary.
 
 ## Short description (summary, ≤ 132 characters)
 
-> Full page screenshot tool: capture scrolling pages, areas & elements. Annotate, blur, export PNG, JPG, PDF. Private, no watermark.
+> Screen recorder & full page screen capture. Record tab, window or desktop with mic & camera. Annotate, blur, export MP4, PNG, PDF.
 
 (130 characters.) Matches the manifest `description`.
 
@@ -22,11 +22,11 @@ The Chrome Web Store ranks mainly on the **name** and **summary**, then the full
 
 | Where | Target phrases |
 |---|---|
-| Name | full page screenshot · screen capture · screenshot editor · free |
-| Summary | screenshot tool · scrolling (pages) · capture areas & elements · annotate · blur · PNG / JPG / PDF · private · no watermark |
-| Full description (each ≤ 5×, written naturally) | full page screenshot · scrolling screenshot · capture an entire web page · screen capture · screenshot tool · visible area · selected area · element / scrolling panel capture · screenshot editor · annotate · blur and redact sensitive information · save as PDF / PNG / JPEG / WebP · browser mockup · free, no watermark, no sign-up · works offline, no uploads |
+| Name | screen recorder · full page screenshot · screenshot · free |
+| Summary | screen recorder · full page screen capture · record tab / window / desktop · mic · camera · annotate · blur · MP4 / PNG / PDF |
+| Full description (each ≤ 5×, written naturally) | screen recorder · record your screen · screen recording with audio · webcam / camera bubble · MP4 · full page screenshot · scrolling screenshot · capture an entire web page · screen capture · screenshot tool · visible area · selected area · element / scrolling panel capture · screenshot editor · annotate · blur and redact sensitive information · save as PDF / PNG / JPEG / WebP · browser mockup · free, no watermark, no sign-up, no time limit · works offline, no uploads |
 
-Deliberately avoided: "screen recorder" (not a feature), competitor names, and the exact phrase "Annotate & Blur" used in a competitor's title.
+"Screen recorder" became a target only once the recorder shipped and passed its tests (1.2.0). Deliberately avoided: competitor names, and the exact phrases competitors use as titles (e.g. "Annotate & Blur", "Full Page Screen Capture").
 
 ## Category
 
@@ -37,12 +37,21 @@ Suggested: **Tools** (alternative: Productivity). Both are where users browse fo
 ```
 Capture the web. Edit every detail. Free forever.
 
-FrameShot is a free full page screenshot tool and screenshot editor for Chrome, by Unique Labs. Take a scrolling screenshot of an entire web page in one click, capture the visible area, a selected area, or a single element, then annotate, blur sensitive information, and save as PNG, JPEG, WebP or PDF. Everything happens locally in your browser: no sign-up, no uploads, no watermark.
+FrameShot is a free screen recorder and full page screenshot tool for Chrome, by Unique Labs. Record a tab, a window or your whole screen with sound and an optional camera bubble, or take a scrolling screenshot of an entire web page in one click. Then annotate, blur sensitive information, and save as MP4, PNG, JPEG, WebP or PDF. Everything happens locally in your browser: no sign-up, no uploads, no watermark.
 
 FREE, WITH NOTHING LOCKED
-• Unlimited captures (limited only by your device's storage and memory)
-• No watermark, no subscription, no paid tier, no account
+• Unlimited screenshots and recordings (limited only by your device's storage and memory)
+• No watermark, no time limit, no subscription, no paid tier, no account
 • Every feature is available to everyone
+
+SCREEN RECORDER
+• Record a browser tab, an app window or your entire screen, chosen in Chrome's own share picker
+• Record the tab's sound and your microphone together; mute the microphone at any time
+• Add a camera bubble in the corner of your choice
+• Countdown, pause and resume (paused time is left out), live timer and toolbar badge
+• Save as MP4 (H.264) that plays on every phone, Mac and PC, or as WebM; 720p to 4K, 15 to 60 fps
+• Play recordings in your library, download them, or save any frame as a screenshot to annotate
+• Recordings are saved as you record, so a crash or a closed tab loses only the last few seconds
 
 SCREEN CAPTURE, YOUR WAY
 • Full page: scrolls and stitches the entire web page; sticky headers and fixed footers appear once, not repeated
@@ -66,34 +75,35 @@ POLISHED VISUALS
 • Presets for 16:9, 1:1, 4:5, 9:16, 1200×630 social cards and 1920×1080
 
 SAVE AND SHARE
-• Save as PNG, JPEG, WebP or PDF (long pages continue across PDF pages)
-• Copy to the clipboard
+• Save screenshots as PNG, JPEG, WebP or PDF (long pages continue across PDF pages), recordings as MP4 or WebM
+• Copy screenshots to the clipboard
 • Bulk export as ZIP or one combined PDF
 • Custom file name templates
 
 ORGANIZE
-• A private, local library with search, website filter, favourites, collections and tags
+• One private, local library for screenshots and recordings, with search, website filter, favourites, collections and tags
 • Duplicate detection and side-by-side comparison
 • Import images by drag and drop or paste
 
 PRIVATE BY DESIGN
 • No servers, accounts, analytics, tracking or ads
 • Works offline; FrameShot's pages block all network connections
-• FrameShot can only access a tab when you ask it to
+• FrameShot can only access a tab when you ask it to, and records only what you pick in Chrome's share picker
+• The microphone and camera are used only while you record, after you switch them on
 • Light and dark themes
 
-Good to know: Chrome blocks extensions from browser pages (chrome://) or the Chrome Web Store, and allows two screenshots per second, so long pages take a few seconds. Blur and pixelation can sometimes be reversed for short text; use Redact for confidential information.
+Good to know: Chrome blocks extensions from browser pages (chrome://) and the Chrome Web Store, and allows two screenshots per second, so long pages take a few seconds. Chrome records sound from tabs (and from the whole screen on Windows and ChromeOS). Blur and pixelation can sometimes be reversed for short text; use Redact for confidential information.
 
 A Product of Unique Labs. Developed by Shahriar Ahmed (www.shahriarahmed.net).
 ```
 
 ## Screenshot captions (1280×800)
 
-1. **Full page screenshot in one click.** A scrolling capture of an entire web page, sticky header shown once, opened in the editor.
-2. **A screenshot editor that's fast.** Arrows, shapes, text, highlights and numbered steps.
-3. **Blur or redact sensitive information.** Redactions are flattened into the exported image.
-4. **Presentation-ready visuals.** Gradient backgrounds, shadows and a browser mockup frame.
-5. **Private screenshot library.** Search, collections and favourites, stored only on your device. Light and dark themes.
+1. **Free screen recorder with sound and camera.** The recorder screen mid-recording: live preview, camera bubble, pause/stop controls.
+2. **Full page screenshot in one click.** A scrolling capture of an entire web page, sticky header shown once, opened in the editor.
+3. **A screenshot editor that's fast.** Arrows, shapes, text, highlights and numbered steps.
+4. **Blur or redact sensitive information.** Redactions are flattened into the exported image.
+5. **One private library for screenshots and recordings.** Search, collections and favourites, stored only on your device. Light and dark themes.
 
 Produce these from real captures of FrameShot's own fixture or demo pages. Don't depict real companies' pages or trademarks.
 
@@ -108,16 +118,28 @@ Produce these from real captures of FrameShot's own fixture or demo pages. Don't
 | `activeTab` | Temporary access to the current tab **only when you start a capture** (toolbar, right-click menu, or shortcut). There is no permanent access to any site. |
 | `scripting` | Runs FrameShot's bundled capture script in that tab to scroll and measure the page, show the selection overlay, and restore the page afterwards. |
 | `storage` | Saves your settings on this device. |
-| `unlimitedStorage` | Keeps your full-resolution screenshot library from being evicted by the browser. Long screenshots can be large. |
-| `downloads` | Saves exported images, PDFs, and ZIP files to your Downloads folder and confirms they finished. |
+| `unlimitedStorage` | Keeps your full-resolution screenshot and recording library from being evicted by the browser. Long screenshots and recordings can be large. |
+| `downloads` | Saves exported images, videos, PDFs, and ZIP files to your Downloads folder and confirms they finished. |
 | `contextMenus` | Adds FrameShot capture options to the right-click menu. |
 
+- **Screen recording, microphone, camera:** no manifest permission. Recording uses Chrome's share picker (`getDisplayMedia`); the microphone and camera use Chrome's permission prompt, only after the user switches them on.
 - **Host permissions:** none.
 - **Remote code:** none. All code ships inside the extension package.
 
 ## Single purpose statement
 
-> FrameShot captures screenshots of web pages and lets the user edit, organize, and export them locally.
+> FrameShot captures what is on your screen — screenshots of web pages and recordings of a tab, window or screen you choose — and lets you edit, organize, and export them locally.
+
+## Review prompt (policy notes)
+
+FrameShot asks for a rating in-product (popup after a successful capture, library, player; any time under Settings → About). It is designed to comply with the Chrome Web Store policy against manipulating ratings:
+
+- No incentives of any kind for rating.
+- It asks for an honest rating; it never asks for a particular number of stars (the five stars in the card are decoration and are not clickable ratings).
+- No review gating: every user gets the same choices ("Rate FrameShot", "Not now", "Don't ask again"); nobody is filtered away from the store based on their opinion.
+- Shown only after real use (≥ 5 captures or recordings, ≥ 3 days), at most 3 times, 30 days apart, never during a capture or recording, and only for Web Store installs.
+
+The link is `https://chromewebstore.google.com/detail/frameshot/<item id>/reviews` (`REVIEW_URL_SLUG` in `src/core/review.ts`). After publishing, click it once to confirm it opens the listing's Reviews tab, and set the slug to the published listing's slug.
 
 ## Data usage disclosure
 

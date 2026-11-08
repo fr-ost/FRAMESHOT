@@ -65,6 +65,8 @@ export type Route =
   | { name: 'settings'; section?: string }
   | { name: 'welcome' }
   | { name: 'compare'; a: string; b: string }
+  | { name: 'record' }
+  | { name: 'play'; id: string }
   | { name: 'test' };
 
 export function parseRoute(hash: string): Route {
@@ -81,6 +83,10 @@ export function parseRoute(hash: string): Route {
       return { name: 'welcome' };
     case 'compare':
       return parts[1] && parts[2] ? { name: 'compare', a: parts[1], b: parts[2] } : { name: 'library' };
+    case 'record':
+      return { name: 'record' };
+    case 'play':
+      return parts[1] ? { name: 'play', id: parts[1] } : { name: 'library' };
     case '__test':
       return { name: 'test' };
     default:

@@ -5,6 +5,7 @@
  */
 import { STATUS_PORT, type StatusPortMessage } from '../core/messages';
 import type { CaptureStatus } from '../core/types';
+import { isActivePhase, onRecorderState, queryRecorder, readRecorderState, RECORDER_STATE_KEY, recorderBadge, type RecorderPublicState } from '../recorder/channel';
 
 const ports = new Set<chrome.runtime.Port>();
 let current: CaptureStatus = { phase: 'idle', updatedAt: Date.now() };
@@ -52,38 +53,75 @@ export function setStatus(patch: Omit<CaptureStatus, 'updatedAt'>): void {
   updateBadge(current);
 }
 
+// The badge shows capture progress first; otherwise a running screen recording.
+type Badge = { text: string; color: string };
+let captureBadge: Badge | null = null;
+let recordingBadge: Badge | null = null;
+
+function applyBadge(): void {
+  const b = captureBadge ?? recordingBadge;
+  void chrome.action.setBadgeText({ text: b?.text ?? '' }).catch(() => {});
+  if (b) {
+    void chrome.action.setBadgeBackgroundColor({ color: b.color }).catch(() => {});
+    void chrome.action.setBadgeTextColor?.({ color: '#ffffff' })?.catch?.(() => {});
+  }
+}
+
 function updateBadge(s: CaptureStatus): void {
   clearTimeout(badgeTimer);
-  const set = (text: string, color?: string) => {
-    void chrome.action.setBadgeText({ text }).catch(() => {});
-    if (color) void chrome.action.setBadgeBackgroundColor({ color }).catch(() => {});
-    if (text) void chrome.action.setBadgeTextColor?.({ color: '#ffffff' })?.catch?.(() => {});
+  const later = (ms: number) => {
+    badgeTimer = setTimeout(() => {
+      captureBadge = null;
+      applyBadge();
+    }, ms);
   };
   switch (s.phase) {
     case 'waiting':
-      set(s.message && /^\d+$/.test(s.message) ? s.message : '…', '#4f46e5');
-      break;
-    case 'selecting':
-      set('', undefined);
+      captureBadge = { text: s.message && /^\d+$/.test(s.message) ? s.message : '…', color: '#4f46e5' };
       break;
     case 'preparing':
     case 'loading':
     case 'stitching':
     case 'saving':
-      set('…', '#4f46e5');
+      captureBadge = { text: '…', color: '#4f46e5' };
       break;
     case 'capturing':
-      set(s.progress !== undefined ? `${Math.min(99, Math.round(s.progress * 100))}%` : '…', '#4f46e5');
+      captureBadge = { text: s.progress !== undefined ? `${Math.min(99, Math.round(s.progress * 100))}%` : '…', color: '#4f46e5' };
       break;
     case 'done':
-      set('✓', '#15803d');
-      badgeTimer = setTimeout(() => set(''), 2500);
+      captureBadge = { text: '✓', color: '#15803d' };
+      later(2500);
       break;
     case 'error':
-      set('!', '#dc2626');
-      badgeTimer = setTimeout(() => set(''), 6000);
+      captureBadge = { text: '!', color: '#dc2626' };
+      later(6000);
       break;
     default:
-      set('');
+      captureBadge = null;
   }
+  applyBadge();
+}
+
+function setRecordingBadge(state: RecorderPublicState | null): void {
+  recordingBadge = recorderBadge(state);
+  applyBadge();
+}
+
+/** Mirrors a screen recording (running in a Studio tab) on the toolbar badge. */
+export function watchRecorderBadge(): void {
+  onRecorderState(setRecordingBadge);
+  void readRecorderState().then(async (state) => {
+    if (state && isActivePhase(state.phase)) {
+      // A recorder page that crashed cannot clear its state: check it is alive.
+      const live = await queryRecorder(800);
+      if (!live) {
+        await chrome.storage.session.remove(RECORDER_STATE_KEY).catch(() => {});
+        setRecordingBadge(null);
+        return;
+      }
+      setRecordingBadge(live);
+      return;
+    }
+    setRecordingBadge(null);
+  });
 }

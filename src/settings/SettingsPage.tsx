@@ -1,9 +1,11 @@
-import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Info, Keyboard, Lock, Palette, Shield, Trash2 } from 'lucide-react';
+import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Info, Keyboard, Lock, Mic, Palette, Shield, Star, Trash2, Video } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { BRAND } from '../core/brand';
 import { buildFilename, FILENAME_TOKENS } from '../core/filename';
 import { formatBytes } from '../core/format';
-import { DEFAULT_SETTINGS, LIMITS, saveSettings, sanitizeFolder, type Settings, type DeepPartial, mergeSettings } from '../core/settings';
+import { DEFAULT_SETTINGS, LIMITS, saveSettings, sanitizeFolder, type Settings, type DeepPartial, mergeSettings, type RecorderSettings } from '../core/settings';
+import { QUALITY_PRESETS } from '../recorder/formats';
+import { hasStoreListing, markReviewDone, reviewUrl } from '../core/review';
 import { clearAllData, storageStats, type StorageStats } from '../db/db';
 import { navigate } from '../ui/hooks';
 import { useConfirm, useToast } from '../ui/overlays';
@@ -12,6 +14,7 @@ import { Button, Credits, Field, Input, Logo, SegmentedControl, Select, Slider, 
 const SECTIONS = [
   { id: 'appearance', label: 'Appearance', icon: <Palette size={15} /> },
   { id: 'capture', label: 'Capture', icon: <Camera size={15} /> },
+  { id: 'recording', label: 'Screen recording', icon: <Video size={15} /> },
   { id: 'export', label: 'Export & downloads', icon: <Download size={15} /> },
   { id: 'shortcuts', label: 'Shortcuts', icon: <Keyboard size={15} /> },
   { id: 'storage', label: 'Storage', icon: <HardDrive size={15} /> },
@@ -84,6 +87,10 @@ export function SettingsPage({ settings }: { settings: Settings }) {
   const [template, setTemplate] = useState(settings.filenameTemplate);
   const [folder, setFolder] = useState(settings.downloadFolder);
   const [activeSection, setActiveSection] = useState<string>('appearance');
+  const [listed, setListed] = useState(false);
+  useEffect(() => {
+    void hasStoreListing().then(setListed);
+  }, []);
 
   // Highlight the section currently in view.
   useEffect(() => {
@@ -197,6 +204,48 @@ export function SettingsPage({ settings }: { settings: Settings }) {
           </Field>
         </Card>
 
+        <Card title="Screen recording" id="recording" description="Defaults for new recordings. You can also change these on the recorder screen; FrameShot remembers your last choice.">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Format" htmlFor="fr-s-rec-format" hint="MP4 (H.264) plays on every phone, Mac and PC.">
+              <Select id="fr-s-rec-format" value={settings.recorder.format} onChange={(e) => void update({ recorder: { format: e.target.value as RecorderSettings['format'] } })}>
+                <option value="mp4">MP4</option>
+                <option value="webm">WebM</option>
+              </Select>
+            </Field>
+            <Field label="Quality" htmlFor="fr-s-rec-quality" hint="The largest size recorded; smaller screens keep their size.">
+              <Select id="fr-s-rec-quality" value={settings.recorder.quality} onChange={(e) => void update({ recorder: { quality: e.target.value as RecorderSettings['quality'] } })}>
+                {Object.entries(QUALITY_PRESETS).map(([k, q]) => (
+                  <option key={k} value={k}>
+                    {q.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Frame rate" htmlFor="fr-s-rec-fps">
+              <Select id="fr-s-rec-fps" value={String(settings.recorder.fps)} onChange={(e) => void update({ recorder: { fps: Number(e.target.value) as RecorderSettings['fps'] } })}>
+                <option value="15">15 fps</option>
+                <option value="30">30 fps</option>
+                <option value="60">60 fps</option>
+              </Select>
+            </Field>
+            <Field label="Countdown before recording" htmlFor="fr-s-rec-countdown">
+              <Select id="fr-s-rec-countdown" value={String(settings.recorder.countdown)} onChange={(e) => void update({ recorder: { countdown: Number(e.target.value) as RecorderSettings['countdown'] } })}>
+                <option value="0">None</option>
+                <option value="3">3 seconds</option>
+                <option value="5">5 seconds</option>
+                <option value="10">10 seconds</option>
+              </Select>
+            </Field>
+          </div>
+          <Switch label="Record tab & system sound" description="Sound from the shared tab (and the whole screen where Chrome offers it)." checked={settings.recorder.systemAudio} onChange={(v) => void update({ recorder: { systemAudio: v } })} />
+          <p className="flex gap-2 rounded-xl bg-surface-2 px-3 py-2.5 text-[12.5px] leading-snug text-fg-muted">
+            <Mic size={15} className="mt-px shrink-0 text-primary" /> The microphone and camera are only used while you record, after you switch them on in the recorder. Chrome asks your permission the first time.
+          </p>
+          <Button icon={<Video size={15} />} onClick={() => navigate('/record')}>
+            Open the recorder
+          </Button>
+        </Card>
+
         <Card title="Export & downloads" id="export" description="Formats, quality, file names and where files are saved.">
           <Field label="Default format">
             <SegmentedControl
@@ -265,7 +314,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
           </Button>
         </Card>
 
-        <Card title="Storage" id="storage" description="Screenshots are stored only in this browser on this device.">
+        <Card title="Storage" id="storage" description="Screenshots and recordings are stored only in this browser on this device.">
           <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3 text-sm">
             <span>
               <strong>{stats?.count ?? 0}</strong> items · <strong>{formatBytes(stats?.usage ?? stats?.imageBytes ?? 0)}</strong> used
@@ -278,7 +327,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
             onClick={async () => {
               const ok = await confirm({
                 title: 'Delete all FrameShot data?',
-                message: 'This permanently deletes every screenshot, edit, and collection stored by FrameShot in this browser. Settings are kept. This cannot be undone.',
+                message: 'This permanently deletes every screenshot, recording, edit, and collection stored by FrameShot in this browser. Settings are kept. This cannot be undone.',
                 confirmLabel: 'Delete everything',
                 danger: true,
               });
@@ -294,9 +343,10 @@ export function SettingsPage({ settings }: { settings: Settings }) {
 
         <Card title="Privacy" id="privacy">
           <ul className="space-y-2 text-[13px] text-fg-muted">
-            <li className="flex gap-2"><Lock size={15} className="mt-0.5 shrink-0 text-success" /> Screenshots never leave your device. FrameShot has no servers, accounts, analytics, or tracking.</li>
+            <li className="flex gap-2"><Lock size={15} className="mt-0.5 shrink-0 text-success" /> Screenshots and recordings never leave your device. FrameShot has no servers, accounts, analytics, or tracking.</li>
             <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> FrameShot’s pages block all network connections through a strict Content Security Policy.</li>
             <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> FrameShot only accesses a tab when you start a capture on it (the “activeTab” permission).</li>
+            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> Screen recording uses Chrome’s own share picker: you choose exactly which tab, window or screen is recorded, and Chrome shows that it is being shared.</li>
           </ul>
         </Card>
 
@@ -309,6 +359,22 @@ export function SettingsPage({ settings }: { settings: Settings }) {
             <strong className="text-fg">FrameShot</strong> — {BRAND.tagline} No subscriptions, no watermarks, no accounts, no locked features.
           </p>
           <p className="text-[13px] text-fg-subtle">{BRAND.principle}</p>
+          {listed && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-surface-2 px-4 py-3">
+              <p className="text-[13px] leading-snug text-fg-muted">FrameShot is free and stays that way. A rating on the Chrome Web Store helps others find it.</p>
+              <Button
+                size="sm"
+                icon={<Star size={14} className="text-amber-500" fill="currentColor" />}
+                onClick={() => {
+                  void markReviewDone();
+                  void chrome.tabs.create({ url: reviewUrl() });
+                }}
+                data-testid="settings-rate"
+              >
+                Rate FrameShot
+              </Button>
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
             <Credits align="start" />
             <Button variant="ghost" size="sm" icon={<ExternalLink size={14} />} onClick={() => navigate('/welcome')}>

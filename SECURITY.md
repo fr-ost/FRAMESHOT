@@ -8,7 +8,7 @@ Please report security issues privately to **security@uniquelabs.example**. *(Pl
 
 FrameShot is a local-first Chrome extension with no backend. The assets worth protecting are:
 
-1. **The user's screenshots**, which may contain sensitive information, and their metadata (page titles and URLs).
+1. **The user's screenshots and screen recordings**, which may contain sensitive information (including microphone sound and camera images), and their metadata (page titles and URLs).
 2. **The pages being captured**: FrameShot must not break them, leak their content, or let them influence FrameShot.
 3. **The user's trust** in redaction: hidden content must really be gone from exports.
 
@@ -27,7 +27,10 @@ FrameShot is a local-first Chrome extension with no backend. The assets worth pr
 | Corrupted or hostile stored data | Settings pass through `sanitizeSettings` (type checks, clamping, enum validation). Editor documents pass through `isValidDoc`. Composer settings pass through `sanitizeComposer`. Download folders are sanitized to safe relative paths (no `..`, no reserved characters). Filenames are sanitized for all major operating systems. |
 | Redaction not really removing data | Export flattening uses `getImageData` → process → `putImageData`, which **replaces** pixels. Redaction output is fully opaque. E2E tests decode the exported PNG, JPEG, WebP, and PDF files and the clipboard image, and confirm the redacted region contains only the redaction colour. |
 | Weak redaction methods | The UI warns that blur and pixelation can sometimes be reversed and recommends solid redaction for confidential data. Defaults use strong settings (blur radius 14, pixel blocks 14 px). |
-| Logging of sensitive content | FrameShot does not log page content, screenshots, or URLs. |
+| Logging of sensitive content | FrameShot does not log page content, screenshots, recordings, or URLs. |
+| Recording more than the user intended | Recording uses Chrome's own share picker; the user picks the tab, window or screen, and Chrome shows a sharing indicator throughout. FrameShot requests no screen-capture permission (`desktopCapture`/`tabCapture`). The recorder's own tab is excluded from the picker (`selfBrowserSurface: 'exclude'`). Microphone and camera are opened only after the user switches them on, behind Chrome's permission prompt, and their tracks are stopped when recording ends or the switch is turned off. |
+| Other contexts controlling a recording | Recorder commands travel over a same-origin `BroadcastChannel`, which only FrameShot's own pages and service worker can join; web pages and content scripts cannot. The public recorder state lives in `chrome.storage.session`, which is limited to trusted extension contexts by default. Commands can only pause, resume, stop, discard, mute, or focus the recorder. |
+| Losing a recording to a crash | Video is written to IndexedDB in chunks as it is recorded; an unfinished recording is offered for recovery (or deletion) the next time the recorder opens. If storing fails (storage full), the finished recording is offered as a direct download instead. |
 
 ## Content Security Policy
 
@@ -41,14 +44,14 @@ object-src 'none'; base-uri 'none'; form-action 'none'
 
 ## Permissions
 
-`activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. See [STORE_LISTING.md](STORE_LISTING.md) for the justification of each.
+`activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. See [STORE_LISTING.md](STORE_LISTING.md) for the justification of each. The screen recorder added no permissions.
 
 ## Test builds
 
-`npm run build:e2e` produces a **test-only** build with `host_permissions: ["<all_urls>"]` and test hooks (`__frameshotTest`, `__frameshotEditor`), so automation can run without a real toolbar click. These are gated by the compile-time constant `__FRAMESHOT_E2E__` and are absent from production builds. Never distribute the E2E build.
+`npm run build:e2e` produces a **test-only** build with `host_permissions: ["<all_urls>"]` and test hooks (`__frameshotTest`, `__frameshotEditor`, `__frameshotRecorder`), so automation can run without a real toolbar click. These are gated by the compile-time constant `__FRAMESHOT_E2E__` and are absent from production builds. Never distribute the E2E build.
 
 ## Known limitations
 
-- Images on the clipboard and in your Downloads folder are outside FrameShot's control once you export them.
+- Images on the clipboard, and images and videos in your Downloads folder, are outside FrameShot's control once you export them.
 - The local library keeps the **original** capture for non-destructive editing. Use **Apply edits permanently** to remove hidden content from the library copy.
 - Anyone with access to your browser profile can open the FrameShot library, as with any locally stored browser data.

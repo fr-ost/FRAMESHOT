@@ -14,9 +14,10 @@ This document describes how FrameShot is structured and why. All references are 
                      status port ◀────── • stitcher.ts         segmented OffscreenCanvas                               │
                      + badge             • status.ts           port broadcast + storage.session + badge                │
                                                 │                                                                       │
-                                                │ IndexedDB: items / blobs / docs / collections (db/db.ts)              │
+                                                │ IndexedDB: items / blobs / docs / collections / recChunks (db/db.ts)  │
                                                 ▼                                                                       │
-                                         FrameShot Studio (app/, library/, editor/, composer/, settings/)                │
+                                         FrameShot Studio (app/, library/, editor/, composer/, settings/, recorder/)     │
+                                           • screen recorder: getDisplayMedia → MediaRecorder → chunks → IndexedDB       │
                      └────────────────────────────────────────────┬────────────────────────────────────────────────────┘
                                                                    │ chrome.scripting.executeScript (activeTab, on demand)
                                                                    ▼
@@ -35,8 +36,8 @@ The guiding principles:
 
 | Module | Location | Responsibility |
 |---|---|---|
-| Popup | `popup/PopupApp.tsx`, `entrypoints/popup/` | Quick-capture buttons, delay picker, live status (progress, Stop & save, Cancel), recent captures |
-| Studio app | `app/StudioApp.tsx`, `entrypoints/studio/` | Hash router (`#/`, `#/edit/:id`, `#/compose/:id`, `#/settings`, `#/welcome`, `#/compare/:a/:b`), providers, lazy-loaded screens |
+| Popup | `popup/PopupApp.tsx`, `entrypoints/popup/` | Quick-capture buttons, delay picker, live status (progress, Stop & save, Cancel), "Record screen", live recording controls, recent captures |
+| Studio app | `app/StudioApp.tsx`, `entrypoints/studio/` | Hash router (`#/`, `#/edit/:id`, `#/compose/:id`, `#/settings`, `#/welcome`, `#/compare/:a/:b`, `#/record`, `#/play/:id`), providers, lazy-loaded screens, recording pill, Studio presence answers |
 | Background SW | `background/main.ts`, `entrypoints/background.ts` | Message routing, commands, context menus, onboarding, Studio tab management |
 | Capture orchestrator | `background/capture-session.ts` | Resolves the target, prepares the page, runs frames, verifies completeness, saves, restores |
 | Frame capture | `background/frame-capture.ts` | Paces `captureVisibleTab` (≥ 520 ms apart), retries on quota errors, checks the tab is still visible |
@@ -53,6 +54,9 @@ The guiding principles:
 | Database | `db/db.ts` | IndexedDB schema and CRUD, BroadcastChannel change events |
 | Settings | `core/settings.ts`, `settings/SettingsPage.tsx` | Defaults, validation/clamping, persistence in `chrome.storage.local` |
 | Shared UI | `ui/` | Design-system primitives, dialogs, menus, toasts, colour picker, hooks |
+| Screen recorder | `recorder/` | Engine (`recorder.ts`), camera compositor, audio mixer, format choice, WebM duration repair, popup/badge channel, recorder and player screens (see §13) |
+| Studio presence | `core/studio-channel.ts` | Lets the SW find and reuse open Studio tabs without the `tabs` permission |
+| Review prompt | `core/review.ts`, `ui/ReviewPrompt.tsx` | When to ask for a Web Store rating (pure rules + local counters), the card shown in the popup, library and player. `chrome.management.getSelf()` (no permission needed) limits it to store installs |
 
 ## 3. Message contracts (`core/messages.ts`)
 
@@ -65,6 +69,9 @@ All messages are typed discriminated unions.
 | SW → agent | `AgentRequest` | `agent.ping`, `agent.measure`, `agent.resolve`, `agent.prepare`, `agent.preload`, `agent.scroll`, `agent.restore`, `agent.pick`, `agent.cancelPick` |
 | SW → popup | `StatusPortMessage` over the `frameshot-status` port | `{ kind: 'status', status: CaptureStatus }` |
 | Any → any page | `BroadcastChannel('frameshot-library')` | `items-changed`, `collections-changed`, `cleared` |
+| Popup/SW ↔ recorder page | `BroadcastChannel('frameshot-recorder')` | `ping`/`pong {state}`, `command {pause, resume, stop, discard, toggle-mic, focus}`, `state` |
+| SW ↔ Studio pages | `BroadcastChannel('frameshot-studio')` | `who` → `here {tabId, windowId, route, recording}`, `open {tabId, route}` |
+| Recorder page → popup/SW | `chrome.storage.session['frameshot.recorder']` | Public recorder state (phase, countdown, active time, mic) for the popup and the toolbar badge |
 
 Responses use `Result<T> = { ok: true, data } | { ok: false, error, code? }`. The SW accepts messages only when `sender.id === chrome.runtime.id`. The agent accepts only `agent.*` messages from its own extension.
 
@@ -190,17 +197,21 @@ EditorDoc {
 - `export/service.ts` loads an item with its document, flattens and encodes it, builds the filename, and handles bulk ZIP and combined PDF.
 - JPEG output is flattened onto white, because Chrome would otherwise turn transparency black. Canvas re-encoding drops EXIF metadata.
 
-## 9. Storage schema (`db/db.ts`, database `frameshot` v1)
+## 9. Storage schema (`db/db.ts`, database `frameora` v2)
+
+The database keeps the product's former name (`frameora`) so libraries survive the rename. Version 2 (FrameShot 1.2) added the two recording stores; the upgrade only creates missing stores, so existing data is untouched.
 
 | Store | Key | Value |
 |---|---|---|
-| `items` | `id` (index `createdAt`) | `LibraryItem` metadata: name, source `{url,title,domain}`, mode, sizes, byteSize, favourite, collectionId, tags, hasEdits, group, warnings, partial, scale, dhash |
-| `blobs` | `${id}:original`, `${id}:thumb` | Image blobs (PNG original, WebP thumbnail) |
+| `items` | `id` (index `createdAt`) | `LibraryItem` metadata: kind (`capture`, `import`, `composition`, `recording`, `frame`), name, source `{url,title,domain}`, mode, sizes, byteSize, favourite, collectionId, tags, hasEdits, group, warnings, partial, scale, dhash; recordings add durationMs, hasAudio, surface |
+| `blobs` | `${id}:original`, `${id}:thumb` | Image blobs (PNG original, WebP thumbnail; recordings store only a thumbnail here) |
 | `docs` | `id` | `{ id, doc: EditorDoc, updatedAt }` |
 | `collections` | `id` | `{ id, name, createdAt }` |
+| `recChunks` | `[id, sequence]` | A recording's video data as the chunks MediaRecorder produced. The file is `new Blob(chunks)`, assembled without copying |
+| `recSessions` | `id` | A recording in progress: running totals, poster, and a heartbeat (`updatedAt`). Removed when the recording is saved, discarded, or recovered |
 
 - Quota errors become a friendly `StorageFullError`. `unlimitedStorage` is requested so large libraries aren't evicted.
-- Settings live in `chrome.storage.local` under `frameshot.settings` and are always passed through `sanitizeSettings`.
+- Settings live in `chrome.storage.local` under `frameora.settings` (the former name, kept for existing users) and are always passed through `sanitizeSettings`.
 - Small per-device UI preferences (theme cache, editor tool style, composer settings, popup delay) are kept in `localStorage`.
 
 ## 10. Content Security Policy
@@ -218,7 +229,7 @@ This applies to every extension page and the service worker. `connect-src` makes
 | Build | Command | Difference |
 |---|---|---|
 | Production | `npm run build`, `npm run zip` | No host permissions, no test hooks |
-| E2E | `npm run build:e2e` (`FRAMESHOT_E2E=1`) | Adds `host_permissions: ["<all_urls>"]`, plus `__frameshotTest` on the SW, `__frameshotEditor` on the editor window, and a test-only canvas-limit override, all gated by the compile-time constant `__FRAMESHOT_E2E__` |
+| E2E | `npm run build:e2e` (`FRAMESHOT_E2E=1`) | Adds `host_permissions: ["<all_urls>"]`, plus `__frameshotTest` on the SW, `__frameshotEditor` on the editor window, `__frameshotRecorder` on Studio pages, and a test-only canvas-limit override, all gated by the compile-time constant `__FRAMESHOT_E2E__` |
 
 ## 12. UI and design system
 
@@ -230,3 +241,33 @@ This applies to every extension page and the service worker. `connect-src` makes
 - **Accessibility:** all motion is disabled under `prefers-reduced-motion`; focus rings are global; icon-only buttons have labels and tooltips; Radix provides focus management and keyboard navigation for dialogs and menus.
 - **In-page overlay** (`content/overlay.ts`): styled only through CSSOM and animated with the Web Animations API, both of which page CSP cannot block.
 
+
+## 13. Screen recorder (`recorder/`)
+
+```
+ click "Start recording"
+   │  (inside the click: create the AudioContext, then call getDisplayMedia so Chrome's picker opens)
+   ▼
+ display stream ── video ──┬──────────────────────────────▶ (no camera) ──────────────┐
+ (tab / window / screen)   └─▶ compositor.ts ◀── camera ── MediaStreamTrackProcessor   │
+                               OffscreenCanvas → VideoFrame → MediaStreamTrackGenerator ┤
+ display audio ─┐                                                                       ▼
+ microphone ────┴─▶ mixer.ts (AudioContext → MediaStreamDestination, mic gain) ──▶ MediaRecorder
+                                                                                        │ every 1 s (MP4: every key frame, 2 s)
+                                                                                        ▼
+                                                    IndexedDB recChunks [id, seq] + recSessions heartbeat
+                                                                                        │ stop
+                                                                                        ▼
+                                  WebM: patch Duration into chunk 0 · poster thumbnail · items entry → player
+```
+
+- **No permissions.** `getDisplayMedia` and `getUserMedia` work in extension pages without manifest permissions. Chrome shows its own picker, its sharing indicator, and its microphone/camera prompts. `selfBrowserSurface: 'exclude'` keeps the recorder tab out of the picker; `surfaceSwitching: 'include'` lets the user change the shared tab from Chrome's bar.
+- **Why a page.** Screen capture needs a document with a user gesture, so the recorder lives in a Studio tab (`#/record`). The engine is a module-level singleton, so in-app navigation keeps recording; a floating pill shows on other screens and a `beforeunload` prompt protects the tab.
+- **Frame-driven compositing.** The camera bubble is drawn per arriving frame (display or camera), not on timers or `requestAnimationFrame`, so it keeps full speed while the recorder tab is in the background. The output size is fixed to the first frame (even dimensions for H.264); a resized source is letterboxed.
+- **Formats** (`formats.ts`): MP4 means H.264, with AAC where Chrome can encode it and Opus otherwise; WebM (VP9/VP8 + Opus) is the fallback, and the user is told. Bitrate ≈ 0.1 bits per pixel per frame (6.2 Mbit/s at 1080p30); extra frames above 30 fps cost half.
+- **Key frames every 2 s** (`videoKeyFrameIntervalDuration`). Chrome's MP4 writer only emits data at key frames; with its default spacing, a whole recording stayed in memory until stop. Regular key frames keep chunks flowing to IndexedDB and make seeking fast.
+- **WebM duration** (`webm.ts`): MediaRecorder writes live-style WebM without a Duration. On stop, the EBML header in chunk 0 is parsed and a Duration element is inserted into Info (resizing Info, keeping an unknown Segment size). Unexpected layouts (e.g. a SeekHead) are left untouched rather than risk corrupting the file.
+- **Crash recovery.** A session record with a heartbeat (every 4 s and on every chunk) marks an unfinished recording. When none of the open pages owns it and its heartbeat is older than 15 s, the recorder offers to recover it (duration from the last heartbeat; WebM duration patched) or delete it.
+- **State for other contexts** (`channel.ts`): the recorder page publishes a small public state to `chrome.storage.session`; the SW turns it into the toolbar badge (capture progress takes precedence), and the popup shows live controls. Commands travel back over a BroadcastChannel. A page that crashed cannot clear its state, so the popup and SW ping it and clear stale state when nobody answers.
+- **Studio presence** (`core/studio-channel.ts`): without the `tabs` permission Chrome hides even the extension's own tab URLs, so Studio pages answer a BroadcastChannel `who` with their tab id (`chrome.tabs.getCurrent`) and route. The SW uses this to focus an existing recorder (or library) instead of opening duplicates.
+- **Library integration.** Recordings are `LibraryItem`s with `kind: 'recording'`; their video is `getRecordingBlob(id)`. The editor redirects recordings to the player; bulk ZIP export adds the video files (up to 1 GB, since the ZIP is built in memory); PDF export skips them; "Save frame" in the player creates a `kind: 'frame'` PNG item.

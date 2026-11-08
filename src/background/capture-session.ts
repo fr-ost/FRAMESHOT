@@ -28,6 +28,7 @@ import { loadSettings, type Settings } from '../core/settings';
 import type { CaptureErrorCode, CaptureMode, CaptureSource, LibraryItem, Rect } from '../core/types';
 import { newId } from '../core/format';
 import { addItem } from '../db/db';
+import { recordReviewSuccess } from '../core/review';
 import { canvasToBlob, createCanvas, dHash, get2d, makeThumbnail, probeMaxCanvasDimension } from '../imaging/image-io';
 import { callAgent, ensureAgent } from './agent-client';
 import { assertTabVisible, captureFrame, TabChangedError } from './frame-capture';
@@ -246,6 +247,8 @@ async function runCapture(capture: ActiveCapture, selection: AgentSelection | nu
 
     setStatus({ phase: 'saving', mode: capture.mode, message: 'Saving to your library…' });
     const ids = await saveOutcome(capture, outcome, source, settings);
+    // Counted before "done" is announced, so the popup's review check sees it.
+    await recordReviewSuccess().catch(() => {});
 
     setStatus({
       phase: 'done',

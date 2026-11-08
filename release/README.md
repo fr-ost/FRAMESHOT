@@ -1,7 +1,12 @@
-# FrameShot 1.1.0 — release package
+# FrameShot 1.2.0 — release package
 
-`frameshot-1.1.0-chrome.zip` is the production Manifest V3 build produced by
-`npm run build && npm run zip` (identical to `.output/frameshot-1.1.0-chrome.zip`).
+`frameshot-1.2.0-chrome.zip` is the production Manifest V3 build produced by
+`npm run build && npm run zip` (identical to `.output/frameshot-1.2.0-chrome.zip`).
+
+New in 1.2.0: the built-in screen recorder (tab, window or screen; tab sound and
+microphone; camera bubble; MP4/WebM; crash recovery), the search-optimized store
+title "FrameShot: Free Screen Recorder & Full Page Screenshot", and a polite,
+policy-compliant review prompt. See `CHANGELOG.md`.
 
 - Install for testing: unzip it, open `chrome://extensions`, enable Developer mode,
   click **Load unpacked**, and select the unzipped folder.

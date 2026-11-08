@@ -7,15 +7,40 @@
  *  - blobs:       image bytes keyed by `${id}:original` and `${id}:thumb`
  *  - docs:        editor documents (non-destructive edits) keyed by item id
  *  - collections: user collections (folders)
+ *  - recChunks:   screen-recording video data, stored as the ~1 s chunks
+ *                 MediaRecorder produces, keyed by [item id, sequence]
+ *  - recSessions: recordings still in progress (or interrupted by a crash),
+ *                 so an unfinished recording can be recovered
  */
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import { LIBRARY_CHANNEL, type LibraryEvent } from '../core/messages';
-import type { Collection, LibraryItem } from '../core/types';
+import type { Collection, DisplaySurfaceKind, LibraryItem } from '../core/types';
 
 // Database name kept from the product's former name (Frameora) so existing
 // screenshot libraries survive the rename to FrameShot.
 export const DB_NAME = 'frameora';
-export const DB_VERSION = 1;
+// v2 (FrameShot 1.2): adds the screen-recording stores.
+export const DB_VERSION = 2;
+
+/** A recording that has started but not been saved to the library yet. */
+export interface RecordingSessionRecord {
+  id: string;
+  startedAt: number;
+  /** Heartbeat: refreshed while the recorder page is alive. */
+  updatedAt: number;
+  mimeType: string;
+  /** Recorded time so far, excluding pauses. */
+  durationMs: number;
+  bytes: number;
+  chunks: number;
+  width: number;
+  height: number;
+  hasAudio: boolean;
+  surface?: DisplaySurfaceKind;
+  label?: string;
+  thumb?: Blob;
+  warnings: string[];
+}
 
 export interface StoredDoc {
   id: string;
@@ -28,6 +53,8 @@ interface FrameShotDB extends DBSchema {
   blobs: { key: string; value: Blob };
   docs: { key: string; value: StoredDoc };
   collections: { key: string; value: Collection };
+  recChunks: { key: [string, number]; value: Blob };
+  recSessions: { key: string; value: RecordingSessionRecord };
 }
 
 let dbPromise: Promise<IDBPDatabase<FrameShotDB>> | null = null;
@@ -43,6 +70,8 @@ export function getDb(): Promise<IDBPDatabase<FrameShotDB>> {
         if (!db.objectStoreNames.contains('blobs')) db.createObjectStore('blobs');
         if (!db.objectStoreNames.contains('docs')) db.createObjectStore('docs', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('collections')) db.createObjectStore('collections', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('recChunks')) db.createObjectStore('recChunks');
+        if (!db.objectStoreNames.contains('recSessions')) db.createObjectStore('recSessions', { keyPath: 'id' });
       },
       blocking() {
         // Another context wants to upgrade; close so it can proceed.
@@ -81,6 +110,7 @@ function wrapQuota<T>(promise: Promise<T>): Promise<T> {
 
 const originalKey = (id: string) => `${id}:original`;
 const thumbKey = (id: string) => `${id}:thumb`;
+const chunkRange = (id: string) => IDBKeyRange.bound([id, 0], [id, Number.MAX_SAFE_INTEGER]);
 
 // ── Change notifications ────────────────────────────────────────────────
 
@@ -161,13 +191,15 @@ export async function updateItems(ids: string[], patch: Partial<Omit<LibraryItem
 
 export async function deleteItems(ids: string[]): Promise<void> {
   const db = await getDb();
-  const tx = db.transaction(['items', 'blobs', 'docs'], 'readwrite');
+  const tx = db.transaction(['items', 'blobs', 'docs', 'recChunks', 'recSessions'], 'readwrite');
   for (const id of ids) {
     await Promise.all([
       tx.objectStore('items').delete(id),
       tx.objectStore('blobs').delete(originalKey(id)),
       tx.objectStore('blobs').delete(thumbKey(id)),
       tx.objectStore('docs').delete(id),
+      tx.objectStore('recChunks').delete(chunkRange(id)),
+      tx.objectStore('recSessions').delete(id),
     ]);
   }
   await tx.done;
@@ -208,6 +240,80 @@ export async function replaceOriginal(
     ]),
   );
   notifyLibrary({ kind: 'items-changed', ids: [id] });
+}
+
+// ── Screen recordings ───────────────────────────────────────────────────
+
+export async function createRecordingSession(session: RecordingSessionRecord): Promise<void> {
+  await wrapQuota((await getDb()).put('recSessions', session));
+}
+
+/** Stores one recorded chunk and updates the session's running totals atomically. */
+export async function appendRecordingChunk(id: string, seq: number, chunk: Blob, patch: Partial<Omit<RecordingSessionRecord, 'id'>>): Promise<void> {
+  const db = await getDb();
+  const tx = db.transaction(['recChunks', 'recSessions'], 'readwrite');
+  const sessions = tx.objectStore('recSessions');
+  const existing = await sessions.get(id);
+  await wrapQuota(
+    Promise.all([
+      tx.objectStore('recChunks').put(chunk, [id, seq]),
+      existing ? sessions.put({ ...existing, ...patch, id, updatedAt: Date.now() }) : Promise.resolve(),
+      tx.done,
+    ]),
+  );
+}
+
+export async function updateRecordingSession(id: string, patch: Partial<Omit<RecordingSessionRecord, 'id'>>): Promise<void> {
+  const db = await getDb();
+  const tx = db.transaction('recSessions', 'readwrite');
+  const existing = await tx.store.get(id);
+  if (!existing) return;
+  await wrapQuota(Promise.all([tx.store.put({ ...existing, ...patch, id, updatedAt: Date.now() }), tx.done]));
+}
+
+export async function getRecordingSession(id: string): Promise<RecordingSessionRecord | undefined> {
+  return (await getDb()).get('recSessions', id);
+}
+
+export async function listRecordingSessions(): Promise<RecordingSessionRecord[]> {
+  return (await getDb()).getAll('recSessions');
+}
+
+export async function getRecordingChunks(id: string): Promise<Blob[]> {
+  return (await getDb()).getAll('recChunks', chunkRange(id));
+}
+
+export async function replaceRecordingChunk(id: string, seq: number, chunk: Blob): Promise<void> {
+  await wrapQuota((await getDb()).put('recChunks', chunk, [id, seq]));
+}
+
+/** The complete video file of a recording (assembled from its chunks without copying). */
+export async function getRecordingBlob(id: string, mimeType: string): Promise<Blob | undefined> {
+  const chunks = await getRecordingChunks(id);
+  if (chunks.length === 0) return undefined;
+  return new Blob(chunks, { type: mimeType });
+}
+
+/** Turns a finished (or recovered) session into a library item. The chunks stay where they are. */
+export async function finalizeRecording(item: LibraryItem, thumb?: Blob): Promise<void> {
+  const db = await getDb();
+  const tx = db.transaction(['items', 'blobs', 'recSessions'], 'readwrite');
+  await wrapQuota(
+    Promise.all([
+      tx.objectStore('items').put(item),
+      thumb ? tx.objectStore('blobs').put(thumb, thumbKey(item.id)) : Promise.resolve(),
+      tx.objectStore('recSessions').delete(item.id),
+      tx.done,
+    ]),
+  );
+  notifyLibrary({ kind: 'items-changed', ids: [item.id] });
+}
+
+/** Deletes an unfinished recording and its data. */
+export async function discardRecordingSession(id: string): Promise<void> {
+  const db = await getDb();
+  const tx = db.transaction(['recChunks', 'recSessions'], 'readwrite');
+  await Promise.all([tx.objectStore('recChunks').delete(chunkRange(id)), tx.objectStore('recSessions').delete(id), tx.done]);
 }
 
 // ── Editor documents ────────────────────────────────────────────────────
@@ -254,7 +360,7 @@ export async function deleteCollection(id: string): Promise<void> {
 
 export interface StorageStats {
   count: number;
-  /** Sum of stored original image sizes. */
+  /** Sum of stored original image and video sizes. */
   imageBytes: number;
   /** Browser-reported usage/quota for this extension, when available. */
   usage?: number;
@@ -278,12 +384,14 @@ export async function storageStats(): Promise<StorageStats> {
 
 export async function clearAllData(): Promise<void> {
   const db = await getDb();
-  const tx = db.transaction(['items', 'blobs', 'docs', 'collections'], 'readwrite');
+  const tx = db.transaction(['items', 'blobs', 'docs', 'collections', 'recChunks', 'recSessions'], 'readwrite');
   await Promise.all([
     tx.objectStore('items').clear(),
     tx.objectStore('blobs').clear(),
     tx.objectStore('docs').clear(),
     tx.objectStore('collections').clear(),
+    tx.objectStore('recChunks').clear(),
+    tx.objectStore('recSessions').clear(),
     tx.done,
   ]);
   notifyLibrary({ kind: 'cleared' });

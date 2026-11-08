@@ -15,6 +15,20 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 - Metadata inspection (details dialog: source, mode, sizes, pixel density, capture notes)
 - Import, paste, or drag-and-drop images into the library
 
+## Shipped in 1.2.0
+
+- **Screen recorder** (tab, window or screen; tab sound and microphone; camera bubble; pause/resume; MP4 or WebM; crash recovery; player with frame capture). See [FEATURES.md](FEATURES.md).
+
+## Recorder follow-ups
+
+| Item | Why it is deferred / what it needs |
+|---|---|
+| Trimming and cutting recordings | Needs a local video editor (WebCodecs decode/encode plus muxing). Planned, local-only. |
+| GIF export of short clips | Needs a local GIF encoder; quality/size trade-offs for screen content. |
+| Drawing on the screen while recording | Needs an overlay injected into the recorded tab (`activeTab` flow) or a picture-in-picture canvas. |
+| Floating picture-in-picture controls and self-view | Document Picture-in-Picture is available; needs care so the controls are not recorded when the whole screen is shared. |
+| Choosing sound sources per recording in the popup | The recorder page has them; the popup opens the recorder. |
+
 ## Deferred
 
 | Item | Why it is deferred / what it needs |
@@ -30,7 +44,7 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 | **Translations (i18n)** | The UI is English only. |
 | **Optional sync between devices** | Would conflict with the local-first promise unless strictly opt-in and end-to-end encrypted. Not planned for now. |
 | **Automated accessibility audit** | Keyboard support, focus rings, and ARIA labels are built in; an axe-core audit in CI is planned. |
-| **Scheduled/automated captures, video recording** | Out of scope for 1.0. |
+| **Scheduled/automated captures** | Out of scope for now. (Screen recording shipped in 1.2.0.) |
 
 ## Not possible in Chrome (browser restrictions)
 

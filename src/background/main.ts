@@ -16,7 +16,10 @@ import {
   startCapture,
   stopCapture,
 } from './capture-session';
-import { getStatus, registerStatusPort, restoreStatus, setStatus } from './status';
+import { initReviewState } from '../core/review';
+import { askStudioToOpen, findStudioPages, isLibraryRoute, isRecorderRoute, type StudioPresence } from '../core/studio-channel';
+import { isActivePhase, queryRecorder, sendRecorderCommand } from '../recorder/channel';
+import { getStatus, registerStatusPort, restoreStatus, setStatus, watchRecorderBadge } from './status';
 
 const MENU_ROOT = 'frameshot';
 const MENU_ITEMS: { id: string; title: string; mode: CaptureMode }[] = [
@@ -36,14 +39,31 @@ const COMMAND_MODES: Record<string, CaptureMode> = {
 
 export async function openStudio(route = '/'): Promise<number | undefined> {
   const base = chrome.runtime.getURL('/studio.html');
-  const url = `${base}#${route.startsWith('/') ? route : `/${route}`}`;
-  // Re-use an open Studio tab for the library to avoid tab clutter.
-  const existing = (await chrome.tabs.query({ url: `${base}*` }).catch(() => [])) as chrome.tabs.Tab[];
-  const reusable = route === '/' ? existing[0] : undefined;
-  if (reusable?.id !== undefined) {
-    await chrome.tabs.update(reusable.id, { active: true, url });
-    if (reusable.windowId !== undefined) await chrome.windows.update(reusable.windowId, { focused: true }).catch(() => {});
-    return reusable.id;
+  const path = route.startsWith('/') ? route : `/${route}`;
+  const url = `${base}#${path}`;
+  const focus = async (page: StudioPresence) => {
+    await chrome.tabs.update(page.tabId, { active: true }).catch(() => {});
+    if (page.windowId !== undefined) await chrome.windows.update(page.windowId, { focused: true }).catch(() => {});
+    return page.tabId;
+  };
+  if (path === '/' || path === '/record') {
+    const pages = await findStudioPages();
+    if (path === '/record') {
+      // One recorder: bring the recording (or an open recorder) forward.
+      const target = pages.find((p) => p.recording) ?? pages.find((p) => isRecorderRoute(p.route));
+      if (target) {
+        if (!isRecorderRoute(target.route)) askStudioToOpen(target.tabId, path);
+        return focus(target);
+      }
+    } else {
+      // Re-use an open library (or settings/welcome) tab to avoid tab clutter;
+      // never take over a tab where someone is editing, composing or watching.
+      const target = pages.find((p) => isLibraryRoute(p.route)) ?? pages.find((p) => !p.recording && /^#\/(settings|welcome)\b/.test(p.route));
+      if (target) {
+        if (!isLibraryRoute(target.route)) askStudioToOpen(target.tabId, path);
+        return focus(target);
+      }
+    }
   }
   const tab = await chrome.tabs.create({ url });
   return tab.id;
@@ -106,6 +126,7 @@ function createMenus(): void {
       chrome.contextMenus.create({ id: item.id, parentId: MENU_ROOT, title: item.title, contexts: ['page', 'frame', 'selection', 'image', 'link'] });
     }
     chrome.contextMenus.create({ id: 'frameshot-sep', parentId: MENU_ROOT, type: 'separator', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
+    chrome.contextMenus.create({ id: 'frameshot-record', parentId: MENU_ROOT, title: 'Record screen…', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
     chrome.contextMenus.create({ id: 'frameshot-library', parentId: MENU_ROOT, title: 'Open screenshot library', contexts: ['page', 'frame', 'selection', 'image', 'link'] });
   });
 }
@@ -117,6 +138,13 @@ export async function handleCommand(command: string, tab?: chrome.tabs.Tab): Pro
   }
   if (command === 'cancel-capture') {
     cancelCapture();
+    return;
+  }
+  if (command === 'toggle-recording') {
+    const live = await queryRecorder(500);
+    // Recording (or counting down): stop. Otherwise open the recorder to start one.
+    if (live && isActivePhase(live.phase)) sendRecorderCommand('stop');
+    else await openStudio('/record');
     return;
   }
   const mode = COMMAND_MODES[command];
@@ -135,6 +163,7 @@ export async function handleCommand(command: string, tab?: chrome.tabs.Tab): Pro
 
 export function registerBackground(): void {
   void restoreStatus();
+  watchRecorderBadge();
 
   chrome.runtime.onMessage.addListener((msg: BgRequest, sender, sendResponse) => {
     if (!msg || typeof msg.kind !== 'string') return false;
@@ -157,6 +186,10 @@ export function registerBackground(): void {
       void openStudio('/');
       return;
     }
+    if (info.menuItemId === 'frameshot-record') {
+      void openStudio('/record');
+      return;
+    }
     const item = MENU_ITEMS.find((m) => m.id === info.menuItemId);
     if (!item) return;
     beginCapture(item.mode, tab?.id).catch((err) => reportStartError(err, item.mode));
@@ -172,6 +205,8 @@ export function registerBackground(): void {
 
   chrome.runtime.onInstalled.addListener((details) => {
     createMenus();
+    // Starts the clock for the (rare, polite) review prompt; keeps existing state on updates.
+    void initReviewState();
     if (details.reason === 'install' && !__FRAMESHOT_E2E__) void openStudio('/welcome');
   });
   chrome.runtime.onStartup.addListener(createMenus);

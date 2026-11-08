@@ -40,15 +40,15 @@ export default defineConfig({
   },
   manifest: () => ({
     // Written for Chrome Web Store search (see STORE_LISTING.md, "SEO").
-    name: 'FrameShot: Free Full Page Screenshot, Screen Capture & Editor',
+    name: 'FrameShot: Free Screen Recorder & Full Page Screenshot',
     short_name: 'FrameShot',
     description:
-      'Full page screenshot tool: capture scrolling pages, areas & elements. Annotate, blur, export PNG, JPG, PDF. Private, no watermark.',
+      'Screen recorder & full page screen capture. Record tab, window or desktop with mic & camera. Annotate, blur, export MP4, PNG, PDF.',
     minimum_chrome_version: '116',
     permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage', 'downloads', 'contextMenus'],
     ...(E2E ? { host_permissions: ['<all_urls>'] } : {}),
     action: {
-      default_title: 'FrameShot — capture a screenshot',
+      default_title: 'FrameShot — screenshot or record your screen',
     },
     icons: {
       16: 'icon/16.png',
@@ -76,6 +76,7 @@ export default defineConfig({
         suggested_key: { default: 'Alt+Shift+E' },
         description: 'Capture an element',
       },
+      'toggle-recording': { description: 'Start or stop a screen recording' },
       'open-studio': { description: 'Open FrameShot Studio' },
       'open-library': { description: 'Open screenshot library' },
       'cancel-capture': { description: 'Cancel the active capture' },

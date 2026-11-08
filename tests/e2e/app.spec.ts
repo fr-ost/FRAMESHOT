@@ -65,7 +65,7 @@ test('library: search, filter, favorite, rename, tags, collections, delete', asy
   await tableCard.getByRole('button', { name: 'Add to favorites' }).click();
   await page.getByRole('button', { name: /^Favorites/ }).click();
   await expect(cards).toHaveCount(1);
-  await page.getByRole('button', { name: /^All screenshots/ }).click();
+  await page.getByRole('button', { name: /^All captures/ }).click();
 
   // Rename + tags via details.
   await tableCard.getByRole('button', { name: /Actions for/ }).click();
@@ -90,7 +90,7 @@ test('library: search, filter, favorite, rename, tags, collections, delete', asy
   await page.getByRole('dialog').getByRole('button', { name: 'Reports' }).click();
   await page.getByRole('navigation', { name: 'Collections' }).getByRole('button', { name: /^Reports/ }).click();
   await expect(cards).toHaveCount(2);
-  await page.getByRole('button', { name: /^All screenshots/ }).click();
+  await page.getByRole('button', { name: /^All captures/ }).click();
 
   // Sort oldest first puts the first capture first.
   await page.getByLabel('Sort').selectOption('oldest');
@@ -289,7 +289,7 @@ test('settings: theme, default format, filename template and clear data', async 
   await page.getByRole('button', { name: 'Delete everything' }).click();
   await expect(page.getByText('All local data deleted.')).toBeVisible();
   await page.goto(`chrome-extension://${ext.extId}/studio.html#/`);
-  await expect(page.getByText('No screenshots yet')).toBeVisible();
+  await expect(page.getByText('No captures yet')).toBeVisible();
   // Settings persist across reloads.
   await page.reload();
   await expect(page.locator('html')).toHaveClass(/dark/);

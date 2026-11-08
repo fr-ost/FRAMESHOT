@@ -26,18 +26,24 @@ import {
   Camera,
   Monitor,
   Moon,
+  Play,
   Sparkles,
   Sun,
+  Video,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { formatBytes, formatDate, formatDimensions, formatRelative, newId } from '../core/format';
+import { formatBytes, formatDate, formatDimensions, formatDuration, formatRelative, newId } from '../core/format';
 import { isSafeLink } from '../core/restricted';
 import { type Settings, updateSettings } from '../core/settings';
-import { CAPTURE_MODE_LABELS, type Collection, type LibraryItem } from '../core/types';
+import { CAPTURE_MODE_LABELS, SURFACE_LABELS, isRecording, type Collection, type LibraryItem } from '../core/types';
 import { deleteCollection, deleteItems, getThumb, putCollection, updateItem, updateItems } from '../db/db';
 import { copyImageBlob, displayPath, downloadBlob, DownloadCancelledError } from '../export/deliver';
 import { ExportDialog, type ExportChoice } from '../export/ExportDialog';
-import { exportItem, exportMany } from '../export/service';
+import { exportItem, exportMany, exportRecording } from '../export/service';
+import { describeMimeType } from '../recorder/formats';
+import { isActivePhase } from '../recorder/channel';
+import { useRecorder } from '../recorder/useMedia';
+import { ReviewCard, useReviewPrompt } from '../ui/ReviewPrompt';
 import { navigate } from '../ui/hooks';
 import { Dialog, DropdownContent, DropdownItem, DropdownMenu, DropdownSeparator, DropdownTrigger, useConfirm, useToast } from '../ui/overlays';
 import { Badge, Button, Credits, EmptyState, Field, IconButton, Input, Kbd, Logo, Select, Spinner, cx } from '../ui/primitives';
@@ -46,6 +52,15 @@ import { importImageFile } from './importer';
 import { domainsOf, filterItems, findDuplicateGroups, useLibraryData, type SortKey, type ViewFilter } from './useLibrary';
 
 const PAGE = 60;
+
+/** "screenshot", "recording" or "item", pluralised. */
+function nounFor(items: LibraryItem[], count = items.length): string {
+  const recordings = items.filter(isRecording).length;
+  const base = recordings === items.length && items.length > 0 ? 'recording' : recordings > 0 ? 'item' : 'screenshot';
+  return count === 1 ? base : `${base}s`;
+}
+
+const openItem = (item: LibraryItem) => navigate(`/${isRecording(item) ? 'play' : 'edit'}/${encodeURIComponent(item.id)}`);
 
 export function LibraryPage({ settings }: { settings: Settings }) {
   const { items, collections, stats, error } = useLibraryData();
@@ -66,6 +81,9 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const layout = settings.library.view;
+  const recorder = useRecorder();
+  // Never while recording; only once the library has something in it.
+  const review = useReviewPrompt(!!items && items.length > 0 && !isActivePhase(recorder.phase), 1200);
 
   const visible = useMemo(() => (items ? filterItems(items, { search, domain, sort, view }) : []), [items, search, domain, sort, view]);
   const domains = useMemo(() => domainsOf(items ?? []), [items]);
@@ -135,9 +153,9 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   };
 
   const download = async (item: LibraryItem) => {
-    setBusy('Exporting…');
+    setBusy(isRecording(item) ? 'Preparing video…' : 'Exporting…');
     try {
-      const { blob, filename } = await exportItem(item.id, settings.defaultFormat, settings);
+      const { blob, filename } = isRecording(item) ? await exportRecording(item.id, settings) : await exportItem(item.id, settings.defaultFormat, settings);
       const res = await downloadBlob(blob, withFolder(settings.downloadFolder, filename), { saveAs: settings.askWhereToSave });
       toast.success(<span>Saved <strong>{displayPath(res.path || filename)}</strong></span>);
     } catch (err) {
@@ -149,6 +167,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   };
 
   const copy = async (item: LibraryItem) => {
+    if (isRecording(item)) return;
     try {
       await copyImageBlob(exportItem(item.id, 'png', settings).then((r) => r.blob));
       toast.success('Copied to clipboard.');
@@ -158,8 +177,10 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   };
 
   const remove = async (ids: string[]) => {
+    const targets = (items ?? []).filter((i) => ids.includes(i.id));
+    const noun = nounFor(targets, ids.length);
     const ok = await confirm({
-      title: ids.length > 1 ? `Delete ${ids.length} screenshots?` : 'Delete screenshot?',
+      title: ids.length > 1 ? `Delete ${ids.length} ${noun}?` : `Delete ${noun}?`,
       message: 'They will be permanently removed from the library on this device. Files you already downloaded are not affected.',
       confirmLabel: 'Delete',
       danger: true,
@@ -167,7 +188,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
     if (!ok) return;
     await deleteItems(ids);
     setSelected(new Set());
-    toast.success(ids.length > 1 ? `Deleted ${ids.length} screenshots.` : 'Screenshot deleted.');
+    toast.success(ids.length > 1 ? `Deleted ${ids.length} ${noun}.` : `${noun.charAt(0).toUpperCase()}${noun.slice(1)} deleted.`);
   };
 
   const runBulkExport = async (choice: ExportChoice) => {
@@ -175,9 +196,10 @@ export function LibraryPage({ settings }: { settings: Settings }) {
     setBusy(`Exporting 0 of ${ids.length}…`);
     try {
       const s: Settings = { ...settings, jpegQuality: choice.quality, webpQuality: choice.quality, pdf: { ...settings.pdf, pageSize: choice.pageSize } };
-      const { blob, filename } = await exportMany(ids, choice.format, s, (d, t) => setBusy(`Exporting ${d} of ${t}…`));
+      const { blob, filename, skippedRecordings } = await exportMany(ids, choice.format, s, (d, t) => setBusy(`Exporting ${d} of ${t}…`));
       const res = await downloadBlob(blob, filename, { saveAs: choice.saveAs });
       toast.success(<span>Saved <strong>{displayPath(res.path || filename)}</strong></span>);
+      if (skippedRecordings > 0) toast.info(`${skippedRecordings} recording${skippedRecordings > 1 ? 's were' : ' was'} left out: PDF files hold images only.`);
     } catch (err) {
       if (err instanceof DownloadCancelledError) toast.info('Download cancelled.');
       else toast.error(err instanceof Error ? err.message : 'Export failed.');
@@ -187,7 +209,16 @@ export function LibraryPage({ settings }: { settings: Settings }) {
   };
 
   const viewTitle =
-    view.kind === 'all' ? 'All screenshots' : view.kind === 'favorites' ? 'Favorites' : view.kind === 'duplicates' ? 'Possible duplicates' : collections.find((c) => c.id === view.id)?.name ?? 'Collection';
+    view.kind === 'all'
+      ? 'All captures'
+      : view.kind === 'favorites'
+        ? 'Favorites'
+        : view.kind === 'recordings'
+          ? 'Screen recordings'
+          : view.kind === 'duplicates'
+            ? 'Possible duplicates'
+            : collections.find((c) => c.id === view.id)?.name ?? 'Collection';
+  const recordingCount = items?.filter(isRecording).length ?? 0;
 
   const nextTheme = settings.theme === 'system' ? 'light' : settings.theme === 'light' ? 'dark' : 'system';
   const themeIcon = settings.theme === 'dark' ? <Moon size={16} /> : settings.theme === 'light' ? <Sun size={16} /> : <Monitor size={16} />;
@@ -215,8 +246,9 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           <Logo size={30} />
         </div>
         <nav aria-label="Library sections" className="space-y-0.5 px-3">
-          <NavItem icon={<Images size={16} />} label="All screenshots" count={items?.length} active={view.kind === 'all'} onClick={() => setView({ kind: 'all' })} />
+          <NavItem icon={<Images size={16} />} label="All captures" count={items?.length} active={view.kind === 'all'} onClick={() => setView({ kind: 'all' })} />
           <NavItem icon={<Star size={16} />} label="Favorites" count={items?.filter((i) => i.favorite).length} active={view.kind === 'favorites'} onClick={() => setView({ kind: 'favorites' })} />
+          <NavItem icon={<Video size={16} />} label="Recordings" count={recordingCount || undefined} active={view.kind === 'recordings'} onClick={() => setView({ kind: 'recordings' })} />
           <NavItem icon={<Columns2 size={16} />} label="Duplicates" count={dupCount || undefined} active={view.kind === 'duplicates'} onClick={() => setView({ kind: 'duplicates' })} />
         </nav>
         <div className="mt-6 flex items-center justify-between px-5 pb-1.5">
@@ -315,9 +347,17 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           <IconButton label={`Theme: ${settings.theme === 'system' ? 'System' : settings.theme === 'light' ? 'Light' : 'Dark'} (switch to ${nextTheme})`} onClick={() => void updateSettings({ theme: nextTheme })}>
             {themeIcon}
           </IconButton>
-          <Button variant="primary" icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
+          <Button icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
             Import
           </Button>
+          <button
+            type="button"
+            onClick={() => navigate('/record')}
+            data-testid="library-record"
+            className="fr-rec-btn fr-press inline-flex h-9 shrink-0 items-center gap-2 rounded-[11px] px-3.5 text-sm font-semibold"
+          >
+            <span className="h-2.5 w-2.5 rounded-full bg-white shadow-[0_0_0_3px_rgb(255_255_255/0.25)]" /> Record
+          </button>
           <input
             ref={fileRef}
             type="file"
@@ -334,6 +374,11 @@ export function LibraryPage({ settings }: { settings: Settings }) {
 
         <div className="fr-scroll min-h-0 flex-1 overflow-y-auto px-6 pb-28 pt-6" data-testid="library-scroll">
           {error && <p className="mb-4 text-sm text-danger">{error}</p>}
+          {review.visible && (
+            <div className="mb-5">
+              <ReviewCard controls={review} />
+            </div>
+          )}
           {items === null ? (
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-5" aria-hidden>
               {Array.from({ length: 8 }, (_, i) => (
@@ -349,10 +394,13 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           ) : items.length === 0 ? (
             <EmptyState
               icon={<Camera size={28} />}
-              title="No screenshots yet"
+              title="No captures yet"
               action={
                 <>
-                  <Button variant="primary" icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
+                  <Button variant="primary" icon={<Video size={16} />} onClick={() => navigate('/record')}>
+                    Record your screen
+                  </Button>
+                  <Button icon={<ImagePlus size={16} />} onClick={() => fileRef.current?.click()}>
                     Import an image
                   </Button>
                   <Button icon={<Sparkles size={16} />} onClick={() => navigate('/welcome')}>
@@ -364,11 +412,25 @@ export function LibraryPage({ settings }: { settings: Settings }) {
               <p>
                 Click the FrameShot icon in the Chrome toolbar, right-click any page, or press <Kbd>Alt</Kbd> <Kbd>Shift</Kbd> <Kbd>F</Kbd> to capture a full page.
               </p>
-              <p className="mt-2">You can also paste or drop images here.</p>
+              <p className="mt-2">Screen recordings, pasted and dropped images land here too.</p>
             </EmptyState>
           ) : visible.length === 0 ? (
-            <EmptyState icon={<Search size={26} />} title="Nothing matches">
-              {view.kind === 'duplicates' ? 'No visually identical screenshots were found.' : 'Try a different search or filter.'}
+            <EmptyState
+              icon={view.kind === 'recordings' ? <Video size={26} /> : <Search size={26} />}
+              title={view.kind === 'recordings' && !search && !domain ? 'No recordings yet' : 'Nothing matches'}
+              action={
+                view.kind === 'recordings' && !search && !domain ? (
+                  <Button variant="primary" icon={<Video size={16} />} onClick={() => navigate('/record')}>
+                    Record your screen
+                  </Button>
+                ) : undefined
+              }
+            >
+              {view.kind === 'duplicates'
+                ? 'No visually identical screenshots were found.'
+                : view.kind === 'recordings' && !search && !domain
+                  ? 'Record a tab, a window or your whole screen, with sound and an optional camera bubble.'
+                  : 'Try a different search or filter.'}
             </EmptyState>
           ) : layout === 'grid' ? (
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-5" aria-label="Screenshots">
@@ -406,7 +468,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
             <Button size="sm" variant="primary" icon={<Download size={14} />} onClick={() => setBulkExport(true)}>
               Export
             </Button>
-            {selected.size === 2 && (
+            {selected.size === 2 && !selectedItems.some(isRecording) && (
               <Button size="sm" icon={<Columns2 size={14} />} onClick={() => navigate(`/compare/${[...selected].map(encodeURIComponent).join('/')}`)}>
                 Compare
               </Button>
@@ -440,7 +502,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
       </main>
 
       {details && <DetailsDialog item={items?.find((i) => i.id === details.id) ?? details} collections={collections} onClose={() => setDetails(null)} />}
-      <ExportDialog open={bulkExport} onOpenChange={setBulkExport} settings={settings} onExport={runBulkExport} title={`Export ${selected.size} screenshots`} count={selected.size} />
+      <ExportDialog open={bulkExport} onOpenChange={setBulkExport} settings={settings} onExport={runBulkExport} title={`Export ${selected.size} ${nounFor(selectedItems, selected.size)}`} count={selected.size} />
       <CollectionDialog state={collectionDialog} onClose={() => setCollectionDialog(null)} />
       <MoveDialog
         open={moveOpen}
@@ -551,7 +613,8 @@ function Card({
   const thumb = useThumbUrl(item, inView);
   const [loaded, setLoaded] = useState(false);
   const [pop, setPop] = useState(false);
-  const open = () => navigate(`/edit/${encodeURIComponent(item.id)}`);
+  const video = isRecording(item);
+  const open = () => openItem(item);
   const w = item.editedWidth ?? item.width;
   const h = item.editedHeight ?? item.height;
   return (
@@ -559,6 +622,7 @@ function Card({
       ref={ref}
       data-testid="library-card"
       data-id={item.id}
+      data-kind={item.kind}
       className={cx('fr-card fr-lift group overflow-hidden', selected && '!border-primary ring-[3px] ring-primary/25')}
     >
       <div className={cx('relative aspect-[4/3] overflow-hidden', !loaded && 'fr-skeleton')}>
@@ -574,18 +638,34 @@ function Card({
               alt=""
               onLoad={() => setLoaded(true)}
               data-loaded={loaded}
-              className="fr-img-fade h-full w-full object-cover object-top group-hover:scale-[1.04]"
+              className={cx('fr-img-fade h-full w-full object-cover group-hover:scale-[1.04]', video ? 'object-center' : 'object-top')}
               draggable={false}
             />
+          ) : video ? (
+            <span className="fr-stage flex h-full w-full items-center justify-center text-white/60">
+              <Video size={26} />
+            </span>
           ) : null}
         </button>
+        {video && (
+          <>
+            <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white shadow-pop ring-1 ring-white/30 backdrop-blur-md transition-transform duration-300 group-hover:scale-110" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }} aria-hidden>
+              <Play size={20} fill="currentColor" className="translate-x-[1px]" />
+            </span>
+            <span className="pointer-events-none absolute bottom-2.5 left-2.5 rounded-md bg-black/65 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white backdrop-blur" data-testid="card-duration">
+              {formatDuration(item.durationMs ?? 0)}
+            </span>
+          </>
+        )}
         {/* Hover veil + quick actions */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="absolute bottom-2.5 right-2.5 flex translate-y-2 gap-1.5 opacity-0 transition-all duration-300 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
-          <button type="button" aria-label={`Copy ${item.name}`} title="Copy image" onClick={onCopy} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
-            <ClipboardCopy size={15} />
-          </button>
-          <button type="button" aria-label={`Download ${item.name}`} title="Download" onClick={onDownload} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
+          {!video && (
+            <button type="button" aria-label={`Copy ${item.name}`} title="Copy image" onClick={onCopy} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
+              <ClipboardCopy size={15} />
+            </button>
+          )}
+          <button type="button" aria-label={`Download ${item.name}`} title={video ? 'Download video' : 'Download'} onClick={onDownload} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/90 text-[#111118] shadow-card backdrop-blur hover:bg-white">
             <Download size={15} />
           </button>
         </div>
@@ -625,10 +705,11 @@ function Card({
             {item.name}
           </p>
           <p className="mt-0.5 truncate text-[12px] text-fg-subtle">
-            {[item.source?.domain || (item.kind === 'import' ? 'Imported' : item.kind === 'composition' ? 'Composition' : ''), formatRelative(item.createdAt)].filter(Boolean).join(' · ')}
+            {[item.source?.domain || kindLabel(item), formatRelative(item.createdAt)].filter(Boolean).join(' · ')}
           </p>
           <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] tabular-nums text-fg-subtle">
-            {formatDimensions(w, h)}
+            {video ? `${formatBytes(item.byteSize)} · ${h}p` : formatDimensions(w, h)}
+            {video && <Badge tone="primary">{item.mimeType.includes('mp4') ? 'MP4' : 'WebM'}</Badge>}
             {item.hasEdits && <Badge tone="primary">Edited</Badge>}
             {item.group && (
               <Badge>
@@ -681,16 +762,23 @@ function ListRow({ item, selected, onToggle, menu, index }: { item: LibraryItem;
         <input type="checkbox" aria-label={`Select ${item.name}`} checked={selected} onChange={(e) => onToggle((e.nativeEvent as MouseEvent).shiftKey)} className="h-4 w-4 rounded" />
       </td>
       <td className="border-b border-border py-2">
-        <button type="button" className="flex min-w-0 items-center gap-3 text-left" onClick={() => navigate(`/edit/${encodeURIComponent(item.id)}`)}>
-          <span className="fr-checker h-11 w-16 shrink-0 overflow-hidden rounded-[9px] border border-border">
-            {thumb && <img src={thumb} alt="" className="h-full w-full object-cover object-top" />}
+        <button type="button" className="flex min-w-0 items-center gap-3 text-left" onClick={() => openItem(item)}>
+          <span className="fr-checker relative h-11 w-16 shrink-0 overflow-hidden rounded-[9px] border border-border">
+            {thumb && <img src={thumb} alt="" className={cx('h-full w-full object-cover', isRecording(item) ? 'object-center' : 'object-top')} />}
+            {isRecording(item) && (
+              <span className="absolute inset-0 flex items-center justify-center bg-black/25 text-white" aria-hidden>
+                <Play size={14} fill="currentColor" />
+              </span>
+            )}
           </span>
           <span className="min-w-0">
             <span className="flex items-center gap-1.5 truncate font-semibold text-fg">
               {item.favorite && <Star size={12} className="shrink-0 text-amber-500" fill="currentColor" />}
               <span className="truncate">{item.name}</span>
             </span>
-            <span className="block text-[11px] tabular-nums text-fg-subtle">{formatDimensions(item.editedWidth ?? item.width, item.editedHeight ?? item.height)} px</span>
+            <span className="block text-[11px] tabular-nums text-fg-subtle">
+              {isRecording(item) ? `Recording · ${formatDuration(item.durationMs ?? 0)} · ${item.width}×${item.height}` : `${formatDimensions(item.editedWidth ?? item.width, item.editedHeight ?? item.height)} px`}
+            </span>
           </span>
         </button>
       </td>
@@ -711,18 +799,31 @@ function ItemMenu({ item, onDownload, onCopy, onDetails, onDelete }: { item: Lib
         </IconButton>
       </DropdownTrigger>
       <DropdownContent>
-        <DropdownItem icon={<Pencil size={14} />} onSelect={() => navigate(`/edit/${encodeURIComponent(item.id)}`)}>
-          Open in editor
-        </DropdownItem>
-        <DropdownItem icon={<LayoutTemplate size={14} />} onSelect={() => navigate(`/compose/${encodeURIComponent(item.id)}`)}>
-          Compose
-        </DropdownItem>
-        <DropdownItem icon={<ClipboardCopy size={14} />} onSelect={() => onCopy(item)}>
-          Copy image
-        </DropdownItem>
-        <DropdownItem icon={<Download size={14} />} onSelect={() => onDownload(item)}>
-          Download
-        </DropdownItem>
+        {isRecording(item) ? (
+          <>
+            <DropdownItem icon={<Play size={14} />} onSelect={() => openItem(item)}>
+              Play
+            </DropdownItem>
+            <DropdownItem icon={<Download size={14} />} onSelect={() => onDownload(item)}>
+              Download video
+            </DropdownItem>
+          </>
+        ) : (
+          <>
+            <DropdownItem icon={<Pencil size={14} />} onSelect={() => navigate(`/edit/${encodeURIComponent(item.id)}`)}>
+              Open in editor
+            </DropdownItem>
+            <DropdownItem icon={<LayoutTemplate size={14} />} onSelect={() => navigate(`/compose/${encodeURIComponent(item.id)}`)}>
+              Compose
+            </DropdownItem>
+            <DropdownItem icon={<ClipboardCopy size={14} />} onSelect={() => onCopy(item)}>
+              Copy image
+            </DropdownItem>
+            <DropdownItem icon={<Download size={14} />} onSelect={() => onDownload(item)}>
+              Download
+            </DropdownItem>
+          </>
+        )}
         <DropdownItem icon={<Star size={14} />} onSelect={() => void updateItem(item.id, { favorite: !item.favorite })}>
           {item.favorite ? 'Remove from favorites' : 'Add to favorites'}
         </DropdownItem>
@@ -771,7 +872,7 @@ function DetailsDialog({ item, collections, onClose }: { item: LibraryItem; coll
     <Dialog
       open
       onOpenChange={(o) => !o && onClose()}
-      title="Screenshot details"
+      title={isRecording(item) ? 'Recording details' : 'Screenshot details'}
       width={520}
       footer={
         <>
@@ -800,7 +901,11 @@ function DetailsDialog({ item, collections, onClose }: { item: LibraryItem; coll
           </Select>
         </Field>
         <dl className="grid grid-cols-[110px_1fr] gap-x-3 gap-y-1.5 rounded-xl bg-surface-2 p-3 text-[12px]">
-          {row('Type', item.kind === 'capture' ? `Capture · ${item.mode ? CAPTURE_MODE_LABELS[item.mode] : ''}` : item.kind === 'import' ? 'Imported image' : 'Composition')}
+          {row('Type', item.kind === 'capture' ? `Capture · ${item.mode ? CAPTURE_MODE_LABELS[item.mode] : ''}` : kindLabel(item))}
+          {isRecording(item) && row('Length', formatDuration(item.durationMs ?? 0))}
+          {isRecording(item) && row('Format', describeMimeType(item.mimeType))}
+          {isRecording(item) && row('Sound', item.hasAudio ? 'Yes' : 'No sound')}
+          {isRecording(item) && item.surface && row('Recorded', SURFACE_LABELS[item.surface])}
           {item.source?.url &&
             row(
               'Source',
@@ -812,9 +917,9 @@ function DetailsDialog({ item, collections, onClose }: { item: LibraryItem; coll
                 item.source.url
               ),
             )}
-          {item.source?.title && row('Page title', item.source.title)}
-          {row('Captured', formatDate(item.createdAt))}
-          {row('Dimensions', `${formatDimensions(item.width, item.height)} px`)}
+          {item.source?.title && row(isRecording(item) ? 'Shared tab' : 'Page title', item.source.title)}
+          {row(isRecording(item) ? 'Recorded on' : 'Captured', formatDate(item.createdAt))}
+          {row(isRecording(item) ? 'Video size' : 'Dimensions', `${formatDimensions(item.width, item.height)} px`)}
           {item.hasEdits && item.editedWidth && row('Edited size', `${formatDimensions(item.editedWidth, item.editedHeight ?? 0)} px`)}
           {row('Stored size', formatBytes(item.byteSize))}
           {item.scale && row('Pixel density', `${Math.round(item.scale * 100) / 100}× (device pixels per CSS pixel)`)}
@@ -884,3 +989,18 @@ function MoveDialog({ open, onOpenChange, collections, onMove, onCreate }: { ope
   );
 }
 
+
+function kindLabel(item: LibraryItem): string {
+  switch (item.kind) {
+    case 'import':
+      return 'Imported image';
+    case 'composition':
+      return 'Composition';
+    case 'recording':
+      return 'Screen recording';
+    case 'frame':
+      return 'Frame from a recording';
+    default:
+      return '';
+  }
+}

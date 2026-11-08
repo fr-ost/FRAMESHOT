@@ -11,20 +11,36 @@ import {
   Crosshair,
   FileStack,
   Images,
+  Mic,
+  MicOff,
+  Pause,
+  Play,
   Scan,
   ScrollText,
   Settings as SettingsIcon,
   Square,
   SquareDashedMousePointer,
+  Video,
 } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { formatRelative } from '../core/format';
+import { formatDuration, formatRelative } from '../core/format';
 import { sendToBackground, STATUS_PORT, type StatusPortMessage } from '../core/messages';
 import { checkPageAccess } from '../core/restricted';
 import type { CaptureMode, CaptureStatus, LibraryItem } from '../core/types';
 import { getThumb, listItems } from '../db/db';
+import {
+  elapsedMs,
+  isActivePhase,
+  onRecorderState,
+  queryRecorder,
+  readRecorderState,
+  RECORDER_STATE_KEY,
+  sendRecorderCommand,
+  type RecorderPublicState,
+} from '../recorder/channel';
 import { bootstrapTheme, useObjectUrl, useSettings, useThemeSync } from '../ui/hooks';
 import { Aurora, Badge, Button, Credits, Kbd, Logo, Spinner, cx } from '../ui/primitives';
+import { ReviewCard, useReviewPrompt } from '../ui/ReviewPrompt';
 
 bootstrapTheme();
 
@@ -56,11 +72,37 @@ function useStatus(): CaptureStatus | null {
   return status;
 }
 
+/** A recording running in a Studio tab, if any (verified to be alive). */
+function useRecording(): RecorderPublicState | null {
+  const [state, setState] = useState<RecorderPublicState | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void readRecorderState().then(async (s) => {
+      if (!alive || !s || !isActivePhase(s.phase)) return;
+      setState(s);
+      // The page may have been closed or crashed without clearing its state.
+      const live = await queryRecorder(500);
+      if (!alive) return;
+      if (!live) {
+        setState(null);
+        void chrome.storage.session.remove(RECORDER_STATE_KEY).catch(() => {});
+      } else setState(live);
+    });
+    const off = onRecorderState((s) => setState(s && isActivePhase(s.phase) ? s : null));
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
+  return state;
+}
+
 export function PopupApp() {
   const settings = useSettings();
   useThemeSync(settings.theme);
   const tab = useActiveTab();
   const status = useStatus();
+  const recording = useRecording();
   const [startedAt, setStartedAt] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [recent, setRecent] = useState<LibraryItem[]>([]);
@@ -133,6 +175,7 @@ export function PopupApp() {
           <StatusView status={status} onDismiss={() => setStartedAt(0)} onOpen={(id) => open(`/edit/${encodeURIComponent(id)}`)} />
         ) : (
           <main className="space-y-2.5 px-3 pb-3">
+            {recording && <RecordingCard state={recording} />}
             {!access.allowed && (
               <div className="fr-animate-in flex gap-2 rounded-[14px] border border-warning/25 bg-warning-soft p-3 text-[12px] leading-snug text-warning">
                 <AlertCircle size={15} className="mt-px shrink-0" />
@@ -174,7 +217,26 @@ export function PopupApp() {
               <ModeCard i={3} icon={<Crosshair size={19} />} label="Element" hint="Alt+Shift+E" onClick={() => void start('element')} disabled={disabled} testId="capture-element" fullLabel="Element" />
             </div>
 
-            <div className="fr-stagger flex items-center gap-2" style={{ '--i': 4 } as CSSProperties}>
+            {!recording && (
+              <button
+                type="button"
+                onClick={() => open('/record')}
+                data-testid="record-screen"
+                className="fr-stagger fr-lift fr-press group flex h-[58px] w-full items-center gap-3 rounded-[16px] border border-border bg-surface px-3 text-left shadow-card backdrop-blur-xl"
+                style={{ '--i': 4 } as CSSProperties}
+              >
+                <span className="fr-rec-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px]">
+                  <Video size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13.5px] font-semibold leading-tight">Record screen</span>
+                  <span className="block text-[11.5px] text-fg-subtle">Tab, window or desktop · sound · camera</span>
+                </span>
+                <ArrowRight size={15} className="text-fg-subtle transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            )}
+
+            <div className="fr-stagger flex items-center gap-2" style={{ '--i': 5 } as CSSProperties}>
               <button
                 type="button"
                 disabled={disabled}
@@ -212,7 +274,14 @@ export function PopupApp() {
               </label>
             </div>
 
-            <Recent items={recent} onOpen={(id) => open(`/edit/${encodeURIComponent(id)}`)} onLibrary={() => open('/')} />
+            <Recent
+              items={recent}
+              onOpen={(id) => {
+                const item = recent.find((i) => i.id === id);
+                open(`/${item?.kind === 'recording' ? 'play' : 'edit'}/${encodeURIComponent(id)}`);
+              }}
+              onLibrary={() => open('/')}
+            />
           </main>
         )}
 
@@ -306,6 +375,8 @@ function ProgressRing({ value }: { value: number | null }) {
 
 function StatusView({ status, onDismiss, onOpen }: { status: CaptureStatus; onDismiss: () => void; onOpen: (id: string) => void }) {
   const busy = BUSY.has(status.phase);
+  // A good moment to ask for a review: a capture just succeeded.
+  const review = useReviewPrompt(status.phase === 'done', 700);
   const pct = status.progress !== undefined ? Math.round(status.progress * 100) : null;
   return (
     <main className="fr-animate-in space-y-4 px-4 pb-4 pt-2" aria-live="polite">
@@ -388,6 +459,7 @@ function StatusView({ status, onDismiss, onOpen }: { status: CaptureStatus; onDi
           </Button>
         </div>
       )}
+      {status.phase === 'done' && <ReviewCard controls={review} layout="stacked" />}
       {busy && status.phase === 'capturing' && status.frames ? (
         <p className="text-center text-[11px] text-fg-subtle">
           <Spinner className="mr-1.5 inline-block h-3 w-3 align-[-2px] text-primary" />
@@ -400,7 +472,7 @@ function StatusView({ status, onDismiss, onOpen }: { status: CaptureStatus; onDi
 
 function Recent({ items, onOpen, onLibrary }: { items: LibraryItem[]; onOpen: (id: string) => void; onLibrary: () => void }) {
   return (
-    <section aria-label="Recent captures" className="fr-stagger rounded-[16px] border border-border bg-surface p-3 shadow-card backdrop-blur-xl" style={{ '--i': 5 } as CSSProperties}>
+    <section aria-label="Recent captures" className="fr-stagger rounded-[16px] border border-border bg-surface p-3 shadow-card backdrop-blur-xl" style={{ '--i': 6 } as CSSProperties}>
       <div className="mb-2.5 flex items-center justify-between">
         <h2 className="text-[12px] font-semibold text-fg-muted">Recent</h2>
         <button type="button" onClick={onLibrary} className="group inline-flex items-center gap-1 text-[12px] font-semibold text-primary">
@@ -438,7 +510,7 @@ function RecentThumb({ item, onOpen }: { item: LibraryItem; onOpen: (id: string)
       onClick={() => onOpen(item.id)}
       title={`${item.name} · ${formatRelative(item.createdAt)}`}
       aria-label={`Open ${item.name}`}
-      className={cx('fr-press group block aspect-square w-full overflow-hidden rounded-[11px] border border-border ring-primary/0 transition-shadow hover:ring-2 hover:ring-primary/60', !loaded && 'fr-skeleton')}
+      className={cx('fr-press group relative block aspect-square w-full overflow-hidden rounded-[11px] border border-border ring-primary/0 transition-shadow hover:ring-2 hover:ring-primary/60', !loaded && 'fr-skeleton')}
     >
       {url && (
         <img
@@ -446,9 +518,72 @@ function RecentThumb({ item, onOpen }: { item: LibraryItem; onOpen: (id: string)
           alt=""
           onLoad={() => setLoaded(true)}
           data-loaded={loaded}
-          className="fr-img-fade h-full w-full object-cover object-top group-hover:scale-[1.06]"
+          className={cx('fr-img-fade h-full w-full object-cover group-hover:scale-[1.06]', item.kind === 'recording' ? 'object-center' : 'object-top')}
         />
       )}
+      {item.kind === 'recording' && (
+        <span className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur">
+            <Play size={11} fill="currentColor" className="translate-x-[0.5px]" />
+          </span>
+        </span>
+      )}
     </button>
+  );
+}
+
+function RecordingCard({ state }: { state: RecorderPublicState }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (state.phase !== 'recording') return;
+    const t = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(t);
+  }, [state.phase]);
+  const paused = state.phase === 'paused';
+  const controllable = state.phase === 'recording' || paused;
+  const label = state.phase === 'countdown' ? `Starting in ${state.countdown}…` : paused ? 'Recording paused' : state.phase === 'recording' ? 'Recording' : 'Saving recording…';
+  const iconBtn = 'fr-press flex h-9 w-9 items-center justify-center rounded-[11px] border border-border bg-surface-solid text-fg-muted shadow-card transition-colors hover:text-fg';
+  return (
+    <section aria-label="Screen recording" className="fr-card fr-animate-in flex items-center gap-3 p-3" data-testid="popup-recording">
+      <button
+        type="button"
+        onClick={() => {
+          sendRecorderCommand('focus');
+          window.close();
+        }}
+        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+        title="Open the recorder"
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-danger-soft">
+          {paused ? <Pause size={16} className="text-warning" /> : state.phase === 'recording' ? <span className="fr-rec-dot" /> : <Spinner className="text-danger" />}
+        </span>
+        <span className="min-w-0">
+          <span className="block text-[12px] font-semibold text-fg-muted">{label}</span>
+          <span className="block text-[22px] font-semibold leading-tight tabular-nums" data-testid="popup-recording-time">
+            {formatDuration(elapsedMs(state, now))}
+          </span>
+        </span>
+      </button>
+      {controllable && state.hasMic && (
+        <button type="button" className={iconBtn} aria-label={state.micMuted ? 'Unmute microphone' : 'Mute microphone'} title={state.micMuted ? 'Unmute microphone' : 'Mute microphone'} onClick={() => sendRecorderCommand('toggle-mic')}>
+          {state.micMuted ? <MicOff size={15} /> : <Mic size={15} />}
+        </button>
+      )}
+      {controllable && (
+        <button type="button" className={iconBtn} aria-label={paused ? 'Resume recording' : 'Pause recording'} title={paused ? 'Resume' : 'Pause'} onClick={() => sendRecorderCommand(paused ? 'resume' : 'pause')} data-testid="popup-recording-pause">
+          {paused ? <Play size={15} /> : <Pause size={15} />}
+        </button>
+      )}
+      {(controllable || state.phase === 'countdown') && (
+        <button
+          type="button"
+          className="fr-rec-btn fr-press flex h-9 items-center gap-1.5 rounded-[11px] px-3 text-[12.5px] font-semibold"
+          onClick={() => sendRecorderCommand('stop')}
+          data-testid="popup-recording-stop"
+        >
+          <Square size={11} fill="currentColor" /> {state.phase === 'countdown' ? 'Cancel' : 'Stop'}
+        </button>
+      )}
+    </section>
   );
 }

@@ -48,6 +48,32 @@ Every implemented feature is free and available to every user. There are no tier
 | Capture of chrome://, other extensions, Chrome Web Store | ⛔ | Chrome policy |
 | Faster than 2 frames per second | ⛔ | Chrome's `captureVisibleTab` quota |
 
+## Screen recorder
+
+| Feature | Status | Notes / test |
+|---|---|---|
+| Record a tab, window or entire screen via Chrome's share picker (no permissions) | ✅ | `recorder.spec` (fake picker shares a tab); real window/screen picks 🟡 manual |
+| Recorder never offered as a source (`selfBrowserSurface: exclude`); switch tabs mid-recording | 🟡 | Picker hints passed to Chrome; Chrome's picker UI not automatable |
+| Tab sound + microphone mixed into one track | ✅ | `recorder.spec` (fake devices; `hasAudio` asserted) |
+| Mute/unmute the microphone while recording | 🟡 | Implemented (gain ramp); not asserted on audio samples |
+| Microphone/camera device pickers and live level meter | 🟡 | Default devices tested; choosing a second device not automated |
+| Camera bubble composited into the video (corner, size; adjustable while recording) | ✅ | `recorder.spec` checks the bubble's pixels in the saved video; live re-layout 🟡 |
+| Countdown, pause/resume with pauses left out | ✅ | `recorder.spec` pause (duration checked) ; countdown visual 🟡 |
+| Toolbar badge: countdown, `REC`, `II` | ✅ | `recorder.spec` reads the badge text |
+| MP4 (H.264, AAC or Opus) with WebM fallback; WebM | ✅ | Both containers recorded and played back in `recorder.spec`; fallback choice unit-tested |
+| WebM duration repair (seekable files) | ✅ | Unit (synthetic EBML headers) + E2E (finite `duration`) |
+| Quality presets 720p–4K, 15/30/60 fps | 🟡 | Passed as capture limits; only the default asserted |
+| Stop from recorder, Chrome's "Stop sharing", popup, Studio pill, shortcut | ✅ | `recorder.spec` (all except the pill click, 🟡) |
+| Discard (deletes all recorded data) | ✅ | `recorder.spec` |
+| Chunks saved during recording; crash recovery (MP4 and WebM) | ✅ | `recorder.spec` (tab closed mid-recording, then recovered and played) |
+| Player: play, download (MP4/WebM), rename, favourite, delete | ✅ | Download and play in `recorder.spec`; rename/favourite 🟡 |
+| Save a frame as a screenshot (opens in the editor) | ✅ | `recorder.spec` |
+| Recordings in the library (Recordings view, cards, search) | ✅ | `recorder.spec`, unit filtering |
+| Bulk ZIP includes video files; PDF leaves recordings out | ✅ | `recorder.spec` |
+| Recorder defaults in Settings; last choices remembered | ✅ | `recorder.spec` |
+| Long recordings (an hour or more), real devices, system audio | 🟡 | Needs a manual check per platform |
+| Recording without a Studio tab (in the background only) | ⛔ | Screen capture needs a page; FrameShot keeps one tab open and protects it |
+
 ## Editor
 
 | Feature | Status | Notes / test |
@@ -122,6 +148,10 @@ Every implemented feature is free and available to every user. There are no tier
 | Feature | Status | Notes / test |
 |---|---|---|
 | Popup capture modes, live progress, Stop & save, Cancel, recent captures | ✅ | `app.spec` popup (opened in its own window) |
+| Popup "Record screen" and live recording controls (pause, stop, mic) | ✅ | `recorder.spec` (pause and stop; mic toggle 🟡) |
+| Reusing an open Studio/recorder tab instead of opening another | ✅ | `recorder.spec` shortcut and library-reuse tests (works without the `tabs` permission) |
+| Review prompt: after ≥ 5 captures/recordings and ≥ 3 days; at most 3 asks, 30 days apart; never mid-task; store installs only; same choices for everyone | ✅ | `review.spec` (library, popup after a capture, rate link, not now, don't ask again), unit rules |
+| "Rate FrameShot" in Settings → About | 🟡 | Same link as the prompt; shown only for store installs |
 | Popup warning on restricted pages | 🟡 | |
 | Settings: theme (system/light/dark), default format, filename template, clear data | ✅ | `app.spec` |
 | Settings: capture options, quality, folder, PDF, shortcuts list | 🟡 | Validation unit-tested |
@@ -137,6 +167,7 @@ Every implemented feature is free and available to every user. There are no tier
 | No foreign requests during capture → edit → export | ✅ | `privacy.spec` |
 | Works offline | ✅ | `privacy.spec` |
 | No host permissions, no remote code, no analytics | ✅ | Manifest check; bundle contains no tracking libraries |
+| Screen recording adds no permissions; microphone/camera only after Chrome's prompt | ✅ | Manifest check (`check:bundle`); prompts are Chrome's own |
 
 ## Optional advanced features
 

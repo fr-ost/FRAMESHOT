@@ -1,12 +1,12 @@
 # FrameShot
 
-**FrameShot: Free Full Page Screenshot, Screen Capture & Editor** — by Unique Labs
+**FrameShot: Free Screen Recorder & Full Page Screenshot** — by Unique Labs
 
 > Capture the web. Edit every detail. Free forever.
 
-FrameShot is a local-first Chrome extension (Manifest V3) for capturing, editing, organizing, and exporting screenshots. It combines a quick-capture toolbar popup with **FrameShot Studio**, a full application that opens in its own tab: a screenshot library, an editor with annotation and privacy tools, a composer for polished visuals, and an export engine.
+FrameShot is a local-first Chrome extension (Manifest V3) for capturing, recording, editing, organizing, and exporting what's on your screen. It combines a quick-capture toolbar popup with **FrameShot Studio**, a full application that opens in its own tab: a library for screenshots and recordings, a **screen recorder**, an editor with annotation and privacy tools, a composer for polished visuals, and an export engine.
 
-Every feature is available to every user. There are no paid plans, premium tiers, subscriptions, watermarks, accounts, ads, or locked features. Screenshots stay on your device.
+Every feature is available to every user. There are no paid plans, premium tiers, subscriptions, watermarks, time limits, accounts, ads, or locked features. Screenshots and recordings stay on your device.
 
 *Useful technology. Accessible to everyone.*
 
@@ -46,6 +46,17 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 - **Honest oversize handling**: pages larger than the browser can hold in one image are saved as several full-resolution parts (default), or scaled into one image. FrameShot always tells you which happened, and never truncates silently.
 - Start captures from the toolbar popup, the right-click menu, or keyboard shortcuts. Press **Esc** on the page to cancel.
 
+### Screen recorder
+- Record a **browser tab, an app window, or the entire screen**, chosen in Chrome's own share picker (FrameShot's own tab is never offered, so it cannot record itself). Switch to another tab mid-recording from Chrome's sharing bar.
+- **Sound**: the shared tab's audio (and whole-screen system audio where Chrome offers it) plus your **microphone**, mixed into one track. Mute and unmute the microphone while recording. Device picker and live level meter.
+- **Camera bubble**: your camera in a round, mirrored bubble drawn into the video, in any corner, in three sizes; it can be moved while recording.
+- Countdown (off, 3, 5, or 10 s), **pause and resume** (paused time is left out), a live preview, timer and size, and a toolbar badge (countdown, `REC`, `II`).
+- Stop from the recorder, from Chrome's **Stop sharing** bar, from the popup, from a floating pill on any Studio screen, or with a keyboard shortcut you assign.
+- **MP4 (H.264)** that plays everywhere, or WebM; 720p to 4K; 15, 30, or 60 fps. WebM files get a proper duration so they seek in every player.
+- Recordings are saved to the library **as they are recorded** (in roughly 2-second chunks), so a crash or closed tab loses only the last few seconds; the recorder offers to recover an unfinished recording.
+- A player for each recording: download, rename, favourite, delete, and **Save frame** to turn any moment into a screenshot you can annotate.
+- Needs no extra permissions. Chrome asks before the microphone or camera is used, and shows that the screen is being shared.
+
 ### Editor
 - Non-destructive editing: the original is kept and edits are saved separately. They autosave locally.
 - Image operations: crop (free, 1:1, 4:3, 16:9, 9:16), rotate left/right, flip horizontally/vertically, resize, zoom in/out, fit, actual size, reset.
@@ -69,16 +80,20 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 - A download is reported as saved only after Chrome confirms it completed. No watermarks are ever added.
 
 ### Library
-- Thumbnail grid and list views, with search (name, page title, domain, URL, tags) and a domain filter.
+- Screenshots and recordings together, with a **Recordings** view. Recording cards show a play button, length, size and format.
+- Thumbnail grid and list views, with search (name, page title, domain, URL, tags, "recording") and a domain filter.
 - Sort by newest, oldest, name, or size.
 - Favourites, collections, tags, and rename. The details dialog shows source URL, capture mode, size, pixel density, and capture notes.
-- Bulk select (Shift-click ranges), bulk export, move to collection, favourite, and delete, with confirmation.
+- Bulk select (Shift-click ranges), bulk export (recordings go into ZIP files as their video files; PDFs hold images only), move to collection, favourite, and delete, with confirmation.
 - Duplicate detection (perceptual hash) and screenshot comparison (side by side, overlay, pixel difference).
 - Import images by file picker, paste, or drag and drop.
 - Storage usage display and a **Clear all local data** option.
 
 ### Settings
-Theme (system, light, dark), default format and quality, filename template, download folder, ask where to save, capture behaviour (fixed-element handling, lazy-content preload, animation freezing, horizontal overflow, scroll delay, maximum height, oversize handling, what happens after a capture), PDF page size and margin, a keyboard shortcut overview, storage, privacy, and about.
+Theme (system, light, dark), default format and quality, filename template, download folder, ask where to save, capture behaviour (fixed-element handling, lazy-content preload, animation freezing, horizontal overflow, scroll delay, maximum height, oversize handling, what happens after a capture), screen-recording defaults (format, quality, frame rate, countdown, tab sound), PDF page size and margin, a keyboard shortcut overview, storage, privacy, and about.
+
+### Review prompt
+After you have used FrameShot for a while (at least 5 captures or recordings and 3 days), it may ask — at most three times, 30 days apart, never in the middle of a task — whether you would rate it on the Chrome Web Store. Everyone sees the same choices: **Rate FrameShot**, **Not now**, or **Don't ask again**. It follows the Chrome Web Store's rules: no incentives, no requests for a particular rating, and no filtering of unhappy users. Rating is also available any time under **Settings → About**.
 
 ### Interface
 A calm, minimal design over a slowly drifting aurora background: glass surfaces, one gradient accent, and fluid motion — page transitions, animated dialogs, menus and toasts, staggered card entrances, and hover and press feedback. Light and dark themes (or follow the system), with a one-click theme switch in the library. All animation is turned off when your system asks for reduced motion.
@@ -110,7 +125,7 @@ npm run build
 npm run zip
 ```
 
-This produces `.output/frameshot-1.1.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+This produces `.output/frameshot-1.2.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ### Keyboard shortcuts
 
@@ -120,6 +135,7 @@ This produces `.output/frameshot-1.1.0-chrome.zip`, the archive to upload to the
 | Capture full page | Alt+Shift+F |
 | Capture selected area | Alt+Shift+A |
 | Capture an element | Alt+Shift+E |
+| Start or stop a screen recording | not set by default |
 | Open Studio / library, cancel capture | not set by default |
 
 Chrome assigns suggested shortcuts only if they don't conflict with existing ones. You can view and change them at `chrome://extensions/shortcuts`, or from **Settings → Keyboard shortcuts → Customize shortcuts**. Pressing **Esc** on the page always cancels an active capture.
@@ -159,10 +175,10 @@ npm test
 npm run test:e2e
 ```
 
-- **Unit tests** (Vitest, Node) cover the stitching planner, geometry, settings validation, filename templates, pixel effects, editor transforms and store, object geometry, PDF and ZIP writers, IndexedDB storage (`fake-indexeddb`), composer layout, and annotation rendering.
-- **End-to-end tests** (Playwright) load the unpacked extension into Chromium (channel `chromium`, new headless mode; Chrome for Testing). They drive real captures against deterministic fixture pages, then verify the stitched output **pixel by pixel**. They also verify exported PNG/JPEG/WebP/PDF files and the clipboard contents (including that redacted pixels are gone), plus the library, composer, popup, settings, shortcuts, CSP network blocking, and offline use.
+- **Unit tests** (Vitest, Node) cover the stitching planner, geometry, settings validation, filename templates, pixel effects, editor transforms and store, object geometry, PDF and ZIP writers, IndexedDB storage (`fake-indexeddb`), composer layout, annotation rendering, and the recorder's pure parts (format choice, WebM duration repair, bubble geometry, chunked recording storage).
+- **End-to-end tests** (Playwright) load the unpacked extension into Chromium (channel `chromium`, new headless mode; Chrome for Testing). They drive real captures against deterministic fixture pages, then verify the stitched output **pixel by pixel**. They also verify exported PNG/JPEG/WebP/PDF files and the clipboard contents (including that redacted pixels are gone), plus the library, composer, popup, settings, shortcuts, CSP network blocking, and offline use. Screen-recording tests use Chromium's fake camera, microphone and share picker to record real MP4 and WebM files and check their length, sound, the camera bubble's pixels, pause handling, crash recovery, downloads and the popup controls.
 - Branded Google Chrome 137+ no longer supports `--load-extension`, so automated tests use Playwright's Chromium (Chrome for Testing).
-- The E2E build is identical to production except for two things. It adds `host_permissions: ["<all_urls>"]`, because automation cannot click the toolbar to grant `activeTab`. It also includes test hooks (`__frameshotTest` on the service worker, `__frameshotEditor` on the editor window), compiled in only when `__FRAMESHOT_E2E__` is true. Production builds contain neither.
+- The E2E build is identical to production except for two things. It adds `host_permissions: ["<all_urls>"]`, because automation cannot click the toolbar to grant `activeTab`. It also includes test hooks (`__frameshotTest` on the service worker, `__frameshotEditor` on the editor window, `__frameshotRecorder` on Studio pages), compiled in only when `__FRAMESHOT_E2E__` is true. Production builds contain neither.
 
 Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
 
@@ -179,9 +195,9 @@ Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
                                    └────────────┬─────────────┘
                                                 │ IndexedDB (images, thumbnails, metadata)
                                                 ▼
-                                   ┌──────────────────────────┐
-                                   │ FrameShot Studio (tab)    │  library · editor · composer · settings
-                                   └──────────────────────────┘
+                                   ┌──────────────────────────┐   getDisplayMedia (Chrome's picker)
+                                   │ FrameShot Studio (tab)    │ ◀─ screen recorder: MediaRecorder → chunks → IndexedDB
+                                   └──────────────────────────┘   library · editor · composer · player · settings
 ```
 
 | Path | Module |
@@ -198,6 +214,7 @@ Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
 | `src/export/` | PDF writer, ZIP writer, downloads/clipboard, export service, export dialog |
 | `src/db/` | IndexedDB persistence and change notifications |
 | `src/library/` | Library UI, filtering, duplicate detection, importer |
+| `src/recorder/` | Screen recorder: engine, camera compositor, audio mixer, format choice, WebM duration repair, recorder and player screens, popup/badge channel |
 | `src/settings/`, `src/popup/`, `src/app/`, `src/ui/` | Settings, popup, Studio shell/welcome/compare, design-system components |
 
 Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
@@ -207,9 +224,10 @@ Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 ## Privacy commitments
 
 - **Nothing leaves your device.** There are no servers, accounts, analytics, telemetry, tracking, ads, or remote code.
-- Screenshots, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
+- Screenshots, recordings, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
+- The microphone and camera are used only while you record, after you switch them on, and Chrome asks for your permission. Screen recording uses Chrome's share picker, so you choose exactly what is recorded.
 - Extension pages run under a strict Content Security Policy that **blocks all network connections** (`connect-src 'self' blob: data:`). This is verified by an automated test.
-- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it.
+- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added **no** permissions.
 - Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
 
 See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
@@ -225,17 +243,24 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 - Canvas size is limited (up to 32,767 px per side, with a memory budget of about 100 megapixels per image). Larger pages are split into parts or scaled down, depending on your settings.
 - The tab must stay visible during a multi-frame capture. Switching tabs, minimizing the window, or resizing or zooming stops the capture with a clear message.
 
+**Screen recording limits (Chrome)**
+- Chrome records sound from **tabs**; whole-screen system sound is offered only on Windows and ChromeOS, and app windows have no sound.
+- The recorder runs in a FrameShot Studio tab, which must stay open while recording (closing it asks for confirmation; an interrupted recording can be recovered, minus the last few seconds).
+- MP4 needs Chrome 126 or newer and an H.264 encoder; elsewhere recordings are saved as WebM, and FrameShot says so. MP4 sound is AAC where Chrome can encode it (Windows, macOS) and Opus elsewhere.
+- The camera bubble needs Chrome's frame-processing APIs (available in current Chrome); without them FrameShot records the screen only and says so.
+
 **Known limitations**
 - On app-shell pages, FrameShot captures the full content of the main scrolling panel. Fixed app chrome around that panel (toolbars, sidebars) is not repeated.
 - Sticky and fixed elements inside cross-origin iframes or closed shadow DOM are not adjusted. Open shadow roots are handled.
 - Pages that keep changing while they are captured (auto-rotating carousels, live feeds) may show changes between frames. FrameShot warns when page height changes. If it cannot prove the image is complete, it refuses to save and asks you to retry.
 - Blur and pixelation can sometimes be reversed for short or predictable text. Use **Redact** for passwords, card numbers, and personal data. The editor shows this warning.
-- "Unlimited captures" means FrameShot sets no limits. Your disk space, browser storage quota, and memory still apply. Very large captures can be slow on low-memory machines.
+- "Unlimited captures" and "no time limit" mean FrameShot sets no limits. Your disk space, browser storage quota, and memory still apply. Very large captures can be slow on low-memory machines.
 - Keyboard shortcuts depend on Chrome assigning them. Conflicting shortcuts stay unset until you choose them.
 - English only for now.
 
 **Not fully verified by automation**
 - A real click on the toolbar icon and physical keyboard-shortcut presses can't be automated, so the same code paths are exercised through test hooks. Both need a manual check before release (see [TESTING.md](TESTING.md)).
+- Screen recording is tested with Chromium's fake devices and fake share picker (which shares a tab). Recording a real window or screen, real system audio, real microphones and cameras, and long recordings (an hour or more) need a manual check on each platform before release.
 
 **Deferred** (see [ROADMAP.md](ROADMAP.md)): local OCR and searchable text, batch capture of several tabs, export presets, other browsers, translations.
 

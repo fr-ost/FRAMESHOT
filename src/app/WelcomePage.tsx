@@ -10,7 +10,9 @@ import {
   ScrollText,
   Sparkles,
   SquareDashedMousePointer,
+  Video,
   Wand2,
+  Webcam,
 } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { BRAND } from '../core/brand';
@@ -32,6 +34,12 @@ function Feature({ icon, title, children, i }: { icon: ReactNode; title: string;
 
 const PROMISES = ['Free forever', 'Unlimited captures', 'No watermarks', 'No subscriptions', 'No account required', 'No locked features', 'Stays on your device'];
 
+const RECORD_POINTS = [
+  { icon: <Video size={19} />, title: 'Tab, window or screen', text: 'Chrome’s own picker: you choose exactly what is recorded.' },
+  { icon: <Webcam size={19} />, title: 'Sound & camera', text: 'Tab sound and your microphone, plus an optional camera bubble.' },
+  { icon: <Download size={19} />, title: 'MP4 that plays anywhere', text: 'Pause, resume, then download or save any frame as a screenshot.' },
+];
+
 export function WelcomePage() {
   return (
     <div className="fr-scroll h-full overflow-y-auto">
@@ -46,7 +54,7 @@ export function WelcomePage() {
         {/* Hero */}
         <section className="relative mt-16 text-center">
           <div className="fr-animate-in mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-[12px] font-medium text-fg-muted shadow-card backdrop-blur-xl">
-            <Sparkles size={13} className="text-primary" /> Free full page screenshots, forever
+            <Sparkles size={13} className="text-primary" /> Free screenshots and screen recording, forever
           </div>
           <h1 className="fr-animate-in mx-auto max-w-4xl text-[clamp(38px,6vw,68px)] font-semibold leading-[1.02] tracking-[-0.035em]" style={{ animationDelay: '60ms' }}>
             Capture the web.
@@ -54,15 +62,15 @@ export function WelcomePage() {
             <span className="fr-accent-text">Edit every detail.</span>
           </h1>
           <p className="fr-animate-in mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-fg-muted" style={{ animationDelay: '120ms' }}>
-            Full pages, selected areas and single elements, captured in one click. Annotate, hide sensitive information, compose polished visuals, and export to PNG, JPG,
-            WebP or PDF. Everything happens locally in your browser.
+            Full pages, selected areas and single elements, captured in one click, plus a built-in screen recorder with sound and a camera bubble. Annotate, hide sensitive
+            information, compose polished visuals, and export to PNG, JPG, WebP, PDF or MP4. Everything happens locally in your browser.
           </p>
           <div className="fr-animate-in mt-8 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: '180ms' }}>
             <Button variant="primary" size="lg" icon={<Camera size={18} />} onClick={() => navigate('/')}>
               Start capturing
             </Button>
-            <Button size="lg" onClick={() => navigate('/settings')}>
-              Customize settings
+            <Button size="lg" icon={<Video size={18} />} onClick={() => navigate('/record')}>
+              Record your screen
             </Button>
           </div>
           <ul className="fr-animate-in mt-10 flex flex-wrap justify-center gap-2" style={{ animationDelay: '240ms' }} aria-label="Promises">
@@ -109,6 +117,18 @@ export function WelcomePage() {
             <span className="inline-flex items-center gap-1.5">
               <Kbd>Esc</Kbd> cancel
             </span>
+          </div>
+        </section>
+
+        {/* Record */}
+        <section className="mt-16">
+          <h2 className="text-center text-[13px] font-semibold uppercase tracking-[0.14em] text-fg-subtle">Record your screen, too</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {RECORD_POINTS.map((p, i) => (
+              <Feature key={p.title} i={5 + i} icon={p.icon} title={p.title}>
+                {p.text}
+              </Feature>
+            ))}
           </div>
         </section>
 

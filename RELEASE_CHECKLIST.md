@@ -19,12 +19,12 @@
 
 ## 3. Build & package
 - [ ] `npm run build`, then confirm `.output/chrome-mv3/manifest.json`:
-  - [ ] name "FrameShot: Free Screenshot & Full Page Capture", correct description and version
+  - [ ] name "FrameShot: Free Screen Recorder & Full Page Screenshot", correct description and version
   - [ ] permissions are exactly `activeTab, scripting, storage, unlimitedStorage, downloads, contextMenus`
   - [ ] **no `host_permissions`**
   - [ ] the CSP includes `connect-src 'self' blob: data:` and `script-src 'self'`
   - [ ] icons 16/32/48/96/128 are present
-- [ ] The production bundle contains no `__frameshotTest` (`grep -r __frameshotTest .output/chrome-mv3` finds nothing).
+- [ ] The production bundle contains no test hooks (`npm run check:bundle` checks for `__frameshotTest`, `__frameshotEditor` and `__frameshotRecorder`).
 - [ ] The production bundle loads no remote URLs (no `https://` script, style, or font loads; XML namespace strings are fine).
 - [ ] `npm run zip` produces `.output/frameshot-<version>-chrome.zip`. Unzip it and verify the contents match `.output/chrome-mv3`.
 - [ ] **Never** package `.output/chrome-mv3-e2e`, which has `<all_urls>` and test hooks.
@@ -32,7 +32,8 @@
 ## 4. Manual QA (real Chrome, installed via Load unpacked or from the ZIP)
 - [ ] Toolbar popup: visible, full page, selected area, element, and scrolling panel all work from a **real click**.
 - [ ] Physical shortcuts Alt+Shift+V/F/A/E work, or show as "Not set" in Settings if they conflict.
-- [ ] Right-click menu: every capture item and "Open screenshot library".
+- [ ] Right-click menu: every capture item, "Record screen…" and "Open screenshot library".
+- [ ] **Screen recorder** (Windows and macOS): record a tab with its sound, a window, and the entire screen; microphone and camera with first-time permission prompts; pause/resume; mute; Chrome's "Stop sharing"; popup controls and badge; the Studio pill; a 30–60 minute recording; closing the recorder tab mid-recording and recovering. Play the MP4 in QuickTime, Windows Media Player and on a phone.
 - [ ] Full-page capture on long real sites (news, docs, app shells, feeds). Sticky headers are not repeated, the page is restored, and the scroll position is unchanged.
 - [ ] 1× and 2× displays; browser zoom at 90%, 110%, 125%, and 150%.
 - [ ] Cancel with Esc; Stop & save on an endless feed; the max-height warning appears.
@@ -49,7 +50,7 @@
 
 ## 5. Store assets
 - [ ] Listing copy from [STORE_LISTING.md](STORE_LISTING.md) reviewed: no unverifiable claims, and "unlimited" qualified.
-- [ ] Five 1280×800 screenshots made from non-sensitive demo pages (no third-party trademarks).
+- [ ] Five 1280×800 screenshots made from non-sensitive demo pages (no third-party trademarks), including the screen recorder.
 - [ ] Promotional tiles (440×280; optionally 1400×560).
 - [ ] Privacy practices form filled from [PRIVACY_DISCLOSURE.md](PRIVACY_DISCLOSURE.md).
 - [ ] Permission justifications pasted from [STORE_LISTING.md](STORE_LISTING.md).
@@ -57,5 +58,6 @@
 
 ## 6. Submission (only after owner approval)
 - [ ] Owner approval recorded (who, when).
+- [ ] After the listing is live: install from the store, open Settings → About → **Rate FrameShot**, and confirm it opens the listing's Reviews tab (update `REVIEW_URL_SLUG` in `src/core/review.ts` to the listing's slug if needed).
 - [ ] Upload the ZIP; set visibility (unlisted first is recommended); submit for review.
 - [ ] Tag the release in git (`v<version>`) after acceptance.

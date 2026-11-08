@@ -1,6 +1,32 @@
 # Changelog
 
-All notable changes to Frameora are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
+All notable changes to FrameShot (formerly Frameora) are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
+
+## [1.2.0] — 2026-11-08
+
+### Added
+- **Screen recorder, built in.** Record a browser tab, an app window or the entire screen, chosen in Chrome's own share picker — no new permissions.
+  - Tab sound (and whole-screen system sound where Chrome offers it) and your microphone, mixed into one track; mute the microphone while recording; device pickers and a live level meter.
+  - Optional **camera bubble** drawn into the video, in any corner and three sizes, adjustable while recording.
+  - Countdown (off, 3, 5, 10 s), **pause and resume** with paused time left out, live preview, timer and size.
+  - **MP4 (H.264)** that plays everywhere, or WebM; 720p to 4K; 15, 30 or 60 fps. WebM files get a real duration so they seek in every player.
+  - Stop from the recorder, Chrome's "Stop sharing" bar, the popup, a floating pill on every Studio screen, or a new **Start/stop recording** shortcut (assign it at `chrome://extensions/shortcuts`). Toolbar badge shows the countdown, `REC` and `II` (paused).
+  - Recordings are written to the library in ~2-second chunks while recording; if the recorder tab closes or crashes, the next visit offers to **recover** the recording (minus the last few seconds).
+  - **Player** for every recording: download, rename, favourite, delete, and **Save frame** to turn any moment into a screenshot you can annotate.
+- Library: a **Recordings** view, video cards with play button, length and format, video downloads, and recordings in bulk ZIP exports (PDF exports hold images only and say so).
+- Popup: **Record screen** action, and live controls (pause/resume, stop, mute) while a recording runs.
+- Settings: **Screen recording** defaults (format, quality, frame rate, countdown, tab sound).
+- Right-click menu: **Record screen…**
+- **Review prompt**: a friendly card asking for a Chrome Web Store rating — only after at least 5 captures or recordings and 3 days of use, at most three times, 30 days apart, never in the middle of a capture or recording, and only for Web Store installs. "Rate FrameShot", "Not now" and "Don't ask again" are offered to everyone (no incentives, no star-specific requests, no filtering of unhappy users, per Chrome Web Store policy). Also available any time under Settings → About.
+
+### Changed
+- **Store title and summary rewritten around the recorder for Chrome Web Store search:** "FrameShot: Free Screen Recorder & Full Page Screenshot".
+- Library "All screenshots" is now **All captures**.
+- Toolbar tooltip: "FrameShot — screenshot or record your screen".
+
+### Fixed
+- Opening the library or the recorder now brings an already-open FrameShot tab forward instead of always opening a new one. (Chrome hides tab addresses from extensions without the `tabs` permission, so the old check never matched; open pages now announce themselves on a local channel.)
+- Architecture notes named the storage database and settings key incorrectly after the rename (they keep their original `frameora` names).
 
 ## [1.1.0] — 2026-11-08
 

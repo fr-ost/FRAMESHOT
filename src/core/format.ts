@@ -31,6 +31,16 @@ export function formatRelative(ts: number, now = Date.now()): string {
   return new Date(ts).toLocaleDateString(undefined, { dateStyle: 'medium' });
 }
 
+/** Formats a duration as m:ss, or h:mm:ss from one hour. */
+export function formatDuration(ms: number): string {
+  const total = Number.isFinite(ms) && ms > 0 ? Math.floor(ms / 1000) : 0;
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const two = (n: number) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${two(m)}:${two(s)}` : `${m}:${two(s)}`;
+}
+
 export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }

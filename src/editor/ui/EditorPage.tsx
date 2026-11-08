@@ -81,6 +81,11 @@ export function EditorPage({ id, settings, dark }: { id: string; settings: Setti
     (async () => {
       const item = await getItem(id);
       if (!item) throw new Error('This screenshot is no longer in your library.');
+      if (item.kind === 'recording') {
+        // Videos open in the player.
+        if (!cancelled) navigate(`/play/${encodeURIComponent(id)}`);
+        return;
+      }
       const blob = await getOriginal(id);
       if (!blob) throw new Error('The image data for this screenshot is missing.');
       base = await createBaseImage(await blobToBitmap(blob));

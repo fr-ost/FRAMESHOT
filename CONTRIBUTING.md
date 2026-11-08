@@ -25,9 +25,9 @@ Load `.output/chrome-mv3-dev` (dev) or `.output/chrome-mv3` (after `npm run buil
 ## Project layout
 
 See [ARCHITECTURE.md](ARCHITECTURE.md). In short:
-- Pure, testable logic goes in `src/core`, `src/imaging`, `src/editor/model`, `src/composer/layout.ts`, and `src/export/{pdf,zip}.ts`.
-- Browser and extension glue lives in `src/background`, `src/content`, and `src/db`.
-- UI lives in `src/app`, `src/library`, `src/editor/ui`, `src/composer`, `src/popup`, `src/settings`, and `src/ui`.
+- Pure, testable logic goes in `src/core`, `src/imaging`, `src/editor/model`, `src/composer/layout.ts`, `src/export/{pdf,zip}.ts`, and `src/recorder/{formats,webm}.ts`.
+- Browser and extension glue lives in `src/background`, `src/content`, `src/db`, and `src/recorder/{recorder,compositor,mixer,channel}.ts`.
+- UI lives in `src/app`, `src/library`, `src/editor/ui`, `src/composer`, `src/popup`, `src/settings`, `src/recorder/*Page.tsx`, and `src/ui`.
 
 ## Coding guidelines
 

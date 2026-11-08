@@ -30,8 +30,10 @@ npm run compile
 - The E2E build differs from production only by `host_permissions: ["<all_urls>"]` (automation can't click the toolbar to grant `activeTab`) and test hooks gated by `__FRAMESHOT_E2E__`:
   - `globalThis.__frameshotTest` on the service worker: `start`, `status`, `command`, `cancel`, `stop`.
   - `window.__frameshotEditor` on the editor page, to read the store and map document coordinates to the screen.
+  - `window.__frameshotRecorder` on Studio pages: read the recorder state, count stored chunks, and simulate Chrome's "Stop sharing" button.
   - A storage key that lowers canvas limits, so the split/scale paths can be tested without enormous pages.
 - Downloads land in Playwright's artifact folder. Tests read the completed file path from `chrome.downloads.search` and inspect the bytes.
+- Screen-recording tests launch Chromium with `--use-fake-ui-for-media-stream` (auto-accepts permission prompts and Chrome's share picker, which then shares a tab — here the recorder tab itself) and `--use-fake-device-for-media-stream` (a fake microphone and a fake camera that shows a green test pattern). The recordings are real MP4/WebM files written by Chrome's MediaRecorder.
 
 ### Verification approach
 Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), with marker colours for sticky headers (magenta), fixed footers (cyan), and sticky sections (yellow). Tests decode the stored or exported image and analyse runs of colour along a pixel column or row. This detects missing, duplicated, misplaced, or seamed content exactly.
@@ -46,6 +48,7 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 | `editor.test.ts` | Transform pipeline (rotate, flip, crop after rotation, clamping, resize, reset, `-0` normalization), document validation, hit testing and z-order, bounds, handles, aspect-locked resize, fit/move, stroke simplification, marker numbering; `EditorStore` undo/redo, one-step gestures, cancel, reorder, duplicate, delete, nudge, style application and live preview, crop tool, zoom, 100-step history cap |
 | `export.test.ts` | PDF writer: pdf-lib parses pages, sizes, title, producer; xref offsets; lossless Up-predictor round-trip with alpha on white; A4/Letter/image layout and the 14,400 pt cap; UTF-16 text strings. ZIP writer: CRC-32 check value; archive validated by Python `zipfile` (UTF-8 names) |
 | `storage.test.ts` | IndexedDB CRUD (newest-first listing, update, bulk update, delete with blobs and docs, replace original, collections and un-filing, storage stats); library search, filter, sort, domain list; duplicate grouping |
+| `recorder.test.ts` | WebM duration repair on synthetic EBML headers (insert, overwrite 4/8-byte floats, TimecodeScale, growing the Info size field, known Segment size, refusing SeekHead/truncated/garbage input); MediaRecorder type choice (H.264+AAC → H.264+Opus → WebM fallback, video-only types, throwing `isTypeSupported`); codec descriptions; bitrates and even sizes; camera-bubble geometry; elapsed time and badges; recorder settings validation; recording storage (out-of-order chunks, assembly, finalize, delete, discard, clear all, library filtering and search); review-prompt rules (thresholds, snooze, max asks, done, corrupted state, store URL) |
 | `composer-render.test.ts` | Composer layout (auto padding, fixed presets, fit/fill, ratio presets within limits, alignment and frame bar, gradient lines, sanitization); annotation rendering for every annotation type (save/restore, opacity, double arrowheads, multiply highlighter, dashes, multi-line text with background and outline, markers) |
 
 ## End-to-end tests (`tests/e2e/`)
@@ -58,6 +61,8 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 | `editor.spec.ts` | All 12 tools create objects; undo/redo, duplicate, delete, layer list; PNG export with redaction exactly black, blur and pixelation measurably destroying detail, annotation present, original unchanged; JPEG/WebP/PDF magic bytes and redaction kept (PDF image extracted and checked losslessly); clipboard read back; crop → rotate → flip → resize with orientation verified by pixel; autosave and reopen; double-click text editing |
 | `app.spec.ts` | Library search, domain filter, favourites, rename and tags, collections, sort, delete with confirmation, list view; reopen in editor; bulk ZIP (validated by Python) and combined PDF (pdf-lib); thumbnail refresh when leaving the editor quickly; composer 1200×630 export plus save to library; popup full-page capture with live progress bar and Stop button; shortcut commands declared and executed; settings theme, default format, filename template, clear data, persistence; image import |
 | `privacy.spec.ts` | CSP blocks fetch, beacons, and remote images from extension pages and the SW; capture → edit → export makes no requests except the fixture page's own; Studio, editor, and export work offline |
+| `review.spec.ts` | Review prompt: not shown to a new install however much it is used; shown once earned, counted, and paused 30 days after "Not now"; "Rate FrameShot" opens `chromewebstore.google.com/detail/frameshot/<id>/reviews` and ends prompts; "Don't ask again" respected; the popup asks right after a successful capture, which itself counts toward the threshold |
+| `recorder.spec.ts` | Record with tab sound + microphone to MP4 (chunks reach IndexedDB *during* recording; length, sound, size, thumbnail, `REC` badge); WebM gets a finite duration; pause leaves time out (and shows `II`); camera bubble pixels found at the chosen corner of the saved video; Chrome's "Stop sharing" saves; discard deletes all data; popup shows the running recording, pauses and stops it; library Recordings view, duration badge, no copy action, video download (name, MIME type, size, `ftyp`), editor redirects to the player, "Save frame" creates a PNG; bulk ZIP contains the video, PDF refuses recordings; crash recovery for MP4 and WebM (tab closed mid-recording, recovered, played); start/stop shortcut opens one recorder tab and stops a recording; recorder choices persist |
 
 ## Last verified run (during development)
 
@@ -97,6 +102,9 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 - [ ] Clipboard paste into other apps (Slack, Docs, image editors).
 - [ ] Timed capture (3/5/10 s) with a hover menu open.
 - [ ] Very large captures on a low-memory machine (8 GB or less).
+- [ ] **Screen recorder** in branded Chrome on Windows and macOS: record a tab (with "Also share tab audio"), a window, and the entire screen (Windows: with system audio); real microphone and camera, including the first-time permission prompts; switching the shared tab from Chrome's bar; Chrome's "Stop sharing"; the popup controls and toolbar badge; the floating pill while browsing Studio.
+- [ ] Play downloaded MP4 files in QuickTime (macOS), the Photos/Media Player app (Windows), and a phone; play a WebM in VLC and check seeking.
+- [ ] A long recording (30–60 min at 1080p) for memory use and file integrity; closing the recorder tab mid-recording, then recovering.
 
 ## Final verification run
 

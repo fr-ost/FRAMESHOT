@@ -53,13 +53,28 @@ export interface CaptureSource {
   domain: string;
 }
 
-/** Library item metadata (the image bytes live in the `blobs` store). */
+/** What a library item is. Recordings are videos; everything else is an image. */
+export type ItemKind = 'capture' | 'import' | 'composition' | 'recording' | 'frame';
+
+/** What a screen recording showed (the values of `displaySurface`). */
+export type DisplaySurfaceKind = 'browser' | 'window' | 'monitor';
+
+export const SURFACE_LABELS: Record<DisplaySurfaceKind, string> = {
+  browser: 'Browser tab',
+  window: 'Window',
+  monitor: 'Entire screen',
+};
+
+/**
+ * Library item metadata. Image bytes live in the `blobs` store; a recording's
+ * video lives in the `recChunks` store as the chunks it was recorded in.
+ */
 export interface LibraryItem {
   id: string;
   name: string;
   createdAt: number;
   updatedAt: number;
-  kind: 'capture' | 'import' | 'composition';
+  kind: ItemKind;
   mode?: CaptureMode;
   source?: CaptureSource;
   /** Original image pixel size. */
@@ -85,6 +100,16 @@ export interface LibraryItem {
   scale?: number;
   /** 64-bit difference hash as 16 hex chars, for duplicate detection. */
   dhash?: string;
+  /** Recordings: playing time in ms, excluding pauses. */
+  durationMs?: number;
+  /** Recordings: whether the video has a sound track. */
+  hasAudio?: boolean;
+  /** Recordings: what was shared (tab, window or screen). */
+  surface?: DisplaySurfaceKind;
+}
+
+export function isRecording(item: Pick<LibraryItem, 'kind'>): boolean {
+  return item.kind === 'recording';
 }
 
 export interface Collection {

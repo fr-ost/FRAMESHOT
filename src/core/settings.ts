@@ -2,13 +2,40 @@
  * User settings: defaults, validation, and persistence in chrome.storage.local.
  * Settings never leave the device (storage.local, not storage.sync).
  */
-import type { ImageFormat } from './types';
+import type { DisplaySurfaceKind, ImageFormat } from './types';
 
 export type ThemeSetting = 'system' | 'light' | 'dark';
 export type FixedElementMode = 'smart' | 'keep' | 'hide';
 export type OversizeMode = 'split' | 'scale';
 export type AfterCapture = 'editor' | 'library';
 export type PdfPageSize = 'image' | 'a4' | 'letter';
+
+// ── Screen recording ──
+export type RecordingContainer = 'mp4' | 'webm';
+export type RecordingQuality = '720p' | '1080p' | '1440p' | '2160p';
+export type RecordingFps = 15 | 30 | 60;
+export type RecordingCountdown = 0 | 3 | 5 | 10;
+export type CameraPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+export type CameraSize = 'small' | 'medium' | 'large';
+
+export interface RecorderSettings {
+  /** Which tab of Chrome's share picker opens first. */
+  surface: DisplaySurfaceKind;
+  /** Record the shared tab's sound (or system sound, where Chrome offers it). */
+  systemAudio: boolean;
+  mic: boolean;
+  /** Empty string = the system default device. */
+  micDeviceId: string;
+  /** Camera bubble drawn into the recording. */
+  camera: boolean;
+  cameraDeviceId: string;
+  cameraPosition: CameraPosition;
+  cameraSize: CameraSize;
+  format: RecordingContainer;
+  quality: RecordingQuality;
+  fps: RecordingFps;
+  countdown: RecordingCountdown;
+}
 
 export interface Settings {
   theme: ThemeSetting;
@@ -39,6 +66,7 @@ export interface Settings {
     pageSize: PdfPageSize;
     marginPt: number;
   };
+  recorder: RecorderSettings;
 }
 
 export const DEFAULT_FILENAME_TEMPLATE = 'frameshot-{domain}-{date}-{time}';
@@ -63,6 +91,21 @@ export const DEFAULT_SETTINGS: Settings = Object.freeze({
   }),
   library: Object.freeze({ view: 'grid' }),
   pdf: Object.freeze({ pageSize: 'a4', marginPt: 24 }),
+  recorder: Object.freeze({
+    surface: 'browser',
+    systemAudio: true,
+    // Microphone and camera are opt-in.
+    mic: false,
+    micDeviceId: '',
+    camera: false,
+    cameraDeviceId: '',
+    cameraPosition: 'bottom-right',
+    cameraSize: 'medium',
+    format: 'mp4',
+    quality: '1080p',
+    fps: 30,
+    countdown: 3,
+  }),
 }) as Settings;
 
 // Storage key kept from the product's former name (Frameora) so existing
@@ -90,6 +133,10 @@ function num(value: unknown, min: number, max: number, fallback: number): number
 
 function bool(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback;
+}
+
+function deviceId(value: unknown): string {
+  return typeof value === 'string' && value.length <= 256 ? value : '';
 }
 
 function obj(value: unknown): Record<string, unknown> {
@@ -123,7 +170,9 @@ export function sanitizeSettings(input: unknown): Settings {
   const c = obj(s.capture);
   const l = obj(s.library);
   const p = obj(s.pdf);
+  const r = obj(s.recorder);
   const d = DEFAULT_SETTINGS;
+  const dr = d.recorder;
   const template =
     typeof s.filenameTemplate === 'string' && s.filenameTemplate.trim().length > 0
       ? s.filenameTemplate.trim().slice(0, LIMITS.filenameTemplateMaxLength)
@@ -157,7 +206,26 @@ export function sanitizeSettings(input: unknown): Settings {
       pageSize: pick(p.pageSize, ['image', 'a4', 'letter'] as const, d.pdf.pageSize),
       marginPt: Math.round(num(p.marginPt, LIMITS.marginPt.min, LIMITS.marginPt.max, d.pdf.marginPt)),
     },
+    recorder: {
+      surface: pick(r.surface, ['browser', 'window', 'monitor'] as const, dr.surface),
+      systemAudio: bool(r.systemAudio, dr.systemAudio),
+      mic: bool(r.mic, dr.mic),
+      micDeviceId: deviceId(r.micDeviceId),
+      camera: bool(r.camera, dr.camera),
+      cameraDeviceId: deviceId(r.cameraDeviceId),
+      cameraPosition: pick(r.cameraPosition, ['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const, dr.cameraPosition),
+      cameraSize: pick(r.cameraSize, ['small', 'medium', 'large'] as const, dr.cameraSize),
+      format: pick(r.format, ['mp4', 'webm'] as const, dr.format),
+      quality: pick(r.quality, ['720p', '1080p', '1440p', '2160p'] as const, dr.quality),
+      fps: pickNumber(r.fps, [15, 30, 60] as const, dr.fps),
+      countdown: pickNumber(r.countdown, [0, 3, 5, 10] as const, dr.countdown),
+    },
   };
+}
+
+function pickNumber<T extends number>(value: unknown, allowed: readonly T[], fallback: T): T {
+  const n = typeof value === 'string' ? Number(value) : value;
+  return typeof n === 'number' && (allowed as readonly number[]).includes(n) ? (n as T) : fallback;
 }
 
 /** Deep-merges a partial patch into settings and re-validates. */
@@ -168,6 +236,7 @@ export function mergeSettings(current: Settings, patch: DeepPartial<Settings>): 
     capture: { ...current.capture, ...(patch.capture ?? {}) },
     library: { ...current.library, ...(patch.library ?? {}) },
     pdf: { ...current.pdf, ...(patch.pdf ?? {}) },
+    recorder: { ...current.recorder, ...(patch.recorder ?? {}) },
   });
 }
 
