@@ -50,6 +50,14 @@
   --fr-shadow-lg: 0 24px 60px -18px rgb(15 15 35 / 0.28), 0 6px 16px -6px rgb(15 15 35 / 0.1);
   --fr-glow: 0 10px 30px -10px rgb(99 102 241 / 0.55);
   --fr-highlight: inset 0 1px 0 rgb(255 255 255 / 0.65);
+  /* Card hover: tight enough to fit inside each card's paint box. */
+  --fr-shadow-hover: 0 16px 32px -14px rgb(30 27 75 / 0.3), 0 4px 10px -4px rgb(15 15 35 / 0.1);
+  /* App chrome (sidebars, headers): frosted look without a live blur. */
+  --fr-chrome: rgb(255 255 255 / 0.8);
+  --fr-chrome-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0) 120px);
+  /* Pointer spotlight */
+  --fr-spot-fill: rgb(99 102 241 / 0.1);
+  --fr-spot-edge: rgb(99 102 241 / 0.85);
   /* Aurora */
   --fr-aurora-1: rgb(129 140 248 / 0.42);
   --fr-aurora-2: rgb(232 121 249 / 0.26);
@@ -60,6 +68,7 @@
   --fr-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --fr-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --fr-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --fr-ease-out-back: cubic-bezier(0.22, 1.25, 0.36, 1);
 }
 
 :root.dark {
@@ -96,6 +105,11 @@
   --fr-shadow-lg: 0 30px 80px -20px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(255 255 255 / 0.04);
   --fr-glow: 0 10px 36px -8px rgb(123 123 255 / 0.55);
   --fr-highlight: inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --fr-shadow-hover: 0 18px 34px -14px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.05);
+  --fr-chrome: rgb(14 14 22 / 0.78);
+  --fr-chrome-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0) 120px);
+  --fr-spot-fill: rgb(139 140 255 / 0.13);
+  --fr-spot-edge: rgb(180 181 255 / 0.9);
   --fr-aurora-1: rgb(99 102 241 / 0.34);
   --fr-aurora-2: rgb(217 70 239 / 0.2);
   --fr-aurora-3: rgb(14 165 233 / 0.17);
@@ -231,9 +245,14 @@
   content: '';
   position: absolute;
   inset: 0;
-  opacity: var(--fr-grain-opacity);
+  opacity: calc(var(--fr-grain-opacity) * 0.7);
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  mix-blend-mode: overlay;
+  /* Normal blending: an overlay blend above the moving aurora was redone on every frame. */
+  will-change: transform;
+}
+/* Nothing moves behind an open dialog, so its blurred backdrop is computed once. */
+body:has([role='dialog']) .fr-aurora > span {
+  animation-play-state: paused;
 }
 
 /* Editor / composer canvas: quiet dotted grid. */
@@ -265,10 +284,22 @@
 
 /* ── Surfaces ──────────────────────────────────────────────────────────── */
 
+/*
+ * App chrome (sidebars, headers, panels). It sits over the aurora, which is
+ * already a soft gradient, so a live backdrop blur looked the same but was
+ * recomputed on every animation frame. A translucent tint plus a sheen gives
+ * the frosted look for free.
+ */
 .fr-glass {
+  background-color: var(--fr-chrome);
+  background-image: var(--fr-chrome-sheen);
+  box-shadow: var(--fr-highlight);
+}
+/* Floating surfaces over real content (bars, pills, hints) keep a true blur. */
+.fr-glass-blur {
   background: var(--fr-surface);
-  -webkit-backdrop-filter: saturate(170%) blur(22px);
-  backdrop-filter: saturate(170%) blur(22px);
+  -webkit-backdrop-filter: saturate(170%) blur(20px);
+  backdrop-filter: saturate(170%) blur(20px);
 }
 
 /*
@@ -298,8 +329,193 @@
 }
 .fr-lift:hover {
   transform: translateY(-3px);
-  box-shadow: var(--fr-shadow-lg);
+  box-shadow: var(--fr-shadow-hover);
   border-color: var(--fr-border-strong);
+}
+
+/* Room for a card's hover shadow inside a content-visibility (paint-contained) box. */
+.fr-cv-pad {
+  padding: 18px 18px 34px;
+  margin: -18px -18px -34px;
+}
+
+/*
+ * Pointer spotlight: a soft glow and a lit border follow the mouse across a
+ * card. --mx/--my are registered as non-inherited, so moving the pointer only
+ * restyles the card itself, never its contents.
+ */
+@property --mx {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+@property --my {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+@media (hover: hover) {
+  .fr-spot::before,
+  .fr-spot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 350ms var(--fr-ease);
+  }
+  .fr-spot::before {
+    z-index: 1;
+    background: radial-gradient(420px circle at var(--mx) var(--my), var(--fr-spot-fill), transparent 45%);
+  }
+  .fr-spot::after {
+    z-index: 3;
+    padding: 1.5px;
+    background: radial-gradient(300px circle at var(--mx) var(--my), var(--fr-spot-edge), transparent 60%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .fr-spot:hover::before,
+  .fr-spot:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Tap ripple (added by ui/fx.ts on pointer down). */
+.fr-ripple {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: rgb(255 255 255 / 0.38);
+  transform: translate(-50%, -50%) scale(0);
+  animation: fr-ripple 620ms var(--fr-ease) forwards;
+}
+@keyframes fr-ripple {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Soft rings that pulse out from an icon (empty states, the recorder). */
+.fr-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.fr-rings > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid color-mix(in srgb, var(--fr-primary) 45%, transparent);
+  animation: fr-ring 3.6s var(--fr-ease) infinite;
+}
+.fr-rings > span:nth-child(2) {
+  animation-delay: 1.2s;
+}
+.fr-rings > span:nth-child(3) {
+  animation-delay: 2.4s;
+}
+@keyframes fr-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* A slow light drifting inside a gradient button (popup hero). */
+.fr-hero-glow {
+  position: absolute;
+  z-index: -1;
+  top: -60%;
+  left: 0;
+  width: 55%;
+  height: 220%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.26), transparent 70%);
+  animation: fr-hero-drift 7s ease-in-out infinite alternate;
+}
+@keyframes fr-hero-drift {
+  from {
+    transform: translateX(-40%);
+  }
+  to {
+    transform: translateX(170%);
+  }
+}
+/* A scan line that sweeps an icon while its group is hovered. */
+.fr-scan {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 50%;
+  height: 2px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.95);
+  box-shadow: 0 0 10px 2px rgb(255 255 255 / 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+.group:hover .fr-scan {
+  animation: fr-scan 1.3s var(--fr-ease) infinite;
+}
+@keyframes fr-scan {
+  0% {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+}
+/* A one-off camera flash over the popup when a capture is saved. */
+.fr-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 30%, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.35) 60%, transparent);
+  animation: fr-fade-out 520ms var(--fr-ease) forwards;
+}
+
+/* One highlight that slides between items (navigation lists). */
+.fr-slide-hl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  border-radius: 11px;
+  background: var(--fr-surface-solid);
+  box-shadow: var(--fr-shadow), var(--fr-highlight);
+  transition:
+    transform 420ms var(--fr-ease-out-back),
+    height 300ms var(--fr-ease),
+    opacity 200ms ease;
+  pointer-events: none;
+}
+.fr-slide-hl::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 0 9999px 9999px 0;
+  background-image: linear-gradient(180deg, var(--fr-accent-1), var(--fr-accent-3));
 }
 
 /* Gradient accent (used sparingly: primary actions, active states, progress). */
@@ -307,13 +523,30 @@
   background-image: linear-gradient(135deg, var(--fr-accent-1) 0%, var(--fr-accent-2) 55%, var(--fr-accent-3) 130%);
 }
 .fr-accent-text {
-  background-image: linear-gradient(110deg, var(--fr-accent-1) 0%, var(--fr-accent-2) 45%, var(--fr-accent-3) 100%);
+  --fr-text-grad: linear-gradient(110deg, var(--fr-accent-1) 0%, var(--fr-accent-2) 45%, var(--fr-accent-3) 100%);
+  background-image: var(--fr-text-grad);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .dark .fr-accent-text {
-  background-image: linear-gradient(110deg, #a5b4fc 0%, #c4b5fd 45%, #f0abfc 100%);
+  --fr-text-grad: linear-gradient(110deg, #a5b4fc 0%, #c4b5fd 45%, #f0abfc 100%);
+}
+/* One sweep of light across gradient text when it appears. */
+.fr-shine {
+  background-image: linear-gradient(105deg, transparent 42%, rgb(255 255 255 / 0.75) 50%, transparent 58%), var(--fr-text-grad);
+  background-size: 300% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 120% 0, 0 0;
+  animation: fr-shine 2.2s var(--fr-ease) 500ms both;
+}
+@keyframes fr-shine {
+  from {
+    background-position: 120% 0, 0 0;
+  }
+  to {
+    background-position: -20% 0, 0 0;
+  }
 }
 
 /* Primary button: gradient, inner highlight, glow, sheen on hover. */
@@ -517,6 +750,20 @@
 .fr-star-pop {
   animation: fr-star-pop 380ms var(--fr-ease-spring);
 }
+@keyframes fr-icon-pop {
+  0% {
+    transform: scale(0.3) rotate(-25deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18) rotate(4deg);
+    opacity: 1;
+  }
+}
+.fr-icon-pop {
+  display: inline-flex;
+  animation: fr-icon-pop 520ms var(--fr-ease-out-back) 90ms both;
+}
 
 /* Radix-driven enter/exit animations (exit runs before unmount). */
 .fr-pop[data-state='open'],
@@ -535,7 +782,7 @@
   animation: fr-fade-out 160ms ease-in forwards;
 }
 .fr-dialog[data-state='open'] {
-  animation: fr-dialog-in 320ms var(--fr-ease);
+  animation: fr-dialog-in 380ms var(--fr-ease-out-back);
 }
 .fr-dialog[data-state='closed'] {
   animation: fr-dialog-out 160ms var(--fr-ease-in) forwards;
@@ -547,12 +794,42 @@
   animation: fr-toast-out 220ms var(--fr-ease-in) forwards;
 }
 
+/* A digit change rolls in (see ui/AnimatedNumber). */
+@keyframes fr-tick-in {
+  from {
+    transform: translateY(55%);
+    opacity: 0;
+  }
+}
+.fr-tick {
+  display: inline-block;
+  animation: fr-tick-in 360ms var(--fr-ease-out-back);
+}
+
 /* Skeleton shimmer for loading thumbnails. */
+/* (A moving background-position repainted on the main thread every frame;
+   this sweep is a transform, which the compositor runs on its own.) */
 .fr-skeleton {
+  overflow: hidden;
   background-color: var(--fr-surface-2);
-  background-image: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--fr-fg) 6%, transparent) 50%, transparent 80%);
-  background-size: 200% 100%;
-  animation: fr-shimmer 1.6s ease-in-out infinite;
+}
+.fr-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(100deg, transparent 25%, color-mix(in srgb, var(--fr-fg) 7%, transparent) 50%, transparent 75%);
+  transform: translateX(-100%);
+  animation: fr-sweep 1.5s ease-in-out infinite;
+}
+@layer components {
+  .fr-skeleton {
+    position: relative;
+  }
+}
+@keyframes fr-sweep {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 /* Images fade in once decoded. */
@@ -802,6 +1079,18 @@
 }
 .fr-count {
   animation: fr-count-pop 1000ms var(--fr-ease) both;
+}
+/* Countdown ring: drains once per second. */
+.fr-count-ring {
+  animation: fr-count-drain 1000ms linear both;
+}
+@keyframes fr-count-drain {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 565.5;
+  }
 }
 /* The recording stage: a dark "screen" with a faint grid. */
 .fr-stage {

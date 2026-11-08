@@ -33,7 +33,8 @@ import {
   Sun,
   Video,
 } from 'lucide-react';
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createContext, memo, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { AnimatedNumber, SlidingHighlight } from '../ui/motion';
 import { formatBytes, formatDate, formatDimensions, formatDuration, formatRelative, newId } from '../core/format';
 import { isSafeLink } from '../core/restricted';
 import { type Settings, updateSettings } from '../core/settings';
@@ -227,6 +228,21 @@ export function LibraryPage({ settings }: { settings: Settings }) {
     toast.success(ids.length > 1 ? `Deleted ${ids.length} ${noun}.` : `${noun.charAt(0).toUpperCase()}${noun.slice(1)} deleted.`);
   };
 
+  // Stable callbacks for the (memoized) cards: they always call the latest handlers,
+  // so selecting one card doesn't re-render all the others.
+  const latest = useRef({ toggle, download, copy, remove, setDetails });
+  latest.current = { toggle, download, copy, remove, setDetails };
+  const actions = useMemo<CardActions>(
+    () => ({
+      toggle: (id, range) => latest.current.toggle(id, range),
+      download: (item) => void latest.current.download(item),
+      copy: (item) => void latest.current.copy(item),
+      details: (item) => latest.current.setDetails(item),
+      remove: (item) => void latest.current.remove([item.id]),
+    }),
+    [],
+  );
+
   const runBulkExport = async (choice: ExportChoice) => {
     const ids = selectedItems.map((i) => i.id);
     setBusy(`Exporting 0 of ${ids.length}…`);
@@ -284,11 +300,14 @@ export function LibraryPage({ settings }: { settings: Settings }) {
         <div className="flex h-16 items-center px-5">
           <Logo size={30} />
         </div>
-        <nav aria-label="Library sections" className="space-y-0.5 px-3">
+        <nav aria-label="Library sections" className="px-3">
+          <div className="relative space-y-0.5">
+          <SlidingHighlight activeKey={view.kind === 'collection' ? '' : view.kind} />
           <NavItem icon={<Images size={16} />} label="All captures" count={items?.length} active={view.kind === 'all'} onClick={() => setView({ kind: 'all' })} />
           <NavItem icon={<Star size={16} />} label="Favorites" count={items?.filter((i) => i.favorite).length} active={view.kind === 'favorites'} onClick={() => setView({ kind: 'favorites' })} />
           <NavItem icon={<Video size={16} />} label="Recordings" count={recordingCount || undefined} active={view.kind === 'recordings'} onClick={() => setView({ kind: 'recordings' })} />
           <NavItem icon={<Columns2 size={16} />} label="Duplicates" count={dupCount || undefined} active={view.kind === 'duplicates'} onClick={() => setView({ kind: 'duplicates' })} />
+          </div>
         </nav>
         <div className="mt-6 flex items-center justify-between px-5 pb-1.5">
           <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Collections</h2>
@@ -296,7 +315,9 @@ export function LibraryPage({ settings }: { settings: Settings }) {
             <FolderPlus size={15} />
           </IconButton>
         </div>
-        <nav aria-label="Collections" className="space-y-0.5 px-3">
+        <nav aria-label="Collections" className="px-3">
+          <div className="relative space-y-0.5">
+          <SlidingHighlight activeKey={view.kind === 'collection' ? view.id : ''} />
           {collections.length === 0 && <p className="px-2.5 py-1 text-[12px] leading-relaxed text-fg-subtle">Group related screenshots into collections.</p>}
           {collections.map((c) => (
             <div key={c.id} className="group relative">
@@ -330,6 +351,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
               </div>
             </div>
           ))}
+          </div>
         </nav>
         <div className="mt-auto space-y-3 p-4">
           <StorageMeter used={stats?.usage ?? stats?.imageBytes ?? 0} count={stats?.count ?? 0} quota={stats?.quota} />
@@ -349,7 +371,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
         <header className="fr-glass z-20 flex min-h-16 shrink-0 flex-wrap items-center gap-x-2.5 gap-y-2 border-b border-border px-5 py-3">
           <div className="mr-1 flex min-w-0 shrink-0 items-baseline gap-2">
             <h1 className="truncate text-[17px] font-semibold tracking-tight">{viewTitle}</h1>
-            {items && <span className="text-[13px] tabular-nums text-fg-subtle">{visible.length}</span>}
+            {items && <AnimatedNumber value={visible.length} className="text-[13px] text-fg-subtle" />}
           </div>
           <div className="relative ml-auto w-full min-w-[140px] max-w-xs flex-1 basis-[180px]">
             <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
@@ -476,21 +498,13 @@ export function LibraryPage({ settings }: { settings: Settings }) {
           ) : layout === 'grid' ? (
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-5" aria-label="Screenshots">
               {visible.slice(0, limit).map((item, index) => (
-                <li key={item.id} className="fr-stagger fr-cv" style={{ '--i': index % PAGE } as CSSProperties}>
-                  <Card
-                    item={item}
-                    selected={selected.has(item.id)}
-                    selecting={selected.size > 0}
-                    onToggle={(range) => toggle(item.id, range)}
-                    onCopy={() => void copy(item)}
-                    onDownload={() => void download(item)}
-                    menu={<ItemMenu item={item} onDownload={download} onCopy={copy} onDetails={setDetails} onDelete={(i) => void remove([i.id])} />}
-                  />
+                <li key={item.id} className="fr-stagger fr-cv fr-cv-pad" style={{ '--i': index % PAGE } as CSSProperties}>
+                  <Card item={item} selected={selected.has(item.id)} selecting={selected.size > 0} actions={actions} />
                 </li>
               ))}
             </ul>
           ) : (
-            <ListView items={visible.slice(0, limit)} selected={selected} onToggle={toggle} renderMenu={(item) => <ItemMenu item={item} onDownload={download} onCopy={copy} onDetails={setDetails} onDelete={(i) => void remove([i.id])} />} />
+            <ListView items={visible.slice(0, limit)} selected={selected} actions={actions} />
           )}
           {visible.length > limit && <LoadMore key={limit} onVisible={() => setLimit((l) => l + PAGE)} />}
         </div>
@@ -499,7 +513,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
         {/* Floating bulk-action bar */}
         {selected.size > 0 && (
           <div
-            className="fr-glass absolute bottom-6 left-1/2 z-30 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-[18px] border border-border p-2 pl-4 shadow-pop"
+            className="fr-glass-blur absolute bottom-6 left-1/2 z-30 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-[18px] border border-border p-2 pl-4 shadow-pop"
             style={{ animation: 'fr-slide-up 420ms var(--fr-ease)' }}
           >
             <span className="mr-1 text-[13px] font-semibold">{selected.size} selected</span>
@@ -531,7 +545,7 @@ export function LibraryPage({ settings }: { settings: Settings }) {
         )}
 
         {busy && (
-          <div className="fr-glass pointer-events-none absolute bottom-6 right-6 z-30 flex items-center gap-2.5 rounded-full border border-border px-4 py-2.5 text-[13px] font-medium shadow-pop fr-animate-in">
+          <div className="fr-glass-blur pointer-events-none absolute bottom-6 right-6 z-30 flex items-center gap-2.5 rounded-full border border-border px-4 py-2.5 text-[13px] font-medium shadow-pop fr-animate-in">
             <Spinner className="text-primary" /> {busy}
           </div>
         )}
@@ -572,13 +586,12 @@ function NavItem({ icon, label, count, active, onClick }: { icon: ReactNode; lab
       aria-current={active ? 'page' : undefined}
       className={cx(
         'fr-press group relative flex h-9 w-full items-center gap-2.5 rounded-[11px] px-2.5 text-left text-[13px] font-medium transition-colors duration-200',
-        active ? 'bg-surface-solid text-fg shadow-card' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+        active ? 'text-fg' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
       )}
     >
-      <span className={cx('shrink-0 transition-colors', active ? 'text-primary' : 'text-fg-subtle group-hover:text-fg-muted')}>{icon}</span>
+      <span className={cx('shrink-0 transition-[color,transform] duration-300 group-hover:scale-110', active ? 'text-primary' : 'text-fg-subtle group-hover:text-fg-muted')} style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }}>{icon}</span>
       <span className="min-w-0 flex-1 truncate">{label}</span>
-      {count !== undefined && count > 0 && <span className={cx('rounded-full px-1.5 text-[11px] tabular-nums', active ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-subtle')}>{count}</span>}
-      {active && <span className="fr-accent-bg absolute -left-3 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" aria-hidden />}
+      {count !== undefined && count > 0 && <AnimatedNumber value={count} className={cx('rounded-full px-1.5 text-[11px] transition-colors', active ? 'bg-primary-soft text-primary-soft-fg' : 'text-fg-subtle')} />}
     </button>
   );
 }
@@ -638,23 +651,18 @@ function useInView<T extends Element>(): [React.RefObject<T | null>, boolean] {
   return [ref, inView];
 }
 
-function Card({
-  item,
-  selected,
-  selecting,
-  onToggle,
-  onCopy,
-  onDownload,
-  menu,
-}: {
-  item: LibraryItem;
-  selected: boolean;
-  selecting: boolean;
-  onToggle: (range: boolean) => void;
-  onCopy: () => void;
-  onDownload: () => void;
-  menu: ReactNode;
-}) {
+interface CardActions {
+  toggle: (id: string, range?: boolean) => void;
+  download: (item: LibraryItem) => void;
+  copy: (item: LibraryItem) => void;
+  details: (item: LibraryItem) => void;
+  remove: (item: LibraryItem) => void;
+}
+
+const Card = memo(function Card({ item, selected, selecting, actions }: { item: LibraryItem; selected: boolean; selecting: boolean; actions: CardActions }) {
+  const onToggle = (range: boolean) => actions.toggle(item.id, range);
+  const onCopy = () => actions.copy(item);
+  const onDownload = () => actions.download(item);
   const [ref, inView] = useInView<HTMLDivElement>();
   const thumb = useThumbUrl(item, inView);
   const [loaded, setLoaded] = useState(false);
@@ -670,10 +678,10 @@ function Card({
       data-testid="library-card"
       data-id={item.id}
       data-kind={item.kind}
-      className={cx('fr-card fr-lift group overflow-hidden', selected && '!border-primary ring-[3px] ring-primary/25')}
+      className={cx('fr-card fr-lift fr-spot group overflow-hidden', selected && '!border-primary ring-[3px] ring-primary/25')}
     >
       <div
-        className={cx('relative aspect-[4/3] overflow-hidden', !loaded && !video && 'fr-skeleton')}
+        className={cx('relative aspect-[4/3] overflow-hidden bg-surface-2', inView && !loaded && !video && 'fr-skeleton')}
         onPointerEnter={video ? () => setHover(true) : undefined}
         onPointerLeave={video ? () => setHover(false) : undefined}
       >
@@ -689,7 +697,7 @@ function Card({
               alt=""
               onLoad={() => setLoaded(true)}
               data-loaded={loaded}
-              className={cx('fr-img-fade h-full w-full object-cover group-hover:scale-[1.04]', video ? 'object-center' : 'object-top')}
+              className={cx('fr-img-fade h-full w-full object-cover group-hover:scale-[1.04]', video ? 'object-center' : 'object-left-top')}
               draggable={false}
             />
           ) : video ? (
@@ -710,7 +718,7 @@ function Card({
           </>
         )}
         {/* Hover veil + quick actions */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="absolute bottom-2.5 right-2.5 flex translate-y-2 gap-1.5 opacity-0 transition-all duration-300 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
           {!video && (
             <button type="button" aria-label={`Copy ${item.name}`} title="Copy image" onClick={onCopy} className="fr-press flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/95 text-[#111118] shadow-card hover:bg-white">
@@ -771,13 +779,13 @@ function Card({
             {item.partial && <Badge tone="warning">Partial</Badge>}
           </p>
         </div>
-        {menu}
+        <LazyItemMenu item={item} actions={actions} />
       </div>
     </div>
   );
-}
+});
 
-function ListView({ items, selected, onToggle, renderMenu }: { items: LibraryItem[]; selected: Set<string>; onToggle: (id: string, range?: boolean) => void; renderMenu: (i: LibraryItem) => ReactNode }) {
+function ListView({ items, selected, actions }: { items: LibraryItem[]; selected: Set<string>; actions: CardActions }) {
   return (
     <div className="fr-card overflow-x-auto">
       <table className="w-full min-w-[560px] table-fixed border-separate border-spacing-0 text-[13px]" aria-label="Screenshots">
@@ -805,7 +813,7 @@ function ListView({ items, selected, onToggle, renderMenu }: { items: LibraryIte
         </thead>
         <tbody>
           {items.map((item, index) => (
-            <ListRow key={item.id} index={index} item={item} selected={selected.has(item.id)} onToggle={(r) => onToggle(item.id, r)} menu={renderMenu(item)} />
+            <ListRow key={item.id} index={index} item={item} selected={selected.has(item.id)} actions={actions} />
           ))}
         </tbody>
       </table>
@@ -813,7 +821,8 @@ function ListView({ items, selected, onToggle, renderMenu }: { items: LibraryIte
   );
 }
 
-function ListRow({ item, selected, onToggle, menu, index }: { item: LibraryItem; selected: boolean; onToggle: (range: boolean) => void; menu: ReactNode; index: number }) {
+const ListRow = memo(function ListRow({ item, selected, actions, index }: { item: LibraryItem; selected: boolean; actions: CardActions; index: number }) {
+  const onToggle = (range: boolean) => actions.toggle(item.id, range);
   const [ref, inView] = useInView<HTMLTableRowElement>();
   const thumb = useThumbUrl(item, inView);
   return (
@@ -824,7 +833,7 @@ function ListRow({ item, selected, onToggle, menu, index }: { item: LibraryItem;
       <td className="border-b border-border py-2">
         <button type="button" className="flex min-w-0 items-center gap-3 text-left" onClick={() => openItem(item)}>
           <span className="fr-checker relative h-11 w-16 shrink-0 overflow-hidden rounded-[9px] border border-border">
-            {thumb && <img src={thumb} alt="" className={cx('h-full w-full object-cover', isRecording(item) ? 'object-center' : 'object-top')} />}
+            {thumb && <img src={thumb} alt="" className={cx('h-full w-full object-cover', isRecording(item) ? 'object-center' : 'object-left-top')} />}
             {isRecording(item) && (
               <span className="absolute inset-0 flex items-center justify-center bg-black/25 text-white" aria-hidden>
                 <Play size={14} fill="currentColor" />
@@ -845,14 +854,40 @@ function ListRow({ item, selected, onToggle, menu, index }: { item: LibraryItem;
       <td className="border-b border-border py-2 text-fg-muted">{item.source?.domain ?? '—'}</td>
       <td className="border-b border-border py-2 text-fg-muted">{formatDate(item.createdAt)}</td>
       <td className="border-b border-border py-2 text-right tabular-nums text-fg-muted">{formatBytes(item.byteSize)}</td>
-      <td className="border-b border-border py-2 pr-3 text-right">{menu}</td>
+      <td className="border-b border-border py-2 pr-3 text-right">
+        <LazyItemMenu item={item} actions={actions} />
+      </td>
     </tr>
+  );
+});
+
+/**
+ * The "…" menu is mounted the first time it's used: a big library would
+ * otherwise create a menu and a tooltip for every card up front.
+ */
+function LazyItemMenu({ item, actions }: { item: LibraryItem; actions: CardActions }) {
+  // 'ready': mounted closed when the pointer arrives, so the click opens it at once.
+  const [mounted, setMounted] = useState<false | 'ready' | 'open'>(false);
+  if (mounted) return <ItemMenu item={item} actions={actions} defaultOpen={mounted === 'open'} />;
+  return (
+    <button
+      type="button"
+      aria-label={`Actions for ${item.name}`}
+      aria-haspopup="menu"
+      title="More actions"
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setMounted('ready')}
+      onClick={() => setMounted('open')}
+      className="fr-press inline-flex h-7 w-7 items-center justify-center rounded-[9px] text-fg-muted transition-[background-color,color] duration-200 hover:bg-surface-2 hover:text-fg"
+    >
+      <MoreHorizontal size={16} />
+    </button>
   );
 }
 
-function ItemMenu({ item, onDownload, onCopy, onDetails, onDelete }: { item: LibraryItem; onDownload: (i: LibraryItem) => void; onCopy: (i: LibraryItem) => void; onDetails: (i: LibraryItem) => void; onDelete: (i: LibraryItem) => void }) {
+function ItemMenu({ item, actions, defaultOpen }: { item: LibraryItem; actions: CardActions; defaultOpen?: boolean }) {
+  const { download: onDownload, copy: onCopy, details: onDetails, remove: onDelete } = actions;
   return (
-    <DropdownMenu>
+    <DropdownMenu defaultOpen={defaultOpen}>
       <DropdownTrigger asChild>
         <IconButton label={`Actions for ${item.name}`} size="sm">
           <MoreHorizontal size={16} />

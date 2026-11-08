@@ -170,7 +170,7 @@ function RecorderWatcher({ route }: { route: Route }) {
   const busy = rec.phase === 'stopping' || rec.phase === 'saving';
   return (
     <div
-      className="fr-glass fixed left-1/2 top-[74px] z-50 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border py-1.5 pl-3.5 pr-1.5 shadow-pop"
+      className="fr-glass-blur fixed left-1/2 top-[74px] z-50 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border py-1.5 pl-3.5 pr-1.5 shadow-pop"
       style={{ animation: 'fr-fade-in 360ms var(--fr-ease) both' }}
       role="status"
       aria-label="Screen recording in progress"

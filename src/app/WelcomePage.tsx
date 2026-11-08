@@ -21,7 +21,7 @@ import { Button, Credits, Kbd, Logo } from '../ui/primitives';
 
 function Feature({ icon, title, children, i }: { icon: ReactNode; title: string; children: ReactNode; i: number }) {
   return (
-    <div className="fr-card fr-lift fr-stagger group overflow-hidden p-5" style={{ '--i': i } as CSSProperties}>
+    <div className="fr-card fr-lift fr-spot fr-stagger group overflow-hidden p-5" style={{ '--i': i } as CSSProperties}>
       <div className="fr-accent-bg pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-30" aria-hidden />
       <div className="relative mb-3 flex h-10 w-10 items-center justify-center rounded-[12px] bg-primary-soft text-primary transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }}>
         {icon}
@@ -53,13 +53,13 @@ export function WelcomePage() {
 
         {/* Hero */}
         <section className="relative mt-16 text-center">
-          <div className="fr-animate-in mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-[12px] font-medium text-fg-muted shadow-card backdrop-blur-xl">
+          <div className="fr-animate-in mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-surface-solid/85 px-3.5 py-1.5 text-[12px] font-medium text-fg-muted shadow-card">
             <Sparkles size={13} className="text-primary" /> Free screenshots and screen recording, forever
           </div>
           <h1 className="fr-animate-in mx-auto max-w-4xl text-[clamp(38px,6vw,68px)] font-semibold leading-[1.02] tracking-[-0.035em]" style={{ animationDelay: '60ms' }}>
             Capture the web.
             <br />
-            <span className="fr-accent-text">Edit every detail.</span>
+            <span className="fr-accent-text fr-shine">Edit every detail.</span>
           </h1>
           <p className="fr-animate-in mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-fg-muted" style={{ animationDelay: '120ms' }}>
             Full pages, selected areas and single elements, captured in one click, plus a built-in screen recorder with sound and a camera bubble. Annotate, hide sensitive

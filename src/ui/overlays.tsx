@@ -119,7 +119,7 @@ export function DropdownContent({ children, align = 'end', className }: { childr
         align={align}
         sideOffset={8}
         className={cx(
-          'fr-pop z-50 min-w-[220px] rounded-[16px] border border-border bg-surface-solid/90 p-1.5 shadow-pop backdrop-blur-2xl focus:outline-none',
+          'fr-pop z-50 min-w-[220px] rounded-[16px] border border-border bg-surface-solid/97 p-1.5 shadow-pop focus:outline-none',
           className,
         )}
       >
@@ -181,7 +181,7 @@ export function Popover({ trigger, children, align = 'start', side = 'bottom' }:
           align={align}
           side={side}
           sideOffset={8}
-          className="fr-pop z-50 rounded-[16px] border border-border bg-surface-solid/90 p-3 shadow-pop backdrop-blur-2xl focus:outline-none"
+          className="fr-pop z-50 rounded-[16px] border border-border bg-surface-solid/97 p-3 shadow-pop focus:outline-none"
         >
           {children}
         </PopoverPrimitive.Content>
@@ -290,11 +290,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             onFocus={() => pause(t.id)}
             onBlur={() => resume(t.id)}
             className={cx(
-              'group/toast pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-[16px] border border-border bg-surface-solid/90 px-4 py-3.5 text-sm text-fg shadow-pop backdrop-blur-2xl',
+              'group/toast pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-[16px] border border-border bg-surface-solid/97 px-4 py-3.5 text-sm text-fg shadow-pop',
               t.leaving ? 'fr-toast-leave' : 'fr-toast-enter',
             )}
           >
-            <span className="mt-px">{icons[t.tone]}</span>
+            <span className="fr-icon-pop mt-px">{icons[t.tone]}</span>
             <div className="min-w-0 flex-1 break-words leading-snug">{t.message}</div>
             {t.action && (
               <button

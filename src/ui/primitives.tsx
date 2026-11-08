@@ -401,8 +401,13 @@ export function SegmentedControl<T extends string>({
 export function EmptyState({ icon, title, children, action }: { icon: ReactNode; title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <div className="fr-animate-in mx-auto flex max-w-lg flex-col items-center px-6 py-16 text-center">
-      <div className="relative mb-6">
+      <div className="relative mb-7">
         <div className="fr-accent-bg absolute inset-0 rounded-[22px] opacity-40 blur-2xl" aria-hidden />
+        <div className="fr-rings rounded-[22px]" aria-hidden>
+          <span />
+          <span />
+          <span />
+        </div>
         <div className="fr-float fr-accent-bg relative flex h-16 w-16 items-center justify-center rounded-[22px] text-white shadow-glow">{icon}</div>
       </div>
       <h2 className="text-xl font-semibold tracking-tight text-fg">{title}</h2>

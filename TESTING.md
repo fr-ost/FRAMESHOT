@@ -91,6 +91,19 @@ These counts come from the development runs in this session. The release run bel
 - **Thumbnail not refreshed when leaving the editor quickly**: now rendered synchronously on unmount.
 - **Misleading message on protected pages**: Chrome reports a generic activeTab error there; FrameShot now detects protected pages.
 
+## UI performance (`npm run perf:ui`)
+
+`scripts/perf-ui.mjs` loads the E2E build in headless Chromium (software rendering, so absolute numbers are pessimistic) with a seeded 240-item library. Runs on the same machine before and after the interface upgrade (two runs each):
+
+| Measure | Before | After |
+|---|---|---|
+| Median frame while wheel-scrolling | 49.9 ms (≈20 fps) | 16.7 ms (60 fps) |
+| Frames slower than 33 ms (of ~280) | 163–181 | 16–19 |
+| Main-thread time while idle, per 5 s | 260–274 ms | 32–34 ms |
+| Average latency of 11 common actions (Event Timing) | ≈190 ms | ≈108 ms |
+| Select all (240 items) | 208 ms | 120–160 ms |
+| Library ready (first 60 cards) | 408–559 ms | 380–424 ms |
+
 ## Manual checks required before release
 
 These cannot be automated reliably and must be done by a person in real Chrome:

@@ -7,6 +7,7 @@ import { DEFAULT_SETTINGS, LIMITS, saveSettings, sanitizeFolder, type Settings, 
 import { QUALITY_PRESETS } from '../recorder/formats';
 import { hasStoreListing, markReviewDone, reviewUrl } from '../core/review';
 import { playSound } from '../ui/sounds';
+import { SlidingHighlight } from '../ui/motion';
 import { queryRecorder } from '../recorder/channel';
 import { clearAllData, storageStats, type StorageStats } from '../db/db';
 import { navigate } from '../ui/hooks';
@@ -28,7 +29,7 @@ const SECTIONS = [
 function Card({ title, description, children, id }: { title: string; description?: ReactNode; children: ReactNode; id?: string }) {
   const section = SECTIONS.find((s) => s.id === id);
   return (
-    <section id={id} className="fr-card fr-stagger scroll-mt-24 p-6" style={{ '--i': SECTIONS.findIndex((s) => s.id === id) } as CSSProperties}>
+    <section id={id} className="fr-card fr-spot fr-stagger scroll-mt-24 p-6" style={{ '--i': SECTIONS.findIndex((s) => s.id === id) } as CSSProperties}>
       <div className="flex items-start gap-3">
         {section && <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-primary-soft text-primary">{section.icon}</span>}
         <div className="min-w-0">
@@ -168,7 +169,10 @@ export function SettingsPage({ settings }: { settings: Settings }) {
       </header>
       <div className="mx-auto grid max-w-5xl gap-8 px-6 py-8 lg:grid-cols-[210px_1fr]">
         <nav aria-label="Settings sections" className="hidden lg:block">
-          <ul className="sticky top-24 space-y-0.5">
+          <div className="sticky top-24">
+          <div className="relative">
+          <SlidingHighlight activeKey={activeSection} />
+          <ul className="relative space-y-0.5">
             {SECTIONS.map((sct) => (
               <li key={sct.id}>
                 <a
@@ -179,8 +183,8 @@ export function SettingsPage({ settings }: { settings: Settings }) {
                   }}
                   aria-current={activeSection === sct.id ? 'true' : undefined}
                   className={cx(
-                    'flex h-9 items-center gap-2.5 rounded-[11px] px-3 text-[13px] font-medium transition-all duration-200',
-                    activeSection === sct.id ? 'bg-surface-solid text-fg shadow-card' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+                    'flex h-9 items-center gap-2.5 rounded-[11px] px-3 text-[13px] font-medium transition-colors duration-200',
+                    activeSection === sct.id ? 'text-fg' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
                   )}
                 >
                   <span className={activeSection === sct.id ? 'text-primary' : 'text-fg-subtle'}>{sct.icon}</span>
@@ -189,6 +193,8 @@ export function SettingsPage({ settings }: { settings: Settings }) {
               </li>
             ))}
           </ul>
+          </div>
+          </div>
         </nav>
         <div className="min-w-0 space-y-6">
         <Card title="Appearance" id="appearance" description="FrameShot follows your system theme by default.">

@@ -372,17 +372,23 @@ function LabeledSelect({ label, value, onChange, children }: { label: string; va
   );
 }
 
+const EQ = [0.45, 0.7, 0.95, 0.6, 0.85, 1, 0.75, 0.55, 0.9, 0.65, 0.8, 0.5, 0.72, 0.95, 0.6, 0.4];
+
+/** Live microphone level as a small equalizer (driven by one CSS variable). */
 function LevelMeter({ stream }: { stream: MediaStream | null }) {
   const ref = useRef<HTMLDivElement>(null);
   useLevelMeter(stream, ref);
   return (
     <div ref={ref} className="flex items-center gap-2" aria-hidden>
       <Mic size={13} className={stream ? 'text-success' : 'text-fg-subtle'} />
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-3">
-        <div
-          className="h-full origin-left rounded-full bg-[linear-gradient(90deg,#22c55e,#a3e635_60%,#facc15_80%,#ef4444)] transition-transform duration-75"
-          style={{ transform: 'scaleX(var(--fr-level, 0))' }}
-        />
+      <div className="flex h-5 flex-1 items-center gap-[3px]">
+        {EQ.map((k, i) => (
+          <span
+            key={i}
+            className="h-full flex-1 origin-center rounded-full bg-[linear-gradient(180deg,#facc15,#22c55e_45%,#22c55e_55%,#facc15)] transition-transform duration-100 ease-out"
+            style={{ transform: `scaleY(max(0.14, calc(var(--fr-level, 0) * ${k})))` }}
+          />
+        ))}
       </div>
     </div>
   );
@@ -483,9 +489,21 @@ function Stage({ snap, opts, camStream }: { snap: RecorderSnapshot; opts: Record
       )}
       {snap.phase === 'countdown' && (
         <Overlay dim>
-          <span key={snap.countdown} className="fr-count text-[120px] font-bold leading-none text-white tabular-nums drop-shadow-[0_8px_30px_rgb(0_0_0/0.5)]" data-testid="record-countdown">
-            {snap.countdown}
-          </span>
+          <div className="relative flex h-[200px] w-[200px] items-center justify-center">
+            <svg viewBox="0 0 200 200" className="absolute inset-0 -rotate-90" aria-hidden>
+              <circle cx="100" cy="100" r="90" fill="none" stroke="rgb(255 255 255 / 0.16)" strokeWidth="6" />
+              <circle key={snap.countdown} cx="100" cy="100" r="90" fill="none" stroke="url(#fr-count-grad)" strokeWidth="6" strokeLinecap="round" strokeDasharray="565.5" className="fr-count-ring" />
+              <defs>
+                <linearGradient id="fr-count-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#a5b4fc" />
+                  <stop offset="1" stopColor="#f0abfc" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <span key={snap.countdown} className="fr-count text-[110px] font-bold leading-none text-white tabular-nums drop-shadow-[0_8px_30px_rgb(0_0_0/0.5)]" data-testid="record-countdown">
+              {snap.countdown}
+            </span>
+          </div>
           <p className="text-[14px] font-medium text-white/80">Recording starts…</p>
         </Overlay>
       )}

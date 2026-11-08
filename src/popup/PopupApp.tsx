@@ -225,8 +225,10 @@ export function PopupApp() {
               className="fr-btn-primary fr-press group flex h-[92px] w-full items-center gap-4 rounded-[18px] px-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
               style={{ '--i': 0 } as CSSProperties}
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-white/18 ring-1 ring-white/25 transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }}>
+              <span className="fr-hero-glow" aria-hidden />
+              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-white/18 ring-1 ring-white/25 transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }}>
                 <ScrollText size={24} />
+                <span className="fr-scan" aria-hidden />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-[15px] font-semibold tracking-tight">Full page</span>
@@ -249,7 +251,7 @@ export function PopupApp() {
                 type="button"
                 onClick={() => open('/record')}
                 data-testid="record-screen"
-                className="fr-stagger fr-lift fr-press group flex h-[58px] w-full items-center gap-3 rounded-[16px] border border-border bg-surface-solid/90 px-3 text-left shadow-card"
+                className="fr-stagger fr-lift fr-press fr-spot group relative flex h-[58px] w-full items-center gap-3 rounded-[16px] border border-border bg-surface-solid/90 px-3 text-left shadow-card"
                 style={{ '--i': 4 } as CSSProperties}
               >
                 <span className="fr-rec-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px]">
@@ -347,11 +349,11 @@ function ModeCard({
       data-testid={testId}
       aria-label={fullLabel}
       title={hint ? `${fullLabel} (${hint})` : fullLabel}
-      className="fr-stagger fr-lift fr-press group flex h-[88px] flex-col items-center justify-center gap-2 rounded-[16px] border border-border bg-surface-solid/90 text-center shadow-card disabled:cursor-not-allowed disabled:opacity-50"
+      className="fr-stagger fr-lift fr-press fr-spot group relative flex h-[88px] flex-col items-center justify-center gap-2 rounded-[16px] border border-border bg-surface-solid/90 text-center shadow-card disabled:cursor-not-allowed disabled:opacity-50"
       style={{ '--i': i } as CSSProperties}
     >
       <span
-        className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-primary-soft text-primary transition-transform duration-500 group-hover:scale-110"
+        className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-primary-soft text-primary transition-[transform,background-color,color] duration-500 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:bg-primary group-hover:text-white"
         style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }}
       >
         {icon}
@@ -440,9 +442,14 @@ function StatusView({ status, onDismiss, onOpen }: { status: CaptureStatus; onDi
           </div>
         </div>
       ) : status.phase === 'done' ? (
-        <div className="fr-card space-y-4 p-4">
+        <div className="fr-card fr-animate-in space-y-4 p-4">
+          <span className="fr-flash rounded-[inherit]" aria-hidden />
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-success-soft text-success">
+            <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-success-soft text-success">
+              <span className="fr-rings rounded-full" style={{ ['--fr-primary' as string]: 'var(--fr-success)' } as CSSProperties} aria-hidden>
+                <span />
+                <span />
+              </span>
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M5 12.5l4.5 4.5L19 7.5" strokeDasharray="22" style={{ ['--fr-dash' as string]: 22, animation: 'fr-draw 520ms var(--fr-ease) both 80ms' } as CSSProperties} />
               </svg>
@@ -545,7 +552,7 @@ function RecentThumb({ item, onOpen }: { item: LibraryItem; onOpen: (id: string)
           alt=""
           onLoad={() => setLoaded(true)}
           data-loaded={loaded}
-          className={cx('fr-img-fade h-full w-full object-cover group-hover:scale-[1.06]', item.kind === 'recording' ? 'object-center' : 'object-top')}
+          className={cx('fr-img-fade h-full w-full object-cover group-hover:scale-[1.06]', item.kind === 'recording' ? 'object-center' : 'object-left-top')}
         />
       )}
       {item.kind === 'recording' && (

@@ -636,7 +636,7 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
           )}
           <CanvasView store={store} base={base} dark={dark} handleRef={canvasHandle} onReady={(size) => fit(size)} />
           {busy && (
-            <div className="fr-glass fr-animate-in pointer-events-none absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-border px-4 py-2.5 text-[13px] font-medium shadow-pop">
+            <div className="fr-glass-blur fr-animate-in pointer-events-none absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-border px-4 py-2.5 text-[13px] font-medium shadow-pop">
               <Spinner className="text-primary" /> {busy}
             </div>
           )}
@@ -663,7 +663,7 @@ function CropBar({ onApply, onCancel, onAspect }: { onApply: () => void; onCance
   const [aspect, setAspect] = useState<string>('free');
   const ratios: Record<string, number | null> = { free: null, '1:1': 1, '4:3': 4 / 3, '16:9': 16 / 9, '9:16': 9 / 16 };
   return (
-    <div className="fr-glass fr-animate-in absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-2 rounded-[16px] border border-border px-2 py-1.5 shadow-pop">
+    <div className="fr-glass-blur fr-animate-in absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-2 rounded-[16px] border border-border px-2 py-1.5 shadow-pop">
       <span className="px-1 text-[13px] font-medium text-fg-muted">Crop</span>
       <div role="radiogroup" aria-label="Aspect ratio" className="flex gap-0.5">
         {Object.keys(ratios).map((k) => (
