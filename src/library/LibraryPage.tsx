@@ -2,36 +2,37 @@
  * Local screenshot library: everything stays in IndexedDB on this device.
  */
 import {
+  Camera,
   CheckSquare,
   ClipboardCopy,
+  Columns2,
   Download,
-  FolderPlus,
   Folder,
+  FolderPlus,
   Grid2x2,
   HardDrive,
+  Heart,
+  ImagePlay,
   ImagePlus,
   Images,
-  ImagePlay,
   Info,
   Keyboard,
   LayoutTemplate,
   List,
-  MoreHorizontal,
-  Pencil,
-  Search,
-  Settings as SettingsIcon,
-  Square,
-  Star,
-  Trash2,
-  X,
-  Columns2,
-  Camera,
   Monitor,
   Moon,
+  MoreHorizontal,
+  Pencil,
   Play,
+  Search,
+  Settings as SettingsIcon,
   Sparkles,
+  Square,
+  Star,
   Sun,
+  Trash2,
   Video,
+  X,
 } from 'lucide-react';
 import { createContext, memo, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { AnimatedNumber, SlidingHighlight } from '../ui/motion';
@@ -362,7 +363,16 @@ export function LibraryPage({ settings }: { settings: Settings }) {
             <Button variant="ghost" size="sm" icon={<Keyboard size={15} />} onClick={openShortcuts} aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)" />
             <Button variant="ghost" size="sm" icon={<Sparkles size={15} />} onClick={() => navigate('/welcome')} aria-label="Welcome guide" title="Welcome guide" />
           </div>
-          <RateLink className="-mt-1" />
+          <button
+            type="button"
+            onClick={() => navigate('/donate')}
+            data-testid="library-donate"
+            className="fr-press group/donate -mt-1 flex w-full items-center gap-2 rounded-[11px] px-2.5 py-2 text-left text-[12.5px] font-medium text-fg-muted transition-colors hover:bg-rose-500/10 hover:text-rose-500"
+          >
+            <Heart size={14} className="text-rose-500 transition-transform duration-300 group-hover/donate:scale-125" fill="currentColor" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }} />
+            Support FrameShot
+          </button>
+          <RateLink className="-mt-3" />
           <Credits align="start" className="px-1" />
         </div>
       </aside>

@@ -72,6 +72,11 @@ export function shouldAskForReview(state: ReviewState, now = Date.now(), rules: 
   return now - state.installedAt >= rules.minDaysSinceInstall * DAY;
 }
 
+/** The listing's page on the Chrome Web Store. */
+export function listingUrl(id: string = chrome.runtime.id): string {
+  return `https://chromewebstore.google.com/detail/${REVIEW_URL_SLUG}/${id}`;
+}
+
 /** The listing's Reviews tab (its item id is this extension's id once published). */
 export function reviewUrl(id: string = chrome.runtime.id): string {
   return `https://chromewebstore.google.com/detail/${REVIEW_URL_SLUG}/${id}/reviews`;

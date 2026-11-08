@@ -2,28 +2,7 @@
  * Quick Capture popup: one-click capture modes, live progress with cancel /
  * stop-and-save, and recent captures. Small, fast, and delightful.
  */
-import {
-  AlertCircle,
-  AppWindow,
-  ArrowRight,
-  Camera,
-  Clock,
-  Crosshair,
-  FileStack,
-  Images,
-  Mic,
-  MicOff,
-  Pause,
-  Play,
-  Scan,
-  ScrollText,
-  Settings as SettingsIcon,
-  Square,
-  SquareDashedMousePointer,
-  Video,
-  Volume2,
-  VolumeX,
-} from 'lucide-react';
+import { AlertCircle, AppWindow, ArrowRight, Camera, Clock, Crosshair, FileStack, Heart, Images, Mic, MicOff, Pause, Play, Scan, ScrollText, Settings as SettingsIcon, Square, SquareDashedMousePointer, Video, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { formatDuration, formatRelative } from '../core/format';
 import { sendToBackground, STATUS_PORT, type StatusPortMessage } from '../core/messages';
@@ -314,8 +293,16 @@ export function PopupApp() {
           </main>
         )}
 
-        <footer className="border-t border-border px-4 py-2.5">
-          <Credits />
+        <footer className="flex items-center justify-between gap-2 border-t border-border px-4 py-2.5">
+          <Credits align="start" />
+          <button
+            type="button"
+            onClick={() => open('/donate')}
+            data-testid="popup-donate"
+            className="fr-press group inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[11.5px] font-semibold text-rose-500 transition-colors hover:bg-rose-500/10"
+          >
+            <Heart size={12} fill="currentColor" className="transition-transform duration-300 group-hover:scale-125" style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }} /> Donate
+          </button>
         </footer>
       </div>
     </div>

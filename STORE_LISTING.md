@@ -94,6 +94,8 @@ PRIVATE BY DESIGN
 
 Good to know: Chrome blocks extensions from browser pages (chrome://) and the Chrome Web Store, and allows two screenshots per second, so long pages take a few seconds. Chrome records sound from tabs (and from the whole screen on Windows and ChromeOS). Blur and pixelation can sometimes be reversed for short text; use Redact for confidential information.
 
+FrameShot is free forever with nothing locked. If it helps you, optional donations (in-app Support page) keep it going.
+
 A Product of Unique Labs. Developed by Shahriar Ahmed (www.shahriarahmed.net).
 ```
 

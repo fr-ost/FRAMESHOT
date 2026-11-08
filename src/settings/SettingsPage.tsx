@@ -1,4 +1,4 @@
-import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Info, Keyboard, Lock, Mic, Palette, Play, Shield, Star, Trash2, Video, Volume2 } from 'lucide-react';
+import { ArrowLeft, Camera, Check, Download, ExternalLink, HardDrive, Heart, Info, Keyboard, Lock, Mic, Palette, Play, Shield, Star, Trash2, Video, Volume2 } from 'lucide-react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { BRAND } from '../core/brand';
 import { buildFilename, FILENAME_TOKENS } from '../core/filename';
@@ -434,6 +434,12 @@ export function SettingsPage({ settings }: { settings: Settings }) {
               </Button>
             </div>
           )}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-rose-500/[0.07] px-4 py-3">
+            <p className="text-[13px] leading-snug text-fg-muted">Enjoying FrameShot? It’s free forever. If it saves you time, an optional tip helps keep it going.</p>
+            <Button size="sm" icon={<Heart size={14} className="text-rose-500" fill="currentColor" />} onClick={() => navigate('/donate')} data-testid="settings-donate">
+              Support FrameShot
+            </Button>
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
             <Credits align="start" />
             <Button variant="ghost" size="sm" icon={<ExternalLink size={14} />} onClick={() => navigate('/welcome')}>

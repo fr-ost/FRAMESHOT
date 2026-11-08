@@ -19,6 +19,7 @@ const loaders = {
   composer: () => import('../composer/ComposerPage'),
   settings: () => import('../settings/SettingsPage'),
   welcome: () => import('./WelcomePage'),
+  donate: () => import('./DonatePage'),
   compare: () => import('./ComparePage'),
   recorder: () => import('../recorder/RecorderPage'),
   player: () => import('../recorder/PlayerPage'),
@@ -27,6 +28,7 @@ const EditorPage = lazy(() => loaders.editor().then((m) => ({ default: m.EditorP
 const ComposerPage = lazy(() => loaders.composer().then((m) => ({ default: m.ComposerPage })));
 const SettingsPage = lazy(() => loaders.settings().then((m) => ({ default: m.SettingsPage })));
 const WelcomePage = lazy(() => loaders.welcome().then((m) => ({ default: m.WelcomePage })));
+const DonatePage = lazy(() => loaders.donate().then((m) => ({ default: m.DonatePage })));
 const ComparePage = lazy(() => loaders.compare().then((m) => ({ default: m.ComparePage })));
 const RecorderPage = lazy(() => loaders.recorder().then((m) => ({ default: m.RecorderPage })));
 const PlayerPage = lazy(() => loaders.player().then((m) => ({ default: m.PlayerPage })));
@@ -78,6 +80,7 @@ export function StudioApp() {
     compose: 'Composer',
     settings: 'Settings',
     welcome: 'Welcome',
+    donate: 'Support FrameShot',
     compare: 'Compare',
     record: 'Screen recorder',
     play: 'Recording',
@@ -102,6 +105,9 @@ export function StudioApp() {
       break;
     case 'welcome':
       page = <WelcomePage />;
+      break;
+    case 'donate':
+      page = <DonatePage />;
       break;
     case 'compare':
       page = <ComparePage a={route.a} b={route.b} />;

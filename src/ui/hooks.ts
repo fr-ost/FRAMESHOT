@@ -64,6 +64,7 @@ export type Route =
   | { name: 'compose'; id: string }
   | { name: 'settings'; section?: string }
   | { name: 'welcome' }
+  | { name: 'donate' }
   | { name: 'compare'; a: string; b: string }
   | { name: 'record' }
   | { name: 'play'; id: string; gif?: boolean }
@@ -91,6 +92,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'settings', section: parts[1] };
     case 'welcome':
       return { name: 'welcome' };
+    case 'donate':
+      return { name: 'donate' };
     case 'compare':
       return parts[1] && parts[2] ? { name: 'compare', a: parts[1], b: parts[2] } : { name: 'library' };
     case 'record':

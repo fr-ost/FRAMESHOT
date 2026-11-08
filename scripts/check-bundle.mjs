@@ -42,7 +42,7 @@ if (/unsafe-eval|https?:/.test(csp.replace("'wasm-unsafe-eval'", ''))) problems.
 // Tailwind license banner, and the developer credit link in the footer
 // (a normal <a target="_blank"> the user may click; it opens a new tab).
 // Links opened only when the user clicks: the developer credit and the Web Store review page.
-const ALLOWED_URL = [/^https:\/\/www\.shahriarahmed\.net$/, /^https:\/\/chromewebstore\.google\.com\/detail\//, /^https:\/\/tailwindcss\.com$/, /^https?:\/\/www\.w3\.org\//, /^https:\/\/react\.dev\/errors\//, /^https:\/\/reactjs\.org\/docs\/error-decoder/, /^https:\/\/github\.com\/radix-ui\//];
+const ALLOWED_URL = [/^https:\/\/www\.shahriarahmed\.net$/, /^https:\/\/t\.me\/igfrostt$/, /^https:\/\/chromewebstore\.google\.com\/detail\//, /^https:\/\/tailwindcss\.com$/, /^https?:\/\/www\.w3\.org\//, /^https:\/\/react\.dev\/errors\//, /^https:\/\/reactjs\.org\/docs\/error-decoder/, /^https:\/\/github\.com\/radix-ui\//];
 for (const f of files) {
   const rel = path.relative(dir, f);
   if (rel.endsWith('.map')) problems.push(`source map shipped: ${rel}`);

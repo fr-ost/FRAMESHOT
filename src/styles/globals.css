@@ -491,6 +491,64 @@ body:has([role='dialog']) .fr-aurora > span {
   animation: fr-fade-out 520ms var(--fr-ease) forwards;
 }
 
+/* Donate hero: coins orbiting a beating heart (transforms only). */
+.fr-orbit::before {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border-radius: 9999px;
+  border: 1.5px dashed color-mix(in srgb, var(--fr-primary) 30%, transparent);
+}
+.fr-orbit-ring > img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px;
+  border-radius: 9999px;
+  box-shadow: 0 6px 16px -6px rgb(15 15 35 / 0.45);
+  --a: calc(var(--i) / var(--n) * 1turn);
+  transform: rotate(var(--a)) translateX(94px) rotate(calc(-1 * var(--a)));
+  animation: fr-orbit 30s linear infinite;
+}
+@keyframes fr-orbit {
+  to {
+    transform: rotate(calc(var(--a) + 1turn)) translateX(94px) rotate(calc(-1 * var(--a) - 1turn));
+  }
+}
+.fr-orbit-heart {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  width: 76px;
+  height: 76px;
+  margin: -38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: #fff;
+  background-image: linear-gradient(135deg, #fb7185, #e11d48 60%, #c026d3);
+  box-shadow: 0 14px 34px -10px rgb(225 29 72 / 0.65), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  animation: fr-beat 1.6s var(--fr-ease) infinite;
+}
+@keyframes fr-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(0.98);
+  }
+  42% {
+    transform: scale(1.06);
+  }
+}
+
 /* One highlight that slides between items (navigation lists). */
 .fr-slide-hl {
   position: absolute;

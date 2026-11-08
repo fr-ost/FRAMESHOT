@@ -164,6 +164,7 @@ Every implemented feature is free and available to every user. There are no tier
 | Feature | Status | Notes / test |
 |---|---|---|
 | Popup capture modes, live progress, Stop & save, Cancel, recent captures | ✅ | `app.spec` popup (opened in its own window) |
+| Support FrameShot (Donate) page: wallets with verified QR codes, copy, free ways to help; links in sidebar, popup, settings | ✅ | `donate.spec` (exact addresses, images load, clipboard, Donate now); unit (address formats, QR script and files in sync) |
 | Popup "Record screen" and live recording controls (pause, stop, mic) | ✅ | `recorder.spec` (pause and stop; mic toggle 🟡) |
 | Reusing an open Studio/recorder tab instead of opening another | ✅ | `recorder.spec` shortcut and library-reuse tests (works without the `tabs` permission) |
 | Review prompt: after ≥ 3 captures/recordings and ≥ 2 days; at most 3 asks, 3 weeks apart; never mid-task; store installs only; same choices for everyone; clickable five stars; permanent sidebar link | ✅ | `review.spec` (library, popup after a capture, rate button, stars, sidebar link, not now, don't ask again), unit rules |
