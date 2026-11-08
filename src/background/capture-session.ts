@@ -12,8 +12,10 @@ import {
   DEFAULT_CANVAS_LIMITS,
   StitchPlanner,
   fitScale,
+  frameScale,
   overlapFor,
   planScrollSteps,
+  retryScrollTarget,
   type CanvasLimits,
   type ScrollStep,
 } from '../core/capture-plan';
@@ -257,10 +259,12 @@ async function captureVisible(capture: ActiveCapture): Promise<CaptureOutcome> {
   // capture, just without trimming scrollbars.
   let viewport: Rect | null = null;
   let innerWidth = 0;
+  let dpr = 0;
   try {
     await ensureAgent(capture.tabId);
     const m = await callAgent(capture.tabId, { kind: 'agent.measure' }, 5000);
     innerWidth = m.innerWidth;
+    dpr = m.devicePixelRatio;
     viewport = { x: 0, y: 0, w: Math.min(m.innerWidth, Math.round(windowViewportWidth(m))), h: m.innerHeight };
     const vh = await windowViewportHeight(capture.tabId, m.innerHeight);
     viewport.h = vh;
@@ -274,7 +278,7 @@ async function captureVisible(capture: ActiveCapture): Promise<CaptureOutcome> {
   } catch (err) {
     throw new CaptureError((err as Error).message, 'permission');
   }
-  const scale = innerWidth > 0 ? bitmap.width / innerWidth : 1;
+  const scale = innerWidth > 0 ? frameScale(bitmap.width, innerWidth, dpr) : 1;
   const crop = viewport
     ? {
         x: 0,
@@ -520,13 +524,14 @@ async function runFrames(
       bottomFixedHeight: 0,
       innerWidth: m.innerWidth,
       innerHeight: m.innerHeight,
+      devicePixelRatio: m.devicePixelRatio,
     };
   }
   if (capture.cancelled) throw new CaptureError('Capture cancelled.', 'cancelled');
   await assertTabVisible(tabId, windowId);
   frameStatus(capture, 0, multi ? 0 : 1);
   const bmp0 = await captureFrame(windowId);
-  const captureScale = bmp0.width / geom0.innerWidth;
+  const captureScale = frameScale(bmp0.width, geom0.innerWidth, geom0.devicePixelRatio);
   if (!Number.isFinite(captureScale) || captureScale <= 0) {
     bmp0.close();
     throw new CaptureError('Could not determine the screen scale of this page.');
@@ -610,7 +615,7 @@ async function runFrames(
       await assertTabVisible(tabId, windowId);
       const bmp = await captureFrame(windowId);
       try {
-        if (bmp.width !== Math.round(geom0.innerWidth * captureScale) && Math.abs(bmp.width / geom.innerWidth - captureScale) > 0.01) {
+        if (Math.abs(frameScale(bmp.width, geom.innerWidth, geom.devicePixelRatio) - captureScale) / captureScale > 0.01) {
           throw new CaptureError('The page zoom changed during capture. Please try again.');
         }
         const cur = steps[i];
@@ -652,12 +657,15 @@ async function runFrames(
       for (let round = 0; round < 2 && planner.gaps().length > 0; round++) {
         for (const gap of planner.gaps()) {
           if (capture.cancelled) throw new CaptureError('Capture cancelled.', 'cancelled');
+          // Place the gap well inside the viewport (not at its edge) so scroll
+          // snapping cannot make the retry miss it again.
+          const aim = retryScrollTarget(gap, view);
           const geom = await callAgent(tabId, {
             kind: 'agent.scroll',
             session: capture.id,
             scroller: target.scroller,
-            x: gap.x,
-            y: gap.y,
+            x: aim.x,
+            y: aim.y,
             fixed: fixedFor(settings, gap.y <= planner.region.y + 1 ? 0 : 1, 3),
             settleMs: settings.capture.settleDelayMs,
           });

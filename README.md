@@ -107,7 +107,7 @@ npm run build
 npm run zip
 ```
 
-This produces `.output/frameora-1.0.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+This produces `.output/frameora-1.0.1-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ### Keyboard shortcuts
 

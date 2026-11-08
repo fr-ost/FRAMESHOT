@@ -2,7 +2,7 @@
   "name": "frameora",
   "description": "Frameora: Free Screenshot & Full Page Capture — capture, edit, organize, and export screenshots locally in your browser.",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "author": "Unique Labs",
   "license": "UNLICENSED",

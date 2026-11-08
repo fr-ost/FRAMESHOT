@@ -64,14 +64,14 @@ export interface ExtFixture {
   requests: string[];
 }
 
-export async function launchExtension(opts: { deviceScaleFactor?: number } = {}): Promise<{ context: BrowserContext; sw: Worker; extId: string }> {
+export async function launchExtension(opts: { deviceScaleFactor?: number; windowHeight?: number } = {}): Promise<{ context: BrowserContext; sw: Worker; extId: string }> {
   if (!fs.existsSync(path.join(EXT_DIR, 'manifest.json'))) {
     throw new Error('E2E build missing. Run `npm run build:e2e` first.');
   }
   const args = [`--disable-extensions-except=${EXT_DIR}`, `--load-extension=${EXT_DIR}`];
   if (opts.deviceScaleFactor) {
     // Real (non-emulated) high-DPI: let the forced scale factor reach the page.
-    args.push(`--force-device-scale-factor=${opts.deviceScaleFactor}`, '--window-size=1280,800');
+    args.push(`--force-device-scale-factor=${opts.deviceScaleFactor}`, `--window-size=1280,${opts.windowHeight ?? 800}`);
   }
   const context = await chromium.launchPersistentContext('', {
     channel: 'chromium',

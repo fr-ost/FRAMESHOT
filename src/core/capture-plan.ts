@@ -25,6 +25,22 @@ export const DEFAULT_CANVAS_LIMITS: CanvasLimits = {
   maxPixels: 100_000_000,
 };
 
+/**
+ * Device pixels per CSS pixel of a captured frame. The ratio measured from the
+ * frame (image width / innerWidth) is slightly off at fractional scales
+ * because innerWidth is a rounded integer (e.g. 2244 / 1282 = 1.7504 instead
+ * of 1.75), so the exact devicePixelRatio is used whenever it agrees with the
+ * frame. When it does not (e.g. emulated device metrics), the measured ratio
+ * wins because it describes the pixels actually captured.
+ */
+export function frameScale(imageWidth: number, innerWidth: number, devicePixelRatio?: number): number {
+  const measured = innerWidth > 0 ? imageWidth / innerWidth : 1;
+  if (devicePixelRatio && devicePixelRatio > 0 && Math.abs(measured - devicePixelRatio) / devicePixelRatio < 0.01) {
+    return devicePixelRatio;
+  }
+  return measured;
+}
+
 /** Chrome allows at most 2 captureVisibleTab calls per second per extension. */
 export const MIN_CAPTURE_INTERVAL_MS = 520;
 
@@ -101,6 +117,11 @@ export interface DrawOp {
   dest: Rect;
   /** Content-space rect this op paints. */
   content: Rect;
+  /**
+   * Extra operations that fill sub-pixel rounding slivers next to `dest` by
+   * repeating its edge pixels (see StitchPlanner.sliver).
+   */
+  extra?: DrawOp[];
 }
 
 /**
@@ -185,29 +206,74 @@ export class StitchPlanner {
     return { x: this.region.x + d.x / os, y: this.region.y + d.y / os, w: d.w / os, h: d.h / os };
   }
 
+  /**
+   * Largest gap (output px) treated as a rounding sliver rather than missing
+   * content: one CSS pixel plus one device pixel. Chrome reports integer CSS
+   * sizes (scrollHeight, clientHeight) rounded from fractional layout values
+   * and snaps scroll offsets to device pixels, so at fractional device scales
+   * (125%/150%/175% display scaling, page zoom) the last device pixel row of a
+   * page can be unreachable by any scroll position. Such slivers are filled by
+   * repeating the adjacent captured row; anything larger is real missing
+   * content and is still reported by gaps().
+   */
+  get sliver(): number {
+    return Math.ceil(this.outputScale) + 1;
+  }
+
   addFrame(frame: FrameInput, imageSize: { width: number; height: number }): DrawOp | null {
     const avail = this.available(frame, imageSize);
     if (!avail) return null;
     const a = avail.rect;
+    const aBottom = a.y + a.h;
+    const aRight = a.x + a.w;
     let top = a.y;
     const prevBottom = this.coveredBottomBefore(frame.row);
     if (Number.isFinite(prevBottom)) top = Math.max(top, prevBottom);
     if (frame.isLastRow && frame.bottomFixedHeight && frame.bottomFixedHeight > 0) {
       // Re-paint the strip where a bottom-anchored fixed element now appears.
       const strip = Math.round(frame.bottomFixedHeight * this.outputScale);
-      top = Math.min(top, Math.max(a.y, a.y + a.h - strip));
+      top = Math.min(top, Math.max(a.y, aBottom - strip));
     }
     let left = a.x;
     const prevRight = this.rowRight.get(frame.row);
     if (prevRight !== undefined) left = Math.max(left, prevRight);
 
-    this.rowBottoms.set(frame.row, Math.max(this.rowBottoms.get(frame.row) ?? -Infinity, a.y + a.h));
-    this.rowRight.set(frame.row, Math.max(prevRight ?? -Infinity, a.x + a.w));
+    // Rounding slivers between this frame and what is already painted (or the
+    // region edges) are filled from this frame's own edge pixels.
+    const s = this.sliver;
+    const refTop = Number.isFinite(prevBottom) ? prevBottom : 0;
+    const refLeft = prevRight ?? 0;
+    const bleedTop = top > refTop && top - refTop <= s ? top - refTop : 0;
+    const bleedLeft = left > refLeft && left - refLeft <= s ? left - refLeft : 0;
+    const bleedBottom = aBottom < this.outputHeight && this.outputHeight - aBottom <= s ? this.outputHeight - aBottom : 0;
+    const bleedRight = aRight < this.outputWidth && this.outputWidth - aRight <= s ? this.outputWidth - aRight : 0;
 
-    const dest: Rect = { x: left, y: top, w: a.x + a.w - left, h: a.y + a.h - top };
+    this.rowBottoms.set(frame.row, Math.max(this.rowBottoms.get(frame.row) ?? -Infinity, aBottom + bleedBottom));
+    this.rowRight.set(frame.row, Math.max(prevRight ?? -Infinity, aRight + bleedRight));
+
+    const dest: Rect = { x: left, y: top, w: aRight - left, h: aBottom - top };
     if (dest.w <= 0 || dest.h <= 0) return null;
-    this.painted.push(dest);
-    return { src: avail.toSrc(dest), dest, content: this.toContent(dest) };
+    const extra = this.bleedOps(dest, avail.toSrc, bleedTop, bleedBottom, bleedLeft, bleedRight);
+    this.painted.push({
+      x: dest.x - bleedLeft,
+      y: dest.y - bleedTop,
+      w: dest.w + bleedLeft + bleedRight,
+      h: dest.h + bleedTop + bleedBottom,
+    });
+    return { src: avail.toSrc(dest), dest, content: this.toContent(dest), ...(extra.length ? { extra } : {}) };
+  }
+
+  /** Ops that stretch the edge row/column of `dest` over adjacent slivers. */
+  private bleedOps(dest: Rect, toSrc: (d: Rect) => Rect, t: number, b: number, l: number, r: number): DrawOp[] {
+    const ops: DrawOp[] = [];
+    const op = (src: Rect, d: Rect): DrawOp => ({ src: toSrc(src), dest: d, content: this.toContent(d) });
+    const x0 = dest.x - l;
+    const w = dest.w + l + r; // vertical bleeds also cover the corners
+    if (l) ops.push(op({ x: dest.x, y: dest.y, w: 1, h: dest.h }, { x: x0, y: dest.y, w: l, h: dest.h }));
+    if (r) ops.push(op({ x: dest.x + dest.w - 1, y: dest.y, w: 1, h: dest.h }, { x: dest.x + dest.w, y: dest.y, w: r, h: dest.h }));
+    if (t) ops.push(op({ x: dest.x, y: dest.y, w: dest.w, h: 1 }, { x: x0, y: dest.y - t, w, h: t }));
+    if (b) ops.push(op({ x: dest.x, y: dest.y + dest.h - 1, w: dest.w, h: 1 }, { x: x0, y: dest.y + dest.h, w, h: b }));
+    return ops;
   }
 
   /**
@@ -278,4 +344,16 @@ export function fitScale(width: number, height: number, limits: CanvasLimits = D
   const byDim = Math.min(limits.maxDimension / width, limits.maxDimension / height);
   const byArea = Math.sqrt(limits.maxPixels / (width * height));
   return Math.min(1, byDim, byArea);
+}
+
+/**
+ * Scroll position (visible-window origin, content coordinates) used to retry a
+ * gap. The gap is placed a third of the way into the viewport rather than at
+ * its very edge, so device-pixel scroll snapping cannot make it miss again.
+ */
+export function retryScrollTarget(gap: Rect, view: { w: number; h: number }): { x: number; y: number } {
+  return {
+    x: gap.x > 0 ? Math.max(0, gap.x - view.w / 3) : 0,
+    y: gap.y > 0 ? Math.max(0, gap.y - view.h / 3) : 0,
+  };
 }

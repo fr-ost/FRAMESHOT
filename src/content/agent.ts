@@ -59,12 +59,26 @@ function resolveToken(token: string): Element {
   return el;
 }
 
+/**
+ * Size of the window's visible area (excluding scrollbars) in CSS px.
+ *
+ * clientWidth/clientHeight are integers rounded down from the real layout
+ * viewport (e.g. 717 for 717.333 at 150% display scaling). Using them would
+ * understate every frame by a fraction of a pixel and leave the last device
+ * pixel row of a page uncapturable, so the fractional visualViewport size is
+ * preferred whenever it agrees with them (i.e. when not pinch-zoomed).
+ */
 function viewportSize(): { w: number; h: number } {
   const de = document.documentElement;
   const backCompat = document.compatMode === 'BackCompat';
-  const w = backCompat ? window.innerWidth : de.clientWidth || window.innerWidth;
-  const h = backCompat ? window.innerHeight : de.clientHeight || window.innerHeight;
-  return { w: Math.min(w, window.innerWidth), h: Math.min(h, window.innerHeight) };
+  let w = Math.min(backCompat ? window.innerWidth : de.clientWidth || window.innerWidth, window.innerWidth);
+  let h = Math.min(backCompat ? window.innerHeight : de.clientHeight || window.innerHeight, window.innerHeight);
+  const vv = window.visualViewport;
+  if (vv && Math.abs(vv.scale - 1) < 1e-3) {
+    if (Math.abs(vv.width - w) < 1) w = vv.width;
+    if (Math.abs(vv.height - h) < 1) h = vv.height;
+  }
+  return { w, h };
 }
 
 function documentScrollSize(): { w: number; h: number } {
@@ -151,9 +165,26 @@ function windowOps(): ScrollerOps {
 }
 
 function elementOps(el: Element): ScrollerOps {
+  // Fractional client box (padding box minus scrollbars). clientWidth/Height
+  // are rounded integers; the fractional size keeps frames exact (see
+  // viewportSize). Falls back to the integer box when they disagree by a
+  // pixel or more (e.g. CSS transforms).
   const clientBox = (): Rect => {
     const r = el.getBoundingClientRect();
-    return { x: r.left + el.clientLeft, y: r.top + el.clientTop, w: el.clientWidth, h: el.clientHeight };
+    const cs = getComputedStyle(el);
+    const bl = parseFloat(cs.borderLeftWidth) || 0;
+    const br = parseFloat(cs.borderRightWidth) || 0;
+    const bt = parseFloat(cs.borderTopWidth) || 0;
+    const bb = parseFloat(cs.borderBottomWidth) || 0;
+    const he = el as HTMLElement;
+    const scrollbarW = Math.max(0, (he.offsetWidth ?? 0) - el.clientWidth - Math.round(bl + br));
+    const scrollbarH = Math.max(0, (he.offsetHeight ?? 0) - el.clientHeight - Math.round(bt + bb));
+    let w = r.width - bl - br - scrollbarW;
+    let h = r.height - bt - bb - scrollbarH;
+    if (!(Math.abs(w - el.clientWidth) < 1)) w = el.clientWidth;
+    if (!(Math.abs(h - el.clientHeight) < 1)) h = el.clientHeight;
+    const x = r.left + (cs.direction === 'rtl' ? el.clientLeft : bl);
+    return { x, y: r.top + bt, w, h };
   };
   const visibleViewport = (): Rect => {
     const v = viewportSize();
@@ -380,7 +411,13 @@ async function scrollStep(req: Extract<AgentRequest, { kind: 'agent.scroll' }>):
   const cur = ops.getScroll();
   const offX = before.x - cur.x;
   const offY = before.y - cur.y;
-  ops.setScroll(req.x - offX, req.y - offY);
+  // At (or past) the end, ask for "as far as possible": the browser then
+  // clamps to its true, possibly fractional, maximum scroll offset, which the
+  // integer scrollHeight/clientHeight arithmetic can miss by a sub-pixel.
+  const total = ops.contentSize();
+  const atEndX = req.x > 0 && req.x >= total.w - before.w - 1;
+  const atEndY = req.y > 0 && req.y >= total.h - before.h - 1;
+  ops.setScroll(atEndX ? total.w + 1000 : req.x - offX, atEndY ? total.h + 1000 : req.y - offY);
   const bottomFixedHeight = setFixedVisibility(req.fixed);
   await nextPaint();
   if (req.settleMs > 0) await sleep(req.settleMs);
@@ -395,6 +432,7 @@ async function scrollStep(req: Extract<AgentRequest, { kind: 'agent.scroll' }>):
     bottomFixedHeight: req.fixed === 'all' || req.fixed === 'bottom' ? bottomFixedHeight : 0,
     innerWidth: window.innerWidth,
     innerHeight: window.innerHeight,
+    devicePixelRatio: window.devicePixelRatio,
   };
 }
 

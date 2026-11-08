@@ -2,6 +2,19 @@
 
 All notable changes to Frameora are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] — 2026-11-08
+
+### Fixed
+- **Full-page captures failing with "about 1 px missing"** on displays with fractional scaling (125%, 150%, 175% in Windows display settings) or non-100% page zoom, regardless of the scroll delay. Chrome reports the viewport and page height as rounded integers (for example 717 px for a 717.333 px viewport), so Frameora underestimated each frame by a fraction of a pixel and could never reach the page's last device-pixel row. Frameora now:
+  - measures the true fractional viewport (`visualViewport`) and fractional scrolling-panel boxes,
+  - uses the exact device pixel ratio when it matches the captured frames,
+  - scrolls to the browser's real end position on the last step,
+  - aims retry frames so gaps land inside the viewport, and
+  - fills rounding slivers of at most one CSS pixel by repeating the adjacent row. Real missing content still fails the capture, as before.
+
+### Tests
+- New realistic rounding simulation (2,000 scenarios across 10 device scales) and real-browser captures at 125%, 150%, and 175% device scale on pages with fractional heights.
+
 ## [1.0.0] — 2026-11-07
 
 First release candidate. Not yet published to the Chrome Web Store.

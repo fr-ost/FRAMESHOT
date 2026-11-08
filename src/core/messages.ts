@@ -92,6 +92,7 @@ export interface FrameGeometry {
   bottomFixedHeight: number;
   innerWidth: number;
   innerHeight: number;
+  devicePixelRatio: number;
 }
 
 export interface ScrollerInfo {

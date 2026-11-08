@@ -54,6 +54,7 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 |---|---|
 | `capture.spec.ts` | Visible capture; full page (pixel-exact, restores scroll and `outerHTML`); sticky header, sticky section, and fixed footer each exactly once; long table with sticky thead; lazy images; infinite scroll; app-shell panel; horizontal overflow; element picker; area drag; area extended by scrolling (multi-frame); scrolling-panel capture; max-height limit; split into parts; scale mode; cancel restores page; Esc cancels; stop & save partial; dynamic page; image-heavy page; chrome:// refused |
 | `hidpi.spec.ts` | Real 2× device pixels (`--force-device-scale-factor=2`): full page 2560 px wide with 240 px bands; sticky handling at 2× |
+| `fractional-dpi.spec.ts` | Real fractional device scales 1.25, 1.5 and 1.75 (odd window heights) on a page with fractional band heights, a long article, and the sticky-header page: every capture succeeds, matches the page height within a device pixel, and keeps all bands in order. Before the 1.0.1 fix, five of these nine failed with "about 1 px missing". |
 | `editor.spec.ts` | All 12 tools create objects; undo/redo, duplicate, delete, layer list; PNG export with redaction exactly black, blur and pixelation measurably destroying detail, annotation present, original unchanged; JPEG/WebP/PDF magic bytes and redaction kept (PDF image extracted and checked losslessly); clipboard read back; crop → rotate → flip → resize with orientation verified by pixel; autosave and reopen; double-click text editing |
 | `app.spec.ts` | Library search, domain filter, favourites, rename and tags, collections, sort, delete with confirmation, list view; reopen in editor; bulk ZIP (validated by Python) and combined PDF (pdf-lib); thumbnail refresh when leaving the editor quickly; composer 1200×630 export plus save to library; popup full-page capture with live progress bar and Stop button; shortcut commands declared and executed; settings theme, default format, filename template, clear data, persistence; image import |
 | `privacy.spec.ts` | CSP blocks fetch, beacons, and remote images from extension pages and the SW; capture → edit → export makes no requests except the fixture page's own; Studio, editor, and export work offline |
@@ -72,6 +73,7 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 These counts come from the development runs in this session. The release run below supersedes them.
 
 ### Defects found by the tests and fixed
+- **"About 1 px missing" failures at fractional display scaling (1.0.1)**: reported by a user on a real display. Reproduced first with `tests/unit/stitch-rounding.test.ts` (a model of Chrome's integer rounding: 1,722 of 2,400 scenarios failed) and in real Chromium with `fractional-dpi.spec.ts` (5 of 9 failed with the exact message), then fixed; both now pass.
 - **1-device-pixel seams at fractional scales** (for example 125% zoom): the unit test in `capture-plan.test.ts` exposed it. Coverage is now tracked in output device pixels.
 - **App-shell captures blank after the first frame**: the main scroller is itself `position: fixed` and was being hidden. Scroller ancestors are now exempt.
 - **Area handle drags ignored**: listeners on a closed shadow root's host can't see internal targets. Listeners moved into the shadow root.
@@ -98,25 +100,27 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 
 ## Final verification run
 
-Run on 2026-11-07 against commit `3c834da`+ (Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
+Run on 2026-11-08 for release 1.0.1 (Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
 
 | Suite | Result |
 |---|---|
-| Unit (`npm test`, 7 files) | **89 / 89 passed** |
+| Unit (`npm test`, 8 files, including the 2,000-scenario rounding simulation) | **95 / 95 passed** |
 | E2E `capture.spec.ts` | **21 / 21 passed** |
 | E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
-| E2E `editor.spec.ts` | **7 / 7 passed** (also passed 3 consecutive repeats) |
+| E2E `fractional-dpi.spec.ts` (real 1.25× / 1.5× / 1.75× device scale) | **9 / 9 passed** |
+| E2E `editor.spec.ts` | **7 / 7 passed** |
 | E2E `app.spec.ts` (library, composer, popup, shortcuts, settings, import) | **8 / 8 passed** |
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
-| **E2E total** | **41 / 41 passed** (2.2 min) |
+| **E2E total** | **50 / 50 passed** (3.3 min) |
 | Production bundle audit (`npm run check:bundle`) | **passed** — MV3, 6 permissions, no host permissions, strict CSP, no remote URLs/code, no eval, no test hooks, no source maps |
-| Packaged ZIP smoke test (`.output/frameora-1.0.0-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
+| Packaged ZIP smoke test (`.output/frameora-1.0.1-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
 
 Defects found by these suites and fixed during development (each now covered by a test):
+- 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.
 - 1-device-pixel stitching seam at fractional device scales (e.g. 125% zoom) — planner now tracks coverage in output pixels.
 - App-shell pages: the scrolling panel itself is `position: fixed` and was hidden after the first frame.
 - Area selection handles were not detectable through the closed shadow root.
 - Text tool lost focus (and occasionally the first keystroke) right after clicking.
 - Library thumbnail was not refreshed when leaving the editor within ~1 s of an edit.
 
-Still requires a manual check before store submission: the real toolbar-icon click and popup, physical keyboard shortcuts, right-click menu items, Windows/macOS classic scrollbars and fonts, real displays at 125%/150% zoom, and very long real-world sites.
+Still requires a manual check before store submission: the real toolbar-icon click and popup, physical keyboard shortcuts, right-click menu items, Windows/macOS classic scrollbars and fonts, real displays at 125%/150% scaling (now covered by forced device scales in headless Chromium, but not yet on physical Windows/macOS displays), and very long real-world sites.

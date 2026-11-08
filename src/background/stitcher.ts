@@ -86,6 +86,11 @@ export class SegmentedCanvas {
   }
 
   draw(image: CanvasImageSource, op: DrawOp): void {
+    this.drawOne(image, op);
+    for (const extra of op.extra ?? []) this.drawOne(image, extra);
+  }
+
+  private drawOne(image: CanvasImageSource, op: DrawOp): void {
     const { src, dest } = op;
     const scaleY = src.h / dest.h;
     for (const seg of this.segments) {
