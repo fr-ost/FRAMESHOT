@@ -31,6 +31,7 @@ The first version published on the Chrome Web Store. It includes everything from
   - An unplugged camera froze the camera bubble on its last frame.
   - The last moment after pressing Stop could be recorded while the poster frame was taken.
 - GIF dialog: the real video length arriving after opening no longer resets a trim you already made.
+- Pressing Stop in the popup could, rarely and under heavy load, fail to reach the recorder (the message was sent on a channel closed 50 ms later). Commands now use one long-lived channel, and Stop is sent again if the recorder hasn't reacted a moment later.
 - Interface (found in an internal review):
   - Switching screens could briefly show the animated background over the page; now only the page animates.
   - Library: scrolling a large library loaded every page at once (each "load more" triggered the next); it now loads 60 items per scroll, and thumbnails start loading shortly before they come into view.

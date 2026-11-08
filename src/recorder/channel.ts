@@ -73,12 +73,23 @@ export function queryRecorder(timeoutMs = 400): Promise<RecorderPublicState | nu
   });
 }
 
+/** One long-lived channel per page for commands (closing a channel right after posting can drop the message). */
+let commandChannel: BroadcastChannel | null = null;
+
 export function sendRecorderCommand(command: RecorderCommand): void {
-  const ch = channel();
+  commandChannel ??= channel();
+  const ch = commandChannel;
   if (!ch) return;
   ch.postMessage({ type: 'command', command } satisfies RecorderMessage);
-  // Give the message a moment to be dispatched before closing.
-  setTimeout(() => ch.close(), 50);
+  if (command === 'stop') {
+    // Stopping is the one command that must never be lost, and it is idempotent:
+    // if the recorder still reports recording a moment later, say it again.
+    setTimeout(() => {
+      void readRecorderState().then((state) => {
+        if (state && (state.phase === 'recording' || state.phase === 'paused')) ch.postMessage({ type: 'command', command } satisfies RecorderMessage);
+      });
+    }, 1200);
+  }
 }
 
 export async function readRecorderState(): Promise<RecorderPublicState | null> {
