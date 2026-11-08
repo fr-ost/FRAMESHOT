@@ -100,22 +100,24 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 
 ## Final verification run
 
-Run on 2026-11-08 for release 1.0.1 (Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
+Run on 2026-11-08 for release 1.1.0 (FrameShot rename + UI redesign; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
 
 | Suite | Result |
 |---|---|
 | Unit (`npm test`, 8 files, including the 2,000-scenario rounding simulation) | **95 / 95 passed** |
-| E2E `capture.spec.ts` | **21 / 21 passed** |
+| E2E `capture.spec.ts` (incl. selection cancel / tab-close regressions) | **23 / 23 passed** |
 | E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
 | E2E `fractional-dpi.spec.ts` (real 1.25× / 1.5× / 1.75× device scale) | **9 / 9 passed** |
 | E2E `editor.spec.ts` | **7 / 7 passed** |
 | E2E `app.spec.ts` (library, composer, popup, shortcuts, settings, import) | **8 / 8 passed** |
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
-| **E2E total** | **50 / 50 passed** (3.3 min) |
-| Production bundle audit (`npm run check:bundle`) | **passed** — MV3, 6 permissions, no host permissions, strict CSP, no remote URLs/code, no eval, no test hooks, no source maps |
-| Packaged ZIP smoke test (`.output/frameshot-1.0.1-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
+| **E2E total** | **52 / 52 passed** (4.1 min) |
+| Production bundle audit (`npm run check:bundle`) | **passed** — MV3, 6 permissions, no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps (the only URL strings are inert: library namespaces, the Tailwind license banner, and the footer credit link) |
+| Packaged ZIP smoke test (`.output/frameshot-1.1.0-chrome.zip`, unzipped and loaded unpacked) | **passed** — service worker starts, welcome page opens on install, context menus registered, Studio / Settings / Popup / Options render with zero console errors, test hook absent |
+| Visual QA (light and dark) | Library, editor, composer, settings, welcome, compare, popup and the in-page selection overlay screenshotted in both themes and reviewed |
 
 Defects found by these suites and fixed during development (each now covered by a test):
+- 1.1.0: popup stuck on "Select what to capture…" after the tab closed mid-selection (found during visual QA); two-column layouts ignored by Tailwind v4.
 - 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.
 - 1-device-pixel stitching seam at fractional device scales (e.g. 125% zoom) — planner now tracks coverage in output pixels.
 - App-shell pages: the scrolling panel itself is `position: fixed` and was hidden after the first frame.
