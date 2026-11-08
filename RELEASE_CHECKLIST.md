@@ -20,7 +20,7 @@
 ## 3. Build & package
 - [ ] `npm run build`, then confirm `.output/chrome-mv3/manifest.json`:
   - [ ] name "FrameShot: Free Screen Recorder & Full Page Screenshot", correct description and version
-  - [ ] permissions are exactly `activeTab, scripting, storage, unlimitedStorage, downloads, contextMenus`
+  - [ ] permissions are exactly `activeTab, scripting, storage, unlimitedStorage, downloads, contextMenus, offscreen`
   - [ ] **no `host_permissions`**
   - [ ] the CSP includes `connect-src 'self' blob: data:` and `script-src 'self'`
   - [ ] icons 16/32/48/96/128 are present
@@ -50,8 +50,8 @@
 
 ## 5. Store assets
 - [ ] Listing copy from [STORE_LISTING.md](STORE_LISTING.md) reviewed: no unverifiable claims, and "unlimited" qualified.
-- [ ] Five 1280×800 screenshots made from non-sensitive demo pages (no third-party trademarks), including the screen recorder.
-- [ ] Promotional tiles (440×280; optionally 1400×560).
+- [ ] Five 1280×800 screenshots and the 440×280 / 1400×560 tiles: regenerate with `npm run store:assets` (real UI, fictional demo page on the reserved domain app.example.com) and review them before uploading. Captions are in STORE_LISTING.md.
+- [ ] Sounds: shutter after toolbar/menu/shortcut captures, countdown and chimes while recording, volume and off switch; GIF export of a 30 s clip opens correctly in a browser, Slack and macOS Preview.
 - [ ] Privacy practices form filled from [PRIVACY_DISCLOSURE.md](PRIVACY_DISCLOSURE.md).
 - [ ] Permission justifications pasted from [STORE_LISTING.md](STORE_LISTING.md).
 - [ ] Category, language (English), and support contact set.

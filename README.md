@@ -54,7 +54,8 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 - Stop from the recorder, from Chrome's **Stop sharing** bar, from the popup, from a floating pill on any Studio screen, or with a keyboard shortcut you assign.
 - **MP4 (H.264)** that plays everywhere, or WebM; 720p to 4K; 15, 30, or 60 fps. WebM files get a proper duration so they seek in every player.
 - Recordings are saved to the library **as they are recorded** (in roughly 2-second chunks), so a crash or closed tab loses only the last few seconds; the recorder offers to recover an unfinished recording.
-- A player for each recording: download, rename, favourite, delete, and **Save frame** to turn any moment into a screenshot you can annotate.
+- A player for each recording: download, rename, favourite, delete, playback speed, keyboard shortcuts, and **Save frame** to turn any moment into a screenshot you can annotate.
+- **Export as GIF**: trim the part you want (with a preview), pick the width (320–800 px), frame rate (10–20 fps) and looping. Made on your device in a background worker, with one steady palette, unchanged pixels stored once and identical frames merged, so screen recordings make small, clean GIFs.
 - Needs no extra permissions. Chrome asks before the microphone or camera is used, and shows that the screen is being shared.
 
 ### Editor
@@ -92,6 +93,10 @@ The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md
 ### Settings
 Theme (system, light, dark), default format and quality, filename template, download folder, ask where to save, capture behaviour (fixed-element handling, lazy-content preload, animation freezing, horizontal overflow, scroll delay, maximum height, oversize handling, what happens after a capture), screen-recording defaults (format, quality, frame rate, countdown, tab sound), PDF page size and margin, a keyboard shortcut overview, storage, privacy, and about.
 
+### Sounds and shortcuts
+- Gentle sound effects: a camera shutter when a screenshot is saved (also for captures started from the toolbar, menu or keyboard), a countdown, start/stop and pause/resume chimes for recordings, and a chime when an export is ready. Recording chimes finish before recording starts or resumes, so they are never recorded. Turn them off or change the volume in **Settings → Sounds**, or with the speaker button in the popup.
+- Press **?** anywhere in the Studio for every keyboard shortcut. The library supports **/** (search), **Ctrl/⌘ + A**, **Delete** and **Esc**; the player supports Space, ←/→, `,` `.`, F, M, S and G.
+
 ### Review prompt
 After you have used FrameShot for a while (at least 5 captures or recordings and 3 days), it may ask — at most three times, 30 days apart, never in the middle of a task — whether you would rate it on the Chrome Web Store. Everyone sees the same choices: **Rate FrameShot**, **Not now**, or **Don't ask again**. It follows the Chrome Web Store's rules: no incentives, no requests for a particular rating, and no filtering of unhappy users. Rating is also available any time under **Settings → About**.
 
@@ -125,7 +130,7 @@ npm run build
 npm run zip
 ```
 
-This produces `.output/frameshot-1.2.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+This produces `.output/frameshot-1.3.0-chrome.zip`, the archive to upload to the Chrome Web Store. Do not submit without owner approval; see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ### Keyboard shortcuts
 
@@ -214,7 +219,8 @@ Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
 | `src/export/` | PDF writer, ZIP writer, downloads/clipboard, export service, export dialog |
 | `src/db/` | IndexedDB persistence and change notifications |
 | `src/library/` | Library UI, filtering, duplicate detection, importer |
-| `src/recorder/` | Screen recorder: engine, camera compositor, audio mixer, format choice, WebM duration repair, recorder and player screens, popup/badge channel |
+| `src/recorder/` | Screen recorder: engine, camera compositor, audio mixer, format choice, WebM duration repair, GIF export (worker encoder), recorder and player screens, popup/badge channel |
+| `src/core/sound-synth.ts`, `src/ui/sounds.ts`, `src/background/sound.ts`, `src/entrypoints/offscreen/` | Synthesized sound effects: in pages directly, and for the service worker through an offscreen document |
 | `src/settings/`, `src/popup/`, `src/app/`, `src/ui/` | Settings, popup, Studio shell/welcome/compare, design-system components |
 
 Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
@@ -227,7 +233,7 @@ Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 - Screenshots, recordings, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
 - The microphone and camera are used only while you record, after you switch them on, and Chrome asks for your permission. Screen recording uses Chrome's share picker, so you choose exactly what is recorded.
 - Extension pages run under a strict Content Security Policy that **blocks all network connections** (`connect-src 'self' blob: data:`). This is verified by an automated test.
-- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added **no** permissions.
+- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added no permissions; `offscreen` (1.3) only plays sound effects for background captures and shows no install warning.
 - Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
 
 See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).

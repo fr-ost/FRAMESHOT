@@ -30,7 +30,7 @@ import { withFolder } from '../../core/filename';
 import type { Settings } from '../../core/settings';
 import { isSafeLink } from '../../core/restricted';
 import type { ExportFormat, LibraryItem } from '../../core/types';
-import { deleteItems, getDoc, getItem, getOriginal, listItems, putDoc, putThumb, replaceOriginal, updateItem } from '../../db/db';
+import { deleteItems, getDoc, getItem, getOriginal, listItems, onLibraryEvent, putDoc, putThumb, replaceOriginal, updateItem } from '../../db/db';
 import { copyImageBlob, displayPath, downloadBlob, DownloadCancelledError } from '../../export/deliver';
 import { ExportDialog, type ExportChoice } from '../../export/ExportDialog';
 import { encodeCanvas, filenameFor } from '../../export/service';
@@ -147,11 +147,14 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
 
   // ── Autosave (non-destructive document + refreshed thumbnail) ──
   const lastSaved = useRef(state.revision);
+  // Set once the screenshot no longer exists (deleted here or in another tab): nothing more is written.
+  const gone = useRef(false);
+  const [deletedElsewhere, setDeletedElsewhere] = useState(false);
   const thumbTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const thumbDirty = useRef(false);
   const refreshThumb = useCallback(() => {
     clearTimeout(thumbTimer.current);
-    if (!thumbDirty.current) return;
+    if (!thumbDirty.current || gone.current) return;
     thumbDirty.current = false;
     try {
       // Rendering is synchronous, so this is safe even while the editor unmounts.
@@ -167,11 +170,19 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
 
   const saveNow = useCallback(async () => {
     const s = store.getState();
-    if (s.revision === lastSaved.current) return;
+    if (s.revision === lastSaved.current || gone.current) return;
     const rev = s.revision;
     setSaveState('saving');
     try {
       const pristine = isPristine(s.doc);
+      if (!(await getItem(item.id))) {
+        // Deleted in another tab: don't leave orphaned edits behind.
+        gone.current = true;
+        lastSaved.current = rev;
+        setDeletedElsewhere(true);
+        setSaveState('saved');
+        return;
+      }
       await putDoc(item.id, s.doc);
       const next = await updateItem(item.id, {
         hasEdits: !pristine,
@@ -183,7 +194,9 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
       setSaveState('saved');
       thumbDirty.current = true;
       clearTimeout(thumbTimer.current);
-      thumbTimer.current = setTimeout(refreshThumb, 1200);
+      // Soon after saving, so the library never shows a redacted screenshot un-redacted
+      // (e.g. when the tab is closed right after an edit); the render is small and cheap.
+      thumbTimer.current = setTimeout(refreshThumb, 400);
     } catch (err) {
       setSaveState('error');
       toast.error(err instanceof Error ? err.message : 'Could not save your edits.');
@@ -306,6 +319,9 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
     const ok = await confirm({ title: 'Delete screenshot?', message: 'It will be removed from your library on this device.', confirmLabel: 'Delete', danger: true });
     if (!ok) return;
     lastSaved.current = store.getState().revision; // nothing left to save
+    gone.current = true;
+    thumbDirty.current = false;
+    clearTimeout(thumbTimer.current);
     await deleteItems([item.id]);
     toast.success('Screenshot deleted.');
     navigate('/');
@@ -319,6 +335,21 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
     }
     setItem(await updateItem(item.id, { name: trimmed.slice(0, 200) }));
   };
+
+  // Notice when this screenshot is deleted in another tab.
+  useEffect(() => {
+    return onLibraryEvent((e) => {
+      if (gone.current) return;
+      if (e.kind === 'cleared' || (e.kind === 'items-changed' && (!e.ids || e.ids.includes(item.id)))) {
+        void getItem(item.id).then((still) => {
+          if (!still && !gone.current) {
+            gone.current = true;
+            setDeletedElsewhere(true);
+          }
+        });
+      }
+    });
+  }, [item.id]);
 
   // Leaving or re-entering the crop tool forgets a locked aspect ratio (the bar starts at "Free").
   useEffect(() => {
@@ -576,6 +607,14 @@ function EditorWorkspace({ item: initialItem, base, store, siblings, settings, d
         </div>
       )}
 
+      {deletedElsewhere && (
+        <div className="border-b border-warning/25 bg-warning-soft px-4 py-2 text-[13px] text-warning" role="alert">
+          This screenshot was deleted (perhaps in another tab), so changes here can no longer be saved.{' '}
+          <button type="button" className="font-semibold underline" onClick={() => navigate('/')}>
+            Back to library
+          </button>
+        </div>
+      )}
       <div className="fr-canvas-bg flex min-h-0 flex-1">
         <Toolbar tool={state.tool} onTool={store.setTool} />
         <div className="relative flex min-w-0 flex-1 flex-col">

@@ -75,6 +75,18 @@ function useStatus(): CaptureStatus | null {
   return status;
 }
 
+/** The keyboard shortcuts Chrome actually assigned (they can be unset or changed). */
+function useShortcuts(): Record<string, string> {
+  const [map, setMap] = useState<Record<string, string>>({});
+  useEffect(() => {
+    void chrome.commands
+      .getAll()
+      .then((all) => setMap(Object.fromEntries(all.filter((c) => c.name && c.shortcut).map((c) => [c.name!, c.shortcut!]))))
+      .catch(() => {});
+  }, []);
+  return map;
+}
+
 /** A recording running in a Studio tab, if any (verified to be alive). */
 function useRecording(): RecorderPublicState | null {
   const [state, setState] = useState<RecorderPublicState | null>(null);
@@ -106,6 +118,7 @@ export function PopupApp() {
   const tab = useActiveTab();
   const status = useStatus();
   const recording = useRecording();
+  const keys = useShortcuts();
   const [startedAt, setStartedAt] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [recent, setRecent] = useState<LibraryItem[]>([]);
@@ -220,15 +233,15 @@ export function PopupApp() {
                 <span className="block text-[12px] text-white/75">Scroll &amp; capture everything</span>
               </span>
               <span className="flex flex-col items-end gap-1.5">
-                <span className="rounded-md bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold text-white/85">Alt+Shift+F</span>
+                {keys['capture-full'] && <span className="rounded-md bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold text-white/85">{keys['capture-full']}</span>}
                 <ArrowRight size={16} className="text-white/80 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </button>
 
             <div className="grid grid-cols-3 gap-2">
-              <ModeCard i={1} icon={<Square size={19} />} label="Visible" hint="Alt+Shift+V" onClick={() => void start('visible')} disabled={disabled} testId="capture-visible" fullLabel="Visible area" />
-              <ModeCard i={2} icon={<SquareDashedMousePointer size={19} />} label="Area" hint="Alt+Shift+A" onClick={() => void start('area')} disabled={disabled} testId="capture-area" fullLabel="Selected area" />
-              <ModeCard i={3} icon={<Crosshair size={19} />} label="Element" hint="Alt+Shift+E" onClick={() => void start('element')} disabled={disabled} testId="capture-element" fullLabel="Element" />
+              <ModeCard i={1} icon={<Square size={19} />} label="Visible" hint={keys['capture-visible'] ?? ''} onClick={() => void start('visible')} disabled={disabled} testId="capture-visible" fullLabel="Visible area" />
+              <ModeCard i={2} icon={<SquareDashedMousePointer size={19} />} label="Area" hint={keys['capture-area'] ?? ''} onClick={() => void start('area')} disabled={disabled} testId="capture-area" fullLabel="Selected area" />
+              <ModeCard i={3} icon={<Crosshair size={19} />} label="Element" hint={keys['capture-element'] ?? ''} onClick={() => void start('element')} disabled={disabled} testId="capture-element" fullLabel="Element" />
             </div>
 
             {!recording && (
@@ -261,7 +274,7 @@ export function PopupApp() {
                 <FileStack size={15} className="text-primary" /> Scrolling panel
               </button>
               <label
-                className="flex h-10 items-center gap-1.5 rounded-[13px] border border-border bg-surface-solid/90 px-2.5 text-[12px] text-fg-muted shadow-card"
+                className="flex h-10 items-center gap-1.5 rounded-[13px] border border-border bg-surface-solid/90 px-2.5 text-[12px] text-fg-muted shadow-card focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring"
                 title="Delay before capturing the visible area (useful for menus and hover states)"
               >
                 <Clock size={14} className="text-primary" />
@@ -333,7 +346,7 @@ function ModeCard({
       disabled={disabled}
       data-testid={testId}
       aria-label={fullLabel}
-      title={`${fullLabel} (${hint})`}
+      title={hint ? `${fullLabel} (${hint})` : fullLabel}
       className="fr-stagger fr-lift fr-press group flex h-[88px] flex-col items-center justify-center gap-2 rounded-[16px] border border-border bg-surface-solid/90 text-center shadow-card disabled:cursor-not-allowed disabled:opacity-50"
       style={{ '--i': i } as CSSProperties}
     >
@@ -345,7 +358,7 @@ function ModeCard({
       </span>
       <span>
         <span className="block text-[12.5px] font-semibold leading-tight">{label}</span>
-        <span className="block text-[10px] text-fg-subtle">{hint}</span>
+        <span className="block h-[14px] text-[10px] text-fg-subtle">{hint}</span>
       </span>
     </button>
   );

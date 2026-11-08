@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Launch plan · Demo workspace</title>
+<style>
+  @font-face { font-family: 'Inter'; src: url('../promo/inter.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --ink:#14152b; --muted:#5b5d7a; --line:#e7e8f2; --brand:#5b5bf0; --brand2:#a855f7; --bg:#f6f7fb; }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color:var(--ink); background:var(--bg); }
+  .nav { position: sticky; top: 0; z-index: 5; display:flex; align-items:center; gap:28px; padding:14px 40px; background:rgba(255,255,255,.86); backdrop-filter: blur(12px); border-bottom:1px solid var(--line); }
+  .mark { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.01em; }
+  .mark i { width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg,var(--brand),var(--brand2)); display:block; }
+  .nav a { color:var(--muted); text-decoration:none; font-weight:500; font-size:14px; }
+  .nav .sp { flex:1 }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:11px; font-weight:600; font-size:14px; border:1px solid var(--line); background:#fff; color:var(--ink); }
+  .btn.primary { background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; border:0; box-shadow:0 8px 20px -10px rgba(91,91,240,.8); }
+  .hero { padding:56px 40px 24px; background: radial-gradient(1200px 400px at 20% -10%, rgba(91,91,240,.18), transparent 60%), radial-gradient(900px 400px at 100% 0%, rgba(168,85,247,.14), transparent 60%); }
+  .eyebrow { display:inline-block; padding:5px 12px; border-radius:999px; background:#ecebff; color:#4a46d8; font-weight:600; font-size:13px; }
+  h1 { font-size:44px; line-height:1.08; letter-spacing:-.03em; margin:16px 0 10px; }
+  .lead { color:var(--muted); font-size:17px; max-width:640px; }
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:8px 40px 28px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:18px 20px; box-shadow:0 1px 2px rgba(20,21,43,.04), 0 8px 24px -16px rgba(20,21,43,.18); }
+  .kpi .label { color:var(--muted); font-size:13px; font-weight:500 }
+  .kpi .value { font-size:28px; font-weight:700; letter-spacing:-.02em; margin-top:4px }
+  .kpi .delta { font-size:13px; font-weight:600; color:#15925a }
+  .grid2 { display:grid; grid-template-columns: 1.4fr 1fr; gap:16px; padding:0 40px 28px; }
+  h2 { font-size:18px; margin:0 0 14px; letter-spacing:-.01em }
+  .bars { display:flex; align-items:flex-end; gap:12px; height:180px; padding-top:8px }
+  .bars div { flex:1; border-radius:8px 8px 4px 4px; background:linear-gradient(180deg,#8b8cff,#5b5bf0); }
+  .bars div:nth-child(3n) { background:linear-gradient(180deg,#d8b4fe,#a855f7) }
+  .axis { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:8px }
+  .task { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .task:last-child { border-bottom:0 }
+  .dot { width:10px; height:10px; border-radius:50% }
+  .pill { margin-left:auto; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600 }
+  .done { background:#e7f8ef; color:#15925a } .doing { background:#fff4e0; color:#b26a00 } .todo { background:#eef0f6; color:#5b5d7a }
+  .timeline { padding:0 40px 28px }
+  .row { display:grid; grid-template-columns: 180px 1fr; align-items:center; gap:16px; padding:10px 0 }
+  .track { position:relative; height:26px; background:#eef0f6; border-radius:8px }
+  .track span { position:absolute; top:3px; bottom:3px; border-radius:6px; background:linear-gradient(90deg,#8b8cff,#a855f7); color:#fff; font-size:12px; font-weight:600; padding:2px 10px; white-space:nowrap }
+  table { width:100%; border-collapse:collapse }
+  th, td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); font-size:14px }
+  th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.06em }
+  .avatar { display:inline-flex; width:30px; height:30px; border-radius:50%; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:12px; margin-right:10px; vertical-align:middle }
+  .section { padding:0 40px 28px }
+  .form { display:grid; grid-template-columns:1fr 1fr; gap:16px }
+  .field label { display:block; font-size:13px; font-weight:600; color:var(--muted); margin-bottom:6px }
+  .field div { padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:#fbfbfe; font-size:15px }
+  footer { padding:28px 40px 40px; color:var(--muted); font-size:13px }
+</style>
+</head>
+<body>
+  <div class="nav"><div class="mark"><i></i>Demo workspace</div><a>Overview</a><a>Roadmap</a><a>Team</a><a>Billing</a><span class="sp"></span><span class="btn">Share</span><span class="btn primary">New task</span></div>
+  <section class="hero">
+    <span class="eyebrow">Q3 launch plan</span>
+    <h1>Ship the new onboarding<br />before September 30</h1>
+    <p class="lead">One place for the plan, the numbers and the people. Everything below is sample data for this demo page.</p>
+  </section>
+  <section class="kpis">
+    <div class="card kpi"><div class="label">Trial sign-ups</div><div class="value">12,480</div><div class="delta">▲ 18% vs. Q2</div></div>
+    <div class="card kpi"><div class="label">Activation rate</div><div class="value">46.2%</div><div class="delta">▲ 5.1 pts</div></div>
+    <div class="card kpi"><div class="label">Tasks done</div><div class="value">128 / 164</div><div class="delta">78% complete</div></div>
+    <div class="card kpi"><div class="label">Days to launch</div><div class="value">23</div><div class="delta" style="color:#5b5bf0">On track</div></div>
+  </section>
+  <section class="grid2">
+    <div class="card"><h2>Weekly sign-ups</h2>
+      <div class="bars"><div style="height:38%"></div><div style="height:52%"></div><div style="height:47%"></div><div style="height:63%"></div><div style="height:58%"></div><div style="height:71%"></div><div style="height:66%"></div><div style="height:82%"></div><div style="height:77%"></div><div style="height:91%"></div><div style="height:86%"></div><div style="height:97%"></div></div>
+      <div class="axis"><span>Jul 1</span><span>Jul 29</span><span>Aug 26</span><span>Sep 16</span></div>
+    </div>
+    <div class="card"><h2>This week</h2>
+      <div class="task"><span class="dot" style="background:#22c55e"></span>Final copy for the welcome email<span class="pill done">Done</span></div>
+      <div class="task"><span class="dot" style="background:#f59e0b"></span>Usability test: new sign-up form<span class="pill doing">In progress</span></div>
+      <div class="task"><span class="dot" style="background:#f59e0b"></span>Pricing page illustrations<span class="pill doing">In progress</span></div>
+      <div class="task"><span class="dot" style="background:#94a3b8"></span>Help-center articles (6)<span class="pill todo">To do</span></div>
+      <div class="task"><span class="dot" style="background:#94a3b8"></span>Launch-day checklist<span class="pill todo">To do</span></div>
+    </div>
+  </section>
+  <section class="timeline"><div class="card"><h2>Roadmap</h2>
+    <div class="row"><b>Research</b><div class="track"><span style="left:2%;width:22%">Interviews · Jul</span></div></div>
+    <div class="row"><b>Design</b><div class="track"><span style="left:18%;width:30%">Flows & visuals · Jul–Aug</span></div></div>
+    <div class="row"><b>Build</b><div class="track"><span style="left:36%;width:40%">Onboarding v2 · Aug–Sep</span></div></div>
+    <div class="row"><b>Launch</b><div class="track"><span style="left:74%;width:22%">Rollout · Sep</span></div></div>
+  </div></section>
+  <section class="section"><div class="card"><h2>Team</h2>
+    <table><thead><tr><th>Name</th><th>Role</th><th>Focus</th><th>Status</th></tr></thead><tbody>
+      <tr><td><span class="avatar" style="background:#6366f1">AM</span>Alex Morgan</td><td>Product lead</td><td>Launch plan</td><td><span class="pill done">Available</span></td></tr>
+      <tr><td><span class="avatar" style="background:#ec4899">SK</span>Sam Kim</td><td>Designer</td><td>Sign-up flow</td><td><span class="pill doing">Busy</span></td></tr>
+      <tr><td><span class="avatar" style="background:#14b8a6">JR</span>Jordan Reyes</td><td>Engineer</td><td>Onboarding v2</td><td><span class="pill done">Available</span></td></tr>
+      <tr><td><span class="avatar" style="background:#f59e0b">TL</span>Taylor Lee</td><td>Writer</td><td>Help center</td><td><span class="pill todo">Away</span></td></tr>
+    </tbody></table>
+  </div></section>
+  <section class="section" id="billing"><div class="card"><h2>Billing details</h2>
+    <div class="form">
+      <div class="field"><label>Billing email</label><div id="email">alex.morgan@example.com</div></div>
+      <div class="field"><label>Company</label><div>Example Co.</div></div>
+      <div class="field"><label>Card number</label><div id="card">4242 4242 4242 4242</div></div>
+      <div class="field"><label>Expires</label><div>09 / 29</div></div>
+    </div>
+  </div></section>
+  <footer>Demo workspace · sample data for illustration only.</footer>
+</body>
+</html>

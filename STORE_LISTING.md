@@ -99,16 +99,18 @@ A Product of Unique Labs. Developed by Shahriar Ahmed (www.shahriarahmed.net).
 
 ## Screenshot captions (1280×800)
 
-1. **Free screen recorder with sound and camera.** The recorder screen mid-recording: live preview, camera bubble, pause/stop controls.
-2. **Full page screenshot in one click.** A scrolling capture of an entire web page, sticky header shown once, opened in the editor.
-3. **A screenshot editor that's fast.** Arrows, shapes, text, highlights and numbered steps.
-4. **Blur or redact sensitive information.** Redactions are flattened into the exported image.
-5. **One private library for screenshots and recordings.** Search, collections and favourites, stored only on your device. Light and dark themes.
+The images are in [`store-assets/screenshots/`](store-assets/screenshots/), generated from the real extension UI and a fictional demo page by `npm run store:assets` (see [store-assets/README.md](store-assets/README.md)). Upload 01–05 in this order; 06 is an alternative.
 
-Produce these from real captures of FrameShot's own fixture or demo pages. Don't depict real companies' pages or trademarks.
+1. `01-screen-recorder.png` — **Free screen recorder with sound and camera.** Record a tab, window or your whole screen, with a camera bubble. No watermark, no time limit.
+2. `02-full-page-editor.png` — **Full page screenshots you can annotate.** Capture an entire page in one click, then add arrows, boxes, text, highlights and numbered steps.
+3. `03-gif-export.png` — **Turn any part of a recording into a GIF.** Trim it, pick the size and frame rate. Made on your device.
+4. `04-blur-and-redact.png` — **Blur or redact sensitive information.** Redacted areas are replaced with solid colour in every export.
+5. `05-library-dark.png` — **One private library for screenshots and recordings.** Search, favourites and collections, stored only on your device. Light and dark themes.
+6. `06-composer.png` *(alternative)* — **Beautiful shareable images.** Add a gradient background, padding, rounded corners and a browser frame.
 
 ## Promotional images
-- Small tile 440×280 and marquee 1400×560: the logo (frame corners plus spark) on brand indigo `#4F46E5` with the tagline. *To be produced.*
+- Small tile 440×280: [`store-assets/promo/small-440x280.png`](store-assets/promo/small-440x280.png).
+- Marquee 1400×560: [`store-assets/promo/marquee-1400x560.png`](store-assets/promo/marquee-1400x560.png).
 - Store icon: `public/icon/128.png`.
 
 ## Permission justifications

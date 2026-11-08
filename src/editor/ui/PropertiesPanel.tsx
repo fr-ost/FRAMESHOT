@@ -68,6 +68,14 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
   // Show the selection's actual values (first selected object) rather than tool defaults.
   const st: ToolStyle = selected.length ? { ...state.style, ...styleOf(selected[0]) } : state.style;
   const set = (patch: Partial<ToolStyle>) => store.setStyle(patch);
+  // Custom colours preview live and become one undo step when the picker closes.
+  const colorPreview = (key: keyof ToolStyle) => ({
+    onPreview: (c: string) => store.previewStyle({ [key]: c } as Partial<ToolStyle>),
+    onPreviewEnd: (c: string) => {
+      store.previewStyle({ [key]: c } as Partial<ToolStyle>);
+      store.commitPreview();
+    },
+  });
   const v = st;
   // Sliders preview live and commit a single undo step when released.
   const sliderProps = (key: keyof ToolStyle) => ({
@@ -83,13 +91,13 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
       {ctx !== 'none' && (
         <Section title={title}>
           {['arrow', 'line', 'rect', 'roundrect', 'ellipse', 'pen', 'text', 'marker', 'symbol'].includes(ctx) && (
-            <ColorPicker label={ctx === 'rect' || ctx === 'roundrect' || ctx === 'ellipse' ? 'Border color' : 'Color'} value={v.color} onChange={(c) => c && set({ color: c })} />
+            <ColorPicker label={ctx === 'rect' || ctx === 'roundrect' || ctx === 'ellipse' ? 'Border color' : 'Color'} value={v.color} onChange={(c) => c && set({ color: c })} {...colorPreview('color')} />
           )}
           {['arrow', 'line', 'rect', 'roundrect', 'ellipse', 'pen'].includes(ctx) && (
             <Slider label="Thickness" min={1} max={40} {...sliderProps('strokeWidth')} format={(n) => `${n}px`} id="fr-stroke" />
           )}
           {(ctx === 'rect' || ctx === 'roundrect' || ctx === 'ellipse') && (
-            <ColorPicker label="Fill" value={v.fill} allowNone onChange={(c) => set({ fill: c })} />
+            <ColorPicker label="Fill" value={v.fill} allowNone onChange={(c) => set({ fill: c })} {...colorPreview('fill')} />
           )}
           {(ctx === 'rect' || ctx === 'roundrect') && (
             <Slider label="Corner radius" min={0} max={80} {...sliderProps('radius')} format={(n) => `${n}px`} id="fr-radius" />
@@ -108,7 +116,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
           {ctx === 'line' && <Switch label="Dashed" checked={v.dashed} onChange={(d) => set({ dashed: d })} />}
           {ctx === 'highlighter' && (
             <>
-              <ColorPicker label="Color" palette={HIGHLIGHT_PALETTE} value={v.highlighterColor} onChange={(c) => c && set({ highlighterColor: c })} />
+              <ColorPicker label="Color" palette={HIGHLIGHT_PALETTE} value={v.highlighterColor} onChange={(c) => c && set({ highlighterColor: c })} {...colorPreview('highlighterColor')} />
               <Slider label="Width" min={6} max={60} {...sliderProps('highlighterWidth')} format={(n) => `${n}px`} id="fr-hl" />
               <p className="text-xs text-fg-subtle">Hold Shift for a straight highlight.</p>
             </>
@@ -133,7 +141,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
               </div>
               <Switch label="Bold" checked={v.bold} onChange={(b) => set({ bold: b })} />
               <Switch label="Outline" description="Contrasting outline for readability" checked={v.textOutline} onChange={(b) => set({ textOutline: b })} />
-              <ColorPicker label="Background" allowNone value={v.textBackground} onChange={(c) => set({ textBackground: c })} />
+              <ColorPicker label="Background" allowNone value={v.textBackground} onChange={(c) => set({ textBackground: c })} {...colorPreview('textBackground')} />
             </>
           )}
           {ctx === 'marker' && (
@@ -179,7 +187,7 @@ export function PropertiesPanel({ store, state, onResize }: { store: EditorStore
           )}
           {ctx === 'redact' && (
             <>
-              <ColorPicker label="Redaction color" value={v.redactColor} palette={['#000000', '#111827', '#374151', '#ffffff', '#ef4444', '#6366f1']} onChange={(c) => c && set({ redactColor: c })} />
+              <ColorPicker label="Redaction color" value={v.redactColor} palette={['#000000', '#111827', '#374151', '#ffffff', '#ef4444', '#6366f1']} onChange={(c) => c && set({ redactColor: c })} {...colorPreview('redactColor')} />
               <p className="text-xs text-fg-subtle">Exported images contain only the solid color here — the original pixels are permanently replaced.</p>
             </>
           )}

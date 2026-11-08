@@ -355,7 +355,21 @@ export function SegmentedControl<T extends string>({
     return () => ro.disconnect();
   }, [value, options.length]);
   return (
-    <div ref={wrap} role="radiogroup" aria-label={label} className="relative inline-flex rounded-[11px] border border-border bg-surface-2 p-[3px]">
+    <div
+      ref={wrap}
+      role="radiogroup"
+      aria-label={label}
+      className="relative inline-flex rounded-[11px] border border-border bg-surface-2 p-[3px]"
+      onKeyDown={(e) => {
+        const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        const i = options.findIndex((o) => o.value === value);
+        const next = options[(i + step + options.length) % options.length];
+        onChange(next.value);
+        requestAnimationFrame(() => wrap.current?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus());
+      }}
+    >
       {pill && (
         <span
           aria-hidden
@@ -369,6 +383,7 @@ export function SegmentedControl<T extends string>({
           type="button"
           role="radio"
           aria-checked={value === o.value}
+          tabIndex={value === o.value ? 0 : -1}
           title={o.title}
           onClick={() => onChange(o.value)}
           className={cx(

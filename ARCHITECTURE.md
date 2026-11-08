@@ -242,6 +242,26 @@ This applies to every extension page and the service worker. `connect-src` makes
 - **In-page overlay** (`content/overlay.ts`): styled only through CSSOM and animated with the Web Animations API, both of which page CSP cannot block.
 
 
+## 13a. GIF export (`recorder/gif*.ts`)
+
+- **Frames by seeking**, not by playback: a hidden `<video>` seeks to each sample time and the frame is drawn at the output size. In tests this read 61 exact frames in 1.4 s, while 4× playback with `requestVideoFrameCallback` only presented 19 distinct frames for 60 samples.
+- **Encoding in a Web Worker** (`gif.worker.ts`, gifenc, MIT): the page streams RGBA frames (transferred, at most 3 queued) and stays responsive.
+- **Small GIFs for screen content** (`gif.ts`): one palette for the whole GIF from up to 8 sampled frames (no colour shimmer between frames); pixels identical to the previous frame are written as a reserved transparent index with disposal 1 (they compress to almost nothing); identical frames are merged by extending the previous frame's delay. Delays are spread so the total equals the clip length, never below the 2 cs browsers honour. GIFs are capped at 60 s.
+
+## 13b. Sound effects
+
+- `core/sound-synth.ts` synthesizes every sound with Web Audio (oscillators, filtered noise, envelopes) — no audio files. Peaks stay well below 1.0; an offline render in the E2E suite checks each sound is audible and does not clip.
+- Pages play sounds directly (`ui/sounds.ts`). The recorder primes its AudioContext inside the Start click, times the countdown and chimes on the **audio clock** (`waitAudio`: a silent ConstantSourceNode's `ended` event), which is not throttled in background tabs, and starts or resumes MediaRecorder only after the chime has finished, so chimes are never recorded.
+- The service worker cannot play audio, so captures run there use an **offscreen document** (reason `AUDIO_PLAYBACK`, permission `offscreen`): `background/sound.ts` creates it on demand (Chrome closes it after ~30 s of silence) and sends it the sound to play. `soundForStatus` maps capture status changes to sounds (shutter on done, error, countdown ticks).
+
+## 13c. Smoothness
+
+- Cards, buttons and fields have no `backdrop-filter`: over the animated background, every blurred element was re-blurred on every frame. Frosted glass remains on a few large chrome surfaces (headers, sidebars, dialogs).
+- Library cards use `content-visibility: auto`; thumbnails load through an IntersectionObserver rooted at the library's own scroll area (so the 400 px look-ahead works); pages of 60 load one at a time.
+- Duplicate detection compares hashes as two 32-bit integers with a bit count and caches the result by the exact set of hashes; library refreshes that change nothing (e.g. on window focus) don't re-render.
+- Page transitions animate only the page layer (`view-transition-name: fr-page`); the root (holding the background) swaps instantly, so the background never covers a page mid-transition.
+- An error boundary around each screen keeps one failure (or a chunk that failed to load after an update) from blanking the Studio.
+
 ## 13. Screen recorder (`recorder/`)
 
 ```

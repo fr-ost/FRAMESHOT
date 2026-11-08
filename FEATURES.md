@@ -68,11 +68,25 @@ Every implemented feature is free and available to every user. There are no tier
 | Chunks saved during recording; crash recovery (MP4 and WebM) | ✅ | `recorder.spec` (tab closed mid-recording, then recovered and played) |
 | Player: play, download (MP4/WebM), rename, favourite, delete | ✅ | Download and play in `recorder.spec`; rename/favourite 🟡 |
 | Save a frame as a screenshot (opens in the editor) | ✅ | `recorder.spec` |
+| Export part of a recording as a GIF (trim, width, fps, loop) | ✅ | `recorder.spec` (GIF parsed: size, frames, total delay, loop); unit tests decode every frame |
+| GIF size optimisations: one palette, unchanged pixels transparent, identical frames merged | ✅ | `gif.test` (decoded and composited) |
+| Player keyboard shortcuts and playback speed | 🟡 | Implemented; covered indirectly |
+| Hover preview of recordings in the library | 🟡 | Implemented |
 | Recordings in the library (Recordings view, cards, search) | ✅ | `recorder.spec`, unit filtering |
 | Bulk ZIP includes video files; PDF leaves recordings out | ✅ | `recorder.spec` |
 | Recorder defaults in Settings; last choices remembered | ✅ | `recorder.spec` |
 | Long recordings (an hour or more), real devices, system audio | 🟡 | Needs a manual check per platform |
 | Recording without a Studio tab (in the background only) | ⛔ | Screen capture needs a page; FrameShot keeps one tab open and protects it |
+
+## Sounds and keyboard
+
+| Feature | Status | Notes / test |
+|---|---|---|
+| Shutter when a capture is saved (service worker → offscreen document) | ✅ | `recorder.spec` under Chrome's real autoplay policy |
+| Recording countdown, start, pause, resume, stop sounds (never recorded) | ✅ | `recorder.spec` checks the sequence |
+| Success / error chimes; Settings → Sounds (on/off, volume, test); popup toggle | ✅ | Sounds off verified; levels checked offline (audible, no clipping) |
+| Keyboard shortcuts sheet ("?") | ✅ | `ux.spec` |
+| Library keys (/, Ctrl/⌘+A, Delete, Esc) | ✅ | `ux.spec` (select all, clear) |
 
 ## Editor
 
@@ -131,7 +145,9 @@ Every implemented feature is free and available to every user. There are no tier
 
 | Feature | Status | Notes / test |
 |---|---|---|
-| Grid and list views; lazy thumbnails; incremental rendering | ✅ | `app.spec` |
+| Grid and list views; lazy thumbnails; incremental rendering (60 at a time) | ✅ | `app.spec`; `ux.spec` checks paging in a 150-item library |
+| Usable in narrow windows (≈900 px): wrapping header, bulk bar, fixed-layout list | ✅ | `ux.spec` |
+| Fast duplicate detection (bit counts, cached) | ✅ | Unit: 4,000 items in well under a second |
 | Search (name, title, domain, URL, tags); domain filter; sort | ✅ | `app.spec`, unit filtering |
 | Favourites, collections (create, rename, delete, move), tags, rename | ✅ | `app.spec` (rename collection 🟡), unit storage |
 | Bulk select, export, favourite, move, delete (with confirmation) | ✅ | `app.spec` |

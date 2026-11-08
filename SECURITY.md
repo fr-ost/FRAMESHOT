@@ -44,7 +44,7 @@ object-src 'none'; base-uri 'none'; form-action 'none'
 
 ## Permissions
 
-`activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`. See [STORE_LISTING.md](STORE_LISTING.md) for the justification of each. The screen recorder added no permissions.
+`activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. See [STORE_LISTING.md](STORE_LISTING.md) for the justification of each. The screen recorder added no permissions; `offscreen` (1.3) is used only by the service worker to play sound effects through a hidden extension page under the same CSP. GIF encoding runs in a bundled Web Worker (`worker-src 'self'`).
 
 ## Test builds
 

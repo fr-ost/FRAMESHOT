@@ -19,12 +19,15 @@ Everything in [FEATURES.md](FEATURES.md) marked ✅ or 🟡, including these opt
 
 - **Screen recorder** (tab, window or screen; tab sound and microphone; camera bubble; pause/resume; MP4 or WebM; crash recovery; player with frame capture). See [FEATURES.md](FEATURES.md).
 
+## Shipped in 1.3.0
+
+- GIF export for recordings, sound effects, keyboard shortcut sheet, smoother scrolling and transitions, and the fixes from two internal reviews.
+
 ## Recorder follow-ups
 
 | Item | Why it is deferred / what it needs |
 |---|---|
 | Trimming and cutting recordings | Needs a local video editor (WebCodecs decode/encode plus muxing). Planned, local-only. |
-| GIF export of short clips | Needs a local GIF encoder; quality/size trade-offs for screen content. |
 | Drawing on the screen while recording | Needs an overlay injected into the recorded tab (`activeTab` flow) or a picture-in-picture canvas. |
 | Floating picture-in-picture controls and self-view | Document Picture-in-Picture is available; needs care so the controls are not recorded when the whole screen is shared. |
 | Choosing sound sources per recording in the popup | The recorder page has them; the popup opens the recorder. |

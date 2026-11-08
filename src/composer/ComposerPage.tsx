@@ -245,21 +245,21 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
               </Select>
             </Field>
             <div className="flex items-end gap-2">
-              <Field label="Width" htmlFor="fr-cw" className="flex-1">
-                <Input id="fr-cw" type="number" min={16} max={8192} value={size.width} onChange={(e) => {
-                  const w = Number(e.target.value);
-                  update({ preset: 'custom', width: w, height: s.lockAspect ? Math.round(w / ratio) : size.height });
-                }} />
-              </Field>
+              <SizeField
+                id="fr-cw"
+                label="Width"
+                value={size.width}
+                onCommit={(w) => update({ preset: 'custom', width: w, height: s.lockAspect ? Math.max(16, Math.min(8192, Math.round(w / ratio))) : size.height })}
+              />
               <IconButton label={s.lockAspect ? 'Unlock aspect ratio' : 'Lock aspect ratio'} active={s.lockAspect} onClick={() => update({ lockAspect: !s.lockAspect })}>
                 {s.lockAspect ? <Lock size={15} /> : <LockOpen size={15} />}
               </IconButton>
-              <Field label="Height" htmlFor="fr-ch" className="flex-1">
-                <Input id="fr-ch" type="number" min={16} max={8192} value={size.height} onChange={(e) => {
-                  const h = Number(e.target.value);
-                  update({ preset: 'custom', height: h, width: s.lockAspect ? Math.round(h * ratio) : size.width });
-                }} />
-              </Field>
+              <SizeField
+                id="fr-ch"
+                label="Height"
+                value={size.height}
+                onCommit={(h) => update({ preset: 'custom', height: h, width: s.lockAspect ? Math.max(16, Math.min(8192, Math.round(h * ratio))) : size.width })}
+              />
             </div>
           </section>
 
@@ -380,5 +380,53 @@ function Composer({ source, item, settings }: { source: OffscreenCanvas; item: L
         </aside>
       </div>
     </div>
+  );
+}
+
+/** A number field you can type into freely; the value is applied on Enter or when you leave it. */
+function SizeField({ id, label, value, onCommit }: { id: string; label: string; value: number; onCommit: (v: number) => void }) {
+  const [text, setText] = useState(String(value));
+  const editing = useRef(false);
+  const cancelled = useRef(false);
+  useEffect(() => {
+    if (!editing.current) setText(String(value));
+  }, [value]);
+  const commit = () => {
+    editing.current = false;
+    if (cancelled.current) {
+      cancelled.current = false;
+      setText(String(value));
+      return;
+    }
+    const n = Math.round(Number(text));
+    if (!Number.isFinite(n) || n <= 0) {
+      setText(String(value));
+      return;
+    }
+    const clamped = Math.min(8192, Math.max(16, n));
+    setText(String(clamped));
+    if (clamped !== value) onCommit(clamped);
+  };
+  return (
+    <Field label={label} htmlFor={id} className="flex-1">
+      <Input
+        id={id}
+        type="number"
+        inputMode="numeric"
+        min={16}
+        max={8192}
+        value={text}
+        onFocus={() => (editing.current = true)}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+          else if (e.key === 'Escape') {
+            cancelled.current = true;
+            e.currentTarget.blur();
+          }
+        }}
+      />
+    </Field>
   );
 }

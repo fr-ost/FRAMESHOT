@@ -28,6 +28,24 @@ All notable changes to FrameShot (formerly Frameora) are documented here. The fo
   - An unplugged camera froze the camera bubble on its last frame.
   - The last moment after pressing Stop could be recorded while the poster frame was taken.
 - GIF dialog: the real video length arriving after opening no longer resets a trim you already made.
+- Interface (found in an internal review):
+  - Switching screens could briefly show the animated background over the page; now only the page animates.
+  - Library: scrolling a large library loaded every page at once (each "load more" triggered the next); it now loads 60 items per scroll, and thumbnails start loading shortly before they come into view.
+  - Library: finding duplicates took several seconds in large libraries; it now takes well under a second for 4,000 screenshots and is cached.
+  - Library: the header, the selection bar and the list view overflowed in narrow windows (about 900 px); they now wrap and stay usable.
+  - Library: a selection could keep items that were no longer shown, so bulk actions acted on more than you saw; the selection now always matches what is shown. Bulk PDF export now respects "compact PDF".
+  - Library: the "drop to import" overlay could stay on screen after a drag left the window.
+  - Editor: after using a panel slider or field, arrow keys and shortcuts went to that control instead of the selected shape; clicking the canvas now returns the keyboard to it. Shortcuts no longer fire inside open menus and dialogs, Space no longer clicks a focused button, and pan mode can't get stuck after switching windows.
+  - Editor: locked-ratio crops now keep their ratio at the image edges and at the smallest size, and the ratio resets when you leave the crop tool.
+  - Editor: picking a custom colour added an undo step for every movement of the picker; it now previews live and adds one step. "Reset all edits" is disabled only when there is truly nothing to reset.
+  - Editor: editing a screenshot that was deleted in another tab failed silently; the editor now says so and stops saving.
+  - Editor: the library thumbnail could keep showing the unedited screenshot (for example without a redaction) if the tab was closed right after an edit; it now updates within about a second.
+  - Composer: width and height could not be typed (each keystroke was applied and clamped); they now apply on Enter or when you leave the field, and Esc cancels.
+  - Settings: sliders saved on every movement; they now save once when released.
+  - Popup: shortcut hints showed the default keys even when you had changed or removed them in Chrome; they now show your actual shortcuts.
+  - Notifications pause while you point at or focus them, and those with a button stay longer (7 s).
+  - Light/Dark-style segmented controls work with the arrow keys.
+  - A failure in one screen, or a broken address, no longer leaves the Studio blank; FrameShot shows a message with a way back.
 
 ## [1.2.0] — 2026-11-08
 

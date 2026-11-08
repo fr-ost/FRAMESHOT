@@ -38,6 +38,8 @@ Files leave FrameShot only when you choose to:
 - **Download**: saved to your Downloads folder by Chrome.
 - **Copy**: placed on your system clipboard.
 
+GIFs are made from your recordings entirely on your device. Sound effects are generated on your device; for captures started from the toolbar, menu or keyboard, a hidden FrameShot page (an "offscreen document") plays them. It reads no page content.
+
 FrameShot may occasionally ask whether you would rate it on the Chrome Web Store. The store page opens only if you click **Rate FrameShot**; nothing is sent to the store or anyone else otherwise, and you can choose **Don't ask again**.
 
 The footer credit links to the developer's website (www.shahriarahmed.net). It is an ordinary link: nothing is loaded unless you click it, and clicking opens the site in a new browser tab without sending any FrameShot data.

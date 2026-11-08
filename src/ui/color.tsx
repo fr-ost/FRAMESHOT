@@ -1,4 +1,5 @@
 import { Ban } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { cx } from './primitives';
 
 export const PALETTE = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#111827', '#6b7280', '#ffffff'];
@@ -28,17 +29,32 @@ const NAMES: Record<string, string> = {
 export function ColorPicker({
   value,
   onChange,
+  onPreview,
+  onPreviewEnd,
   label,
   palette = PALETTE,
   allowNone,
 }: {
   value: string | null;
   onChange: (v: string | null) => void;
+  /** Live preview while dragging in the custom colour picker (no undo step). */
+  onPreview?: (v: string) => void;
+  /** The custom colour was chosen (one undo step). */
+  onPreviewEnd?: (v: string) => void;
   label: string;
   palette?: string[];
   allowNone?: boolean;
 }) {
   const custom = value && !palette.includes(value.toLowerCase()) ? value : null;
+  const inputRef = useRef<HTMLInputElement>(null);
+  // The native "change" event fires once, when the picker closes with a final colour.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el || !onPreviewEnd) return;
+    const done = () => onPreviewEnd(el.value);
+    el.addEventListener('change', done);
+    return () => el.removeEventListener('change', done);
+  }, [onPreviewEnd]);
   return (
     <div role="group" aria-label={label} className="space-y-1.5">
       <div className="text-[12px] font-medium text-fg-muted">{label}</div>
@@ -76,17 +92,19 @@ export function ColorPicker({
         <label
           title="Custom color"
           className={cx(
-            'relative h-6 w-6 cursor-pointer overflow-hidden rounded-full border border-black/10 dark:border-white/15',
+            'relative h-6 w-6 cursor-pointer overflow-hidden rounded-full border border-black/10 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring dark:border-white/15',
             custom && 'ring-2 ring-primary ring-offset-2 ring-offset-surface',
           )}
           style={{ background: custom ?? 'conic-gradient(#ef4444, #facc15, #22c55e, #06b6d4, #6366f1, #ec4899, #ef4444)' }}
         >
           <span className="sr-only">Custom color</span>
           <input
+            ref={inputRef}
             type="color"
+            aria-label={`${label}: custom color`}
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
             value={value && /^#[0-9a-f]{6}$/i.test(value) ? value : '#ef4444'}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => (onPreview ? onPreview(e.target.value) : onChange(e.target.value))}
           />
         </label>
       </div>

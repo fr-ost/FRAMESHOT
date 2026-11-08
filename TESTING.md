@@ -31,8 +31,10 @@ npm run compile
   - `globalThis.__frameshotTest` on the service worker: `start`, `status`, `command`, `cancel`, `stop`.
   - `window.__frameshotEditor` on the editor page, to read the store and map document coordinates to the screen.
   - `window.__frameshotRecorder` on Studio pages: read the recorder state, count stored chunks, and simulate Chrome's "Stop sharing" button.
+  - `window.__frameshotSounds` (the sounds a page played, with its AudioContext state) and `__frameshotSoundCheck` (renders a sound offline and returns its peak and loudness); the offscreen document reports each sound it plays back to the service worker.
   - A storage key that lowers canvas limits, so the split/scale paths can be tested without enormous pages.
 - Downloads land in Playwright's artifact folder. Tests read the completed file path from `chrome.downloads.search` and inspect the bytes.
+- The recorder tests also pass `--autoplay-policy=document-user-activation-required`, Chrome's real autoplay rule (headless Chromium otherwise allows all audio), so sound tests prove that sounds start from a user's click.
 - Screen-recording tests launch Chromium with `--use-fake-ui-for-media-stream` (auto-accepts permission prompts and Chrome's share picker, which then shares a tab — here the recorder tab itself) and `--use-fake-device-for-media-stream` (a fake microphone and a fake camera that shows a green test pattern). The recordings are real MP4/WebM files written by Chrome's MediaRecorder.
 
 ### Verification approach
@@ -49,6 +51,8 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 | `export.test.ts` | PDF writer: pdf-lib parses pages, sizes, title, producer; xref offsets; lossless Up-predictor round-trip with alpha on white; A4/Letter/image layout and the 14,400 pt cap; UTF-16 text strings. ZIP writer: CRC-32 check value; archive validated by Python `zipfile` (UTF-8 names) |
 | `storage.test.ts` | IndexedDB CRUD (newest-first listing, update, bulk update, delete with blobs and docs, replace original, collections and un-filing, storage stats); library search, filter, sort, domain list; duplicate grouping |
 | `recorder.test.ts` | WebM duration repair on synthetic EBML headers (insert, overwrite 4/8-byte floats, TimecodeScale, growing the Info size field, known Segment size, refusing SeekHead/truncated/garbage input); MediaRecorder type choice (H.264+AAC → H.264+Opus → WebM fallback, video-only types, throwing `isTypeSupported`); codec descriptions; bitrates and even sizes; camera-bubble geometry; elapsed time and badges; recorder settings validation; recording storage (out-of-order chunks, assembly, finalize, delete, discard, clear all, library filtering and search); review-prompt rules (thresholds, snooze, max asks, done, corrupted state, store URL) |
+| `gif.test.ts` | GIF encoder, checked by decoding its output with a small independent GIF decoder: GIF89a header, size, loop/play-once, palette with a transparent slot, identical frames merged into a longer delay, only the changed 3×3 patch stored (disposal 1), compositing reproduces the final picture; delays add up to the clip length and never drop below 2 cs; wrong-size and empty input rejected. GIF planning (range clamping, aspect ratio, no upscaling, 60 s cap). Sound mapping for capture status changes and sound settings validation |
+| `stitch-rounding.test.ts` | A model of Chrome's integer rounding at fractional display scales (2,400 scenarios) for the full-page stitcher |
 | `composer-render.test.ts` | Composer layout (auto padding, fixed presets, fit/fill, ratio presets within limits, alignment and frame bar, gradient lines, sanitization); annotation rendering for every annotation type (save/restore, opacity, double arrowheads, multiply highlighter, dashes, multi-line text with background and outline, markers) |
 
 ## End-to-end tests (`tests/e2e/`)
@@ -62,7 +66,8 @@ Fixture pages paint **deterministic colour bands** (`tests/fixtures/bands.js`), 
 | `app.spec.ts` | Library search, domain filter, favourites, rename and tags, collections, sort, delete with confirmation, list view; reopen in editor; bulk ZIP (validated by Python) and combined PDF (pdf-lib); thumbnail refresh when leaving the editor quickly; composer 1200×630 export plus save to library; popup full-page capture with live progress bar and Stop button; shortcut commands declared and executed; settings theme, default format, filename template, clear data, persistence; image import |
 | `privacy.spec.ts` | CSP blocks fetch, beacons, and remote images from extension pages and the SW; capture → edit → export makes no requests except the fixture page's own; Studio, editor, and export work offline |
 | `review.spec.ts` | Review prompt: not shown to a new install however much it is used; shown once earned, counted, and paused 30 days after "Not now"; "Rate FrameShot" opens `chromewebstore.google.com/detail/frameshot/<id>/reviews` and ends prompts; "Don't ask again" respected; the popup asks right after a successful capture, which itself counts toward the threshold |
-| `recorder.spec.ts` | Record with tab sound + microphone to MP4 (chunks reach IndexedDB *during* recording; length, sound, size, thumbnail, `REC` badge); WebM gets a finite duration; pause leaves time out (and shows `II`); camera bubble pixels found at the chosen corner of the saved video; Chrome's "Stop sharing" saves; discard deletes all data; popup shows the running recording, pauses and stops it; library Recordings view, duration badge, no copy action, video download (name, MIME type, size, `ftyp`), editor redirects to the player, "Save frame" creates a PNG; bulk ZIP contains the video, PDF refuses recordings; crash recovery for MP4 and WebM (tab closed mid-recording, recovered, played); start/stop shortcut opens one recorder tab and stops a recording; recorder choices persist |
+| `ux.spec.ts` | A 150-item library loads one page (60) per scroll; header, selection bar and list view fit a 900 px window; arrow keys move the selected shape after using a panel slider; composer width/height can be typed; a broken address shows a message (not a blank screen); "?" opens the shortcut sheet; page transitions animate only the page layer |
+| `recorder.spec.ts` | GIF export (trim, width, fps; the file is parsed: size, frame count, total delay, loop, trailer) from the player and from the library menu; recording sounds in order (three countdown ticks, start, pause, resume, stop) under the real autoplay rule; the capture shutter played by the offscreen document; sounds off; every sound audible and never clipping; Discard after the recording already ended; "Clear all local data" refused while recording; another tab can't clear the REC badge. Also: record with tab sound + microphone to MP4 (chunks reach IndexedDB *during* recording; length, sound, size, thumbnail, `REC` badge); WebM gets a finite duration; pause leaves time out (and shows `II`); camera bubble pixels found at the chosen corner of the saved video; Chrome's "Stop sharing" saves; discard deletes all data; popup shows the running recording, pauses and stops it; library Recordings view, duration badge, no copy action, video download (name, MIME type, size, `ftyp`), editor redirects to the player, "Save frame" creates a PNG; bulk ZIP contains the video, PDF refuses recordings; crash recovery for MP4 and WebM (tab closed mid-recording, recovered, played); start/stop shortcut opens one recorder tab and stops a recording; recorder choices persist |
 
 ## Last verified run (during development)
 
@@ -105,35 +110,39 @@ These cannot be automated reliably and must be done by a person in real Chrome:
 - [ ] **Screen recorder** in branded Chrome on Windows and macOS: record a tab (with "Also share tab audio"), a window, and the entire screen (Windows: with system audio); real microphone and camera, including the first-time permission prompts; switching the shared tab from Chrome's bar; Chrome's "Stop sharing"; the popup controls and toolbar badge; the floating pill while browsing Studio.
 - [ ] Play downloaded MP4 files in QuickTime (macOS), the Photos/Media Player app (Windows), and a phone; play a WebM in VLC and check seeking.
 - [ ] A long recording (30–60 min at 1080p) for memory use and file integrity; closing the recorder tab mid-recording, then recovering.
+- [ ] **Sounds** on real speakers or headphones: the shutter after toolbar, right-click and keyboard captures; the recording countdown and chimes, and that none of them can be heard in the saved recording; the volume slider; nothing plays when sounds are off.
+- [ ] **GIF export** of a 30–60 s recording: how long it takes, the file size, and that it opens and loops in Chrome, Slack, and macOS Preview or the Windows Photos app.
 
 ## Final verification run
 
-Run on 2026-11-08 for release 1.2.0 (screen recorder, SEO title, review prompt; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
+Run on 2026-11-08 for release 1.3.0 (GIF export, sound effects, interface and stability fixes; Chromium / Chrome for Testing 153, headless "chromium" channel, Playwright 1.63, Vitest 5.1, Node 22).
 
 | Suite | Result |
 |---|---|
 | Type check (`npm run compile`) | **passed** |
-| Unit (`npm test`, 9 files, including the 2,000-scenario rounding simulation and the recorder/review tests) | **124 / 124 passed** |
+| Unit (`npm test`, 10 files, including the GIF encoder checked by an independent decoder and a 4,000-item duplicate-detection benchmark) | **139 / 139 passed** |
 | E2E `capture.spec.ts` | **23 / 23 passed** |
 | E2E `hidpi.spec.ts` (real 2× device scale) | **2 / 2 passed** |
 | E2E `fractional-dpi.spec.ts` (real 1.25× / 1.5× / 1.75× device scale) | **9 / 9 passed** |
 | E2E `editor.spec.ts` | **7 / 7 passed** |
 | E2E `app.spec.ts` (library, composer, popup, shortcuts, settings, import) | **8 / 8 passed** |
 | E2E `privacy.spec.ts` (CSP network block, no foreign requests, offline) | **3 / 3 passed** |
-| E2E `recorder.spec.ts` (screen recorder, fake media devices) | **14 / 14 passed** |
+| E2E `recorder.spec.ts` (recorder, GIF export, sounds under Chrome's real autoplay rule) | **21 / 21 passed** |
 | E2E `review.spec.ts` (review prompt) | **5 / 5 passed** |
-| **E2E total** | **71 / 71 passed** (5.6 min) |
-| Production bundle audit (`npm run check:bundle`) | **passed** — MV3, the same 6 permissions, no host permissions, strict CSP, no remote code, no eval, no test hooks (`__frameshotTest`, `__frameshotEditor`, `__frameshotRecorder`), no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
-| Packaged ZIP smoke test (`.output/frameshot-1.2.0-chrome.zip`, unzipped and loaded unpacked, with fake media devices) | **passed** — name/version/permissions as expected, welcome page on install, context menus incl. "Record screen…", `toggle-recording` command, review state initialised and no prompt on a fresh install, Studio / Settings / Popup / Options / Recorder render with zero console errors, no test hooks, and a real recording made through the UI saved and played as MP4 (H.264 · Opus, 2.8 s) with the `REC` badge during and none after |
-| Visual QA | Recorder (setup, countdown, recording, paused), player, library with recordings, popup recording card and review card, settings and welcome page, in light and dark |
+| E2E `ux.spec.ts` (new in 1.3.0) | **5 / 5 passed** |
+| **E2E total** | **83 / 83 passed** (6.0 min) |
+| Production bundle audit (`npm run check:bundle`) | **passed**: MV3, the 7 expected permissions (1.2.0's six plus `offscreen`), no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps. Inert URL strings only: library namespaces, the Tailwind banner, the footer credit link, and the Web Store review link (opened only on click) |
+| Packaged ZIP smoke test (`frameshot-1.3.0-chrome.zip`, unzipped and loaded unpacked, Chrome's real autoplay rule, fake media devices) | **passed**: name, version and permissions as expected; welcome page on install; context menus and all 9 commands including `toggle-recording`; no test hooks in the service worker or pages; the offscreen document loads from the package and accepts a sound; no review prompt on a fresh install; Studio, Settings, Popup (with the sound toggle), Options and Recorder render with zero console errors; "?" opens the shortcut sheet; a recording made through the UI (3 s countdown with sounds) saved and played as MP4 (H.264 · Opus, 3.4 s) with the `REC` badge during and none after; **Export as GIF** from the shipped build produced a valid GIF89a (320×206, 69 KB) |
+| Store assets | Generated from the real UI by `npm run store:assets` and reviewed by eye: 6 screenshots (1280×800) and 2 promotional tiles, all 24-bit PNG without alpha |
 
-Defects found while building 1.2.0 and fixed (each covered by a test or checked in visual QA):
-- Chrome's MP4 MediaRecorder emitted **no data until the recording stopped** with its default key-frame spacing, so an MP4 would sit in memory and could not be recovered after a crash. Fixed with a 2-second key-frame interval; `recorder.spec` now checks that chunks reach IndexedDB during recording and recovers an interrupted MP4.
-- Re-using an open Studio tab never worked: without the `tabs` permission Chrome hides even the extension's own tab URLs. Replaced with a BroadcastChannel presence check (shortcut and library-reuse tests).
-- The floating recording pill covered the library sidebar's credits (visual QA) — moved to the top centre.
-- The live panel showed "0 B recorded" during the first seconds of an MP4 and the requested (not actual) resolution (visual QA).
+Defects found while building 1.3.0 and fixed (details in [CHANGELOG.md](CHANGELOG.md)):
+- Two internal reviews, of the recorder (10 findings) and of the interface (18 findings). All are fixed; regression tests were added to `recorder.spec.ts` (Discard after the recording ended, "Clear all local data" during a recording, the REC badge from another tab) and in the new `ux.spec.ts` (paging, narrow windows, editor focus, composer typing, broken addresses).
+- GIF dialog: a trim was reset when the video's real length arrived (found while testing the dialog).
+- Making the store screenshots showed that a library thumbnail could keep showing the unedited, for example unredacted, screenshot if the editor tab was closed within about 1.7 s of an edit. The thumbnail now refreshes 0.4 s after the autosave.
+- Duplicate detection took about 9 s for 4,000 screenshots on the test machine; it now takes under 0.1 s, and repeat checks are cached.
 
 Defects found in earlier releases and fixed (each now covered by a test):
+- 1.2.0: Chrome's MP4 recorder emitted no data until a recording stopped (a 2-second key-frame interval fixed it, so MP4s can be recovered after a crash); re-using an open Studio tab needed a BroadcastChannel presence check because Chrome hides extension tab URLs without the `tabs` permission; the floating recording pill covered the sidebar credits; the live panel showed "0 B recorded" and the requested instead of the actual resolution.
 - 1.1.0: popup stuck on "Select what to capture…" after the tab closed mid-selection (found during visual QA); two-column layouts ignored by Tailwind v4.
 - 1.0.1: "about 1 px missing" capture failures at fractional display scaling — true fractional viewport, exact DPR, scroll to the real end, aimed retries, sliver fill.
 - 1-device-pixel stitching seam at fractional device scales (e.g. 125% zoom) — planner now tracks coverage in output pixels.

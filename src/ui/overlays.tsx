@@ -219,14 +219,42 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setItems((list) => list.map((t) => (t.id === id ? { ...t, leaving: true } : t)));
     setTimeout(() => setItems((list) => list.filter((t) => t.id !== id)), 230);
   }, []);
+  // Each toast's timer, so it can pause while hovered or focused (time to read or act).
+  const timers = useRef(new Map<number, { timer?: ReturnType<typeof setTimeout>; remaining: number; started: number }>());
+  const schedule = useCallback(
+    (id: number, ms: number) => {
+      const entry = { remaining: ms, started: Date.now(), timer: setTimeout(() => {
+        timers.current.delete(id);
+        remove(id);
+      }, ms) };
+      timers.current.set(id, entry);
+    },
+    [remove],
+  );
+  const pause = useCallback((id: number) => {
+    const t = timers.current.get(id);
+    if (!t?.timer) return;
+    clearTimeout(t.timer);
+    t.timer = undefined;
+    t.remaining = Math.max(800, t.remaining - (Date.now() - t.started));
+  }, []);
+  const resume = useCallback(
+    (id: number) => {
+      const t = timers.current.get(id);
+      if (!t || t.timer) return;
+      schedule(id, t.remaining);
+    },
+    [schedule],
+  );
   const show = useCallback(
     (message: ReactNode, tone: ToastTone = 'info', action?: ToastItem['action']) => {
       const id = ++counter.current;
-      const duration = tone === 'error' ? 8000 : 4500;
+      // Toasts with a button stay longer.
+      const duration = tone === 'error' ? 8000 : action ? 7000 : 4500;
       setItems((list) => [...list.slice(-3), { id, tone, message, action, duration }]);
-      setTimeout(() => remove(id), duration);
+      schedule(id, duration);
     },
-    [remove],
+    [schedule],
   );
   const api = useMemo<ToastApi>(
     () => ({
@@ -257,8 +285,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             role={t.tone === 'error' ? 'alert' : 'status'}
+            onMouseEnter={() => pause(t.id)}
+            onMouseLeave={() => resume(t.id)}
+            onFocus={() => pause(t.id)}
+            onBlur={() => resume(t.id)}
             className={cx(
-              'pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-[16px] border border-border bg-surface-solid/90 px-4 py-3.5 text-sm text-fg shadow-pop backdrop-blur-2xl',
+              'group/toast pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-[16px] border border-border bg-surface-solid/90 px-4 py-3.5 text-sm text-fg shadow-pop backdrop-blur-2xl',
               t.leaving ? 'fr-toast-leave' : 'fr-toast-enter',
             )}
           >
@@ -282,7 +314,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             {/* Time remaining */}
             <span
               aria-hidden
-              className={cx('absolute bottom-0 left-0 h-[2px] origin-left opacity-60', bar[t.tone])}
+              className={cx('absolute bottom-0 left-0 h-[2px] origin-left opacity-60 group-hover/toast:[animation-play-state:paused] group-focus-within/toast:[animation-play-state:paused]', bar[t.tone])}
               style={{ width: '100%', animation: `fr-toast-timer ${t.duration}ms linear forwards` }}
             />
           </div>

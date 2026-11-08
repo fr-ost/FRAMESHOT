@@ -82,6 +82,13 @@ function ThemeTile({ value, label, current, onSelect }: { value: Settings['theme
   );
 }
 
+/** A slider that moves freely while dragged and saves once, when released. */
+function SettingSlider({ value, onSave, ...rest }: { label: string; value: number; min: number; max: number; step?: number; format?: (v: number) => string; id?: string; onSave: (v: number) => void }) {
+  const [local, setLocal] = useState(value);
+  useEffect(() => setLocal(value), [value]);
+  return <Slider {...rest} value={local} onChange={setLocal} onCommit={(v) => v !== value && onSave(v)} />;
+}
+
 function VolumeSlider({ value, onCommit }: { value: number; onCommit: (v: number) => void }) {
   const [local, setLocal] = useState(Math.round(value * 100));
   useEffect(() => setLocal(Math.round(value * 100)), [value]);
@@ -221,7 +228,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
           <Switch label="Load lazy content first" description="Scrolls through the page before capturing so lazy-loaded images and infinite-scroll content appear." checked={settings.capture.preloadLazyContent} onChange={(v) => void update({ capture: { preloadLazyContent: v } })} />
           <Switch label="Finish animations instantly" description="Temporarily speeds up CSS animations and transitions so every part of the page is captured in its final state." checked={settings.capture.freezeAnimations} onChange={(v) => void update({ capture: { freezeAnimations: v } })} />
           <Switch label="Include horizontal overflow" description="Capture the full width of pages that scroll sideways." checked={settings.capture.includeHorizontalOverflow} onChange={(v) => void update({ capture: { includeHorizontalOverflow: v } })} />
-          <Slider label="Delay between scroll steps" min={LIMITS.settleDelayMs.min} max={2000} step={50} value={settings.capture.settleDelayMs} onChange={(v) => void update({ capture: { settleDelayMs: v } })} format={(v) => `${v} ms`} id="fr-settle" />
+          <SettingSlider label="Delay between scroll steps" min={LIMITS.settleDelayMs.min} max={2000} step={50} value={settings.capture.settleDelayMs} onSave={(v) => void update({ capture: { settleDelayMs: v } })} format={(v) => `${v} ms`} id="fr-settle" />
           <p className="-mt-2 text-xs text-fg-subtle">Increase this for slow or animated pages. Chrome also limits captures to two per second.</p>
           <Field label="Maximum page height" htmlFor="fr-maxh" hint="A safety limit for endless pages. You can always stop a capture early from the toolbar popup.">
             <Select id="fr-maxh" value={String(settings.capture.maxPageHeight)} onChange={(e) => void update({ capture: { maxPageHeight: Number(e.target.value) } })}>
@@ -302,8 +309,8 @@ export function SettingsPage({ settings }: { settings: Settings }) {
             />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Slider label="JPEG quality" min={0.5} max={1} step={0.01} value={settings.jpegQuality} onChange={(v) => void update({ jpegQuality: v })} format={(v) => `${Math.round(v * 100)}%`} id="fr-jq" />
-            <Slider label="WebP quality" min={0.5} max={1} step={0.01} value={settings.webpQuality} onChange={(v) => void update({ webpQuality: v })} format={(v) => `${Math.round(v * 100)}%`} id="fr-wq" />
+            <SettingSlider label="JPEG quality" min={0.5} max={1} step={0.01} value={settings.jpegQuality} onSave={(v) => void update({ jpegQuality: v })} format={(v) => `${Math.round(v * 100)}%`} id="fr-jq" />
+            <SettingSlider label="WebP quality" min={0.5} max={1} step={0.01} value={settings.webpQuality} onSave={(v) => void update({ webpQuality: v })} format={(v) => `${Math.round(v * 100)}%`} id="fr-wq" />
           </div>
           <Field label="File name template" htmlFor="fr-tpl" hint={<>Preview: <span className="font-mono text-fg-muted">{preview}</span></>}>
             <Input
@@ -336,7 +343,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
               <option value="image">Fit page to image</option>
             </Select>
           </Field>
-          <Slider label="PDF margin" min={0} max={72} value={settings.pdf.marginPt} onChange={(v) => void update({ pdf: { marginPt: v } })} format={(v) => `${v} pt`} id="fr-margin" />
+          <SettingSlider label="PDF margin" min={0} max={72} value={settings.pdf.marginPt} onSave={(v) => void update({ pdf: { marginPt: v } })} format={(v) => `${v} pt`} id="fr-margin" />
         </Card>
 
         <Card title="Keyboard shortcuts" description="Chrome manages extension shortcuts. Change them on Chrome’s shortcuts page." id="shortcuts">
