@@ -70,4 +70,4 @@ If this policy ever changes, the new version will be included with the extension
 
 ## Contact
 
-Unique Labs: *contact address to be added before publication* (placeholder).
+Questions about privacy: contact the developer, Shahriar Ahmed (Unique Labs), at [www.shahriarahmed.net](https://www.shahriarahmed.net) or on Telegram at [t.me/igfrostt](https://t.me/igfrostt).

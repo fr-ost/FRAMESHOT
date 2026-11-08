@@ -1,0 +1,1 @@
+Saves the files the user exports (PNG, JPEG, WebP, PDF, MP4, WebM, GIF and ZIP) to the Downloads folder when the user clicks Download, and checks that the download finished before confirming it was saved.

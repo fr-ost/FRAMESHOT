@@ -19,6 +19,7 @@
     "icons": "node scripts/render-icons.mjs",
     "store:assets": "npm run build:e2e && node scripts/store-assets.mjs",
     "perf:ui": "node scripts/perf-ui.mjs",
+    "store:kit": "npm run build && python3 scripts/build-store-kit.py",
     "postinstall": "wxt prepare"
   },
   "dependencies": {

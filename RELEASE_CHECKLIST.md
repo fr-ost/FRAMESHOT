@@ -6,7 +6,7 @@
 - [ ] **Trademark clearance for "FrameShot"** by counsel (US, EU, UK, WIPO; Classes 9 and 42). A check on 2026-11-08 rated the risk **high**: an existing "FrameShot" screenshot extension and two "Frameshot" capture extensions are on the Chrome Web Store, "FramedShot" is a near-identical competitor, and US filing 87795731 (FRAMESHOT, photo software) exists. Decide on the final name before submitting. See [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md), addendum.
 - [ ] A fallback name is prepared in case clearance fails.
 - [ ] Domains and social handles are checked and secured, if desired.
-- [ ] The privacy policy ([PRIVACY.md](PRIVACY.md)) is hosted at a public URL, and the contact address placeholders are replaced in PRIVACY.md and SECURITY.md.
+- [ ] The privacy policy is hosted at a public URL (`store-kit/2-privacy-practices/privacy-policy.html`, generated from PRIVACY.md) and that URL is entered in the dashboard.
 
 ## 2. Version & code
 - [ ] Bump `version` in `package.json` (the manifest version comes from it).

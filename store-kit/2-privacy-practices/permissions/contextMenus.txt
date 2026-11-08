@@ -1,0 +1,1 @@
+Adds a FrameShot entry to the right-click menu with the capture modes (visible area, full page, selected area, element), screen recording and a shortcut to the library, so users can start a capture from any page.

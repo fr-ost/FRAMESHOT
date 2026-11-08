@@ -1,0 +1,54 @@
+Capture the web. Edit every detail. Free forever.
+
+FrameShot is a free screen recorder and full page screenshot tool for Chrome. Record a tab, a window or your whole desktop with sound and a webcam bubble, or take a scrolling screenshot of an entire web page in one click. Then annotate, blur private details, turn clips into GIFs, and save as MP4, PNG, JPEG, WebP or PDF. It all happens in your browser: no sign-up, no uploads, no watermark.
+
+★ FREE, WITH NOTHING LOCKED
+• Unlimited screenshots and videos, limited only by your device's storage
+• No watermark, no time limit, no subscription, no paid plan, no account
+• Every feature is available to everyone
+
+★ SCREEN RECORDER WITH AUDIO AND CAMERA
+• Choose a browser tab, an app window or your entire screen in Chrome's own share dialog
+• Include tab sound and your microphone together; mute the mic at any time
+• Add a round camera bubble in any corner
+• Countdown, pause and resume, live timer and toolbar badge
+• Save as MP4 (H.264) that plays on every phone, Mac and PC, or as WebM; 720p to 4K, 15 to 60 fps
+• Export any part of a video as an animated GIF, or save any frame as an image
+• Saved as you go, so a crash or a closed tab loses only the last seconds
+
+★ SCREEN CAPTURE, YOUR WAY
+• Full page: scrolls and stitches the whole page; sticky headers and footers appear once, not on every screen
+• Loads lazy images and infinite feeds first, with a height limit and a Stop & save button
+• Visible area, with an optional 3, 5 or 10 second delay for menus and hover states
+• Selected area: drag to select, scroll to extend it
+• Single elements and scrolling panels (chats, tables, feeds)
+• Huge pages are split into full-resolution parts or scaled, your choice
+• Start from the toolbar, the right-click menu or keyboard shortcuts
+
+★ SCREENSHOT EDITOR AND ANNOTATIONS
+• Crop, resize, rotate and flip
+• Arrows, lines, boxes, circles, pen, highlighter, text, numbered steps and symbols
+• Move, resize, duplicate and layer anything, with full undo and redo
+• Blur, pixelate or permanently redact sensitive information; redactions are flattened into the exported file
+• Beautify: gradient backgrounds, padding, rounded corners, shadows and a browser mockup frame, with presets for social posts
+
+★ SAVE, SHARE AND ORGANIZE
+• Copy to the clipboard, or download as PNG, JPEG, WebP or multi-page PDF
+• Bulk export as ZIP or one combined PDF, with your own file name pattern
+• A private local library with search, website filter, favourites, collections, tags and duplicate finder
+
+★ GREAT FOR
+Bug reports, tutorials and how-to videos, design reviews, documentation, online lessons, and saving long articles or receipts for later.
+
+★ PRIVATE BY DESIGN
+• No servers, no accounts, no analytics, no tracking, no ads
+• Works offline; FrameShot's pages block every network connection
+• It can only access a tab when you ask it to, and sees only what you pick in Chrome's share dialog
+• Your microphone and camera are used only after you switch them on, and only for your video
+• Light and dark themes, gentle sound effects (can be turned off) and keyboard shortcuts
+
+Good to know: Chrome does not let extensions work on its own pages (chrome://) or the Chrome Web Store, and allows two snapshots per second, so long pages take a few seconds. Tab sound works on every system; whole-screen sound depends on your system (Windows and ChromeOS). Blur can sometimes be reversed on short text, so use Redact for confidential data.
+
+FrameShot is free forever. If it saves you time, an optional tip on the in-app Support page keeps it going.
+
+A product of Unique Labs. Developed by Shahriar Ahmed (www.shahriarahmed.net).

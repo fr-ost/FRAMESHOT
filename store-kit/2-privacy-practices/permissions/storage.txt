@@ -1,0 +1,1 @@
+Saves the user's settings (theme, capture and export preferences, sound volume) locally with chrome.storage.local, and keeps short-lived capture and recording state in chrome.storage.session so it survives service-worker restarts. Nothing is synced or sent anywhere.

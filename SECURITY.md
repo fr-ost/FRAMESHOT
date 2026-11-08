@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report security issues privately to **security@uniquelabs.example**. *(Placeholder: replace with the real Unique Labs security contact before publication.)* Include steps to reproduce, the affected version (shown in Settings → About), and your Chrome version. Please don't open public issues for vulnerabilities.
+Please report security issues privately to the developer, Shahriar Ahmed, on Telegram at [t.me/igfrostt](https://t.me/igfrostt) or through [www.shahriarahmed.net](https://www.shahriarahmed.net). Include steps to reproduce, the affected version (shown in Settings → About), and your Chrome version. Please don't open public issues for vulnerabilities.
 
 ## Security model
 

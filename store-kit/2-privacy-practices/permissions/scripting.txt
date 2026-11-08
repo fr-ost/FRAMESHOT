@@ -1,0 +1,1 @@
+Injects FrameShot's own bundled capture script into the tab the user chose to capture. The script scrolls and measures the page for full-page, element and area screenshots, shows the selection overlay, and restores the page afterwards; it also adds and removes temporary capture styles. Only code packaged with the extension is executed.

@@ -1,6 +1,6 @@
 # Chrome Web Store: Privacy Practices Disclosure
 
-Prepared answers for the **Privacy practices** tab of the Chrome Web Store Developer Dashboard for *FrameShot: Free Screen Recorder & Full Page Screenshot*. Review against the current form wording before submitting.
+Paste-ready versions of these answers are in [`store-kit/2-privacy-practices/`](store-kit/2-privacy-practices/). Prepared answers for the **Privacy practices** tab of the Chrome Web Store Developer Dashboard for *FrameShot: Free Screen Recorder & Full Page Screenshot*. Review against the current form wording before submitting.
 
 ## Single purpose
 
@@ -49,4 +49,4 @@ Note: Screenshots, screen recordings (including any microphone sound and camera 
 
 ## Privacy policy URL
 
-Host [PRIVACY.md](PRIVACY.md) at a public URL (for example a project website or GitHub Pages) and enter it in the dashboard. *Placeholder: URL to be decided by Unique Labs.*
+Host `store-kit/2-privacy-practices/privacy-policy.html` (generated from [PRIVACY.md](PRIVACY.md)) at a public URL, for example `https://www.shahriarahmed.net/frameshot/privacy`, and enter it in the dashboard.

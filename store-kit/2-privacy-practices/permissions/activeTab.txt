@@ -1,0 +1,1 @@
+Gives FrameShot temporary access to the current tab only when the user starts a capture from the toolbar button, the right-click menu or a keyboard shortcut, so it can take the screenshot and run its capture script on that page. No permanent or background access to any website is requested, and there are no host permissions.

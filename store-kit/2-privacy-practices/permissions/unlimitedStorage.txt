@@ -1,0 +1,1 @@
+The user's screenshot and recording library is stored locally in IndexedDB at full resolution. Full-page screenshots can be tens of megabytes and screen recordings hundreds; without unlimited storage the browser could evict the user's saved library. The data never leaves the device.
