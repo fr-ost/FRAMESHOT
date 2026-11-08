@@ -10,7 +10,7 @@ import { TELEGRAM_URL, WALLETS, type Wallet } from '../core/donate';
 import { hasStoreListing, listingUrl, markReviewDone, reviewUrl } from '../core/review';
 import { navigate } from '../ui/hooks';
 import { useToast } from '../ui/overlays';
-import { Button, Credits, cx } from '../ui/primitives';
+import { Button, Credits, cx, DEVELOPER } from '../ui/primitives';
 import { playSound } from '../ui/sounds';
 
 const ORBIT = ['tok-btc', 'tok-eth', 'tok-sol', 'tok-usdt', 'tok-bnb', 'tok-avax'];
@@ -264,21 +264,27 @@ export function DonatePage() {
 
         {/* Thanks */}
         <section className="fr-card mt-14 flex flex-col items-center gap-4 p-7 text-center sm:flex-row sm:text-left">
-          <span className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-rose-500/12 text-rose-500">
+          <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="relative flex h-16 w-16 shrink-0" aria-label={`${DEVELOPER.name}'s website`} data-testid="donate-developer">
             <span className="fr-rings rounded-full" style={{ ['--fr-primary' as string]: '#f43f5e' } as CSSProperties} aria-hidden>
               <span />
               <span />
             </span>
-            <Heart size={24} fill="currentColor" />
-          </span>
+            <img src={DEVELOPER.photo} alt={DEVELOPER.name} className="relative h-16 w-16 rounded-full object-cover ring-[3px] ring-rose-400/70" />
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white shadow-card ring-2 ring-[var(--fr-card)]">
+              <Heart size={12} fill="currentColor" />
+            </span>
+          </a>
           <div>
             <p className="text-[16px] font-semibold tracking-tight">Thank you, truly.</p>
             <p className="mt-1 text-[13.5px] leading-relaxed text-fg-muted">
               Whether you donate, share or simply use FrameShot every day, you’re the reason it exists. —{' '}
-              <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="font-medium text-fg underline-offset-2 hover:underline">
-                Shahriar Ahmed
+              <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="font-medium text-fg underline-offset-2 hover:underline">
+                {DEVELOPER.name}
               </a>
-              , Unique Labs
+              , Unique Labs ·{' '}
+              <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="font-medium text-primary underline-offset-2 hover:underline">
+                {DEVELOPER.site}
+              </a>
             </p>
           </div>
         </section>

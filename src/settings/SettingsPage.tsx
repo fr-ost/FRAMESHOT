@@ -12,7 +12,7 @@ import { queryRecorder } from '../recorder/channel';
 import { clearAllData, storageStats, type StorageStats } from '../db/db';
 import { navigate } from '../ui/hooks';
 import { useConfirm, useToast } from '../ui/overlays';
-import { Button, Credits, Field, Input, Logo, SegmentedControl, Select, Slider, Switch, cx } from '../ui/primitives';
+import { Button, Credits, cx, DeveloperCard, Field, Input, Logo, SegmentedControl, Select, Slider, Switch } from '../ui/primitives';
 
 const SECTIONS = [
   { id: 'appearance', label: 'Appearance', icon: <Palette size={15} /> },
@@ -441,7 +441,7 @@ export function SettingsPage({ settings }: { settings: Settings }) {
             </Button>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-            <Credits align="start" />
+            <DeveloperCard compact />
             <Button variant="ghost" size="sm" icon={<ExternalLink size={14} />} onClick={() => navigate('/welcome')}>
               Show the welcome guide
             </Button>

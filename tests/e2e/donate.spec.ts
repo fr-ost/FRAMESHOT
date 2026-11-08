@@ -33,3 +33,23 @@ test('the Donate page shows each wallet with its QR code and copies the exact ad
   await expect(popup.getByTestId('popup-donate')).toBeVisible();
   await popup.close();
 });
+
+test('the developer is credited with a photo and a link to www.shahriarahmed.net', async ({ ext }) => {
+  for (const route of ['/settings', '/welcome']) {
+    const page = await ext.context.newPage();
+    await page.goto(`chrome-extension://${ext.extId}/studio.html#${route}`);
+    const card = page.getByTestId('developer-card');
+    await card.scrollIntoViewIfNeeded();
+    await expect(card.getByText('Shahriar Ahmed', { exact: true })).toBeVisible();
+    await expect(card.getByRole('link', { name: /www\.shahriarahmed\.net/ })).toHaveAttribute('href', 'https://www.shahriarahmed.net');
+    const photo = card.getByRole('img', { name: 'Shahriar Ahmed' });
+    await expect(photo).toBeVisible();
+    expect(await photo.evaluate((i) => (i as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    await page.close();
+  }
+  // Every credits line names the developer and links the website.
+  const page = await ext.context.newPage();
+  await page.goto(`chrome-extension://${ext.extId}/studio.html#/`);
+  await expect(page.getByRole('link', { name: 'Shahriar Ahmed' }).first()).toHaveAttribute('href', 'https://www.shahriarahmed.net');
+  await page.close();
+});

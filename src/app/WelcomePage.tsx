@@ -17,7 +17,7 @@ import {
 import type { CSSProperties, ReactNode } from 'react';
 import { BRAND } from '../core/brand';
 import { navigate } from '../ui/hooks';
-import { Button, Credits, Kbd, Logo } from '../ui/primitives';
+import { Button, Credits, DeveloperCard, Kbd, Logo } from '../ui/primitives';
 
 function Feature({ icon, title, children, i }: { icon: ReactNode; title: string; children: ReactNode; i: number }) {
   return (
@@ -165,6 +165,13 @@ export function WelcomePage() {
           <Button variant="primary" icon={<ArrowRight size={16} />} onClick={() => navigate('/')}>
             Open the library
           </Button>
+        </section>
+
+        <section className="fr-card fr-spot fr-stagger mt-6 flex flex-col items-center justify-between gap-5 px-8 py-7 sm:flex-row" style={{ '--i': 10 } as CSSProperties}>
+          <DeveloperCard />
+          <p className="max-w-sm text-center text-[13.5px] leading-relaxed text-fg-subtle sm:text-right">
+            FrameShot is built and looked after by one independent developer at Unique Labs, who reads every message and fixes bugs fast.
+          </p>
         </section>
 
         <footer className="mt-14 space-y-2 text-center">

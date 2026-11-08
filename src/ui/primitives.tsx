@@ -441,10 +441,18 @@ export const DEVELOPER_URL = 'https://www.shahriarahmed.net';
 export const UNIQUE_LABS_URL: string | null = null;
 
 const creditLink =
-  'group/link inline-flex items-center gap-0.5 font-medium text-fg-muted underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:text-fg hover:decoration-current';
+  'group/link inline-flex items-baseline gap-0.5 font-medium text-fg-muted underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:text-fg hover:decoration-current';
+
+export const DEVELOPER = {
+  name: 'Shahriar Ahmed',
+  role: 'Developer · Unique Labs',
+  url: DEVELOPER_URL,
+  site: 'www.shahriarahmed.net',
+  photo: '/developer.webp',
+} as const;
 
 export function Credits({ className, align = 'center' }: { className?: string; align?: 'center' | 'start' }) {
-  const link = (href: string, text: string) => (
+  const link = (href: string, text: ReactNode) => (
     <a href={href} target="_blank" rel="noopener noreferrer" className={creditLink}>
       {text}
       <ArrowUpRight size={11} className="opacity-0 transition-[opacity,transform] duration-200 group-hover/link:-translate-y-px group-hover/link:translate-x-px group-hover/link:opacity-70" aria-hidden />
@@ -453,7 +461,36 @@ export function Credits({ className, align = 'center' }: { className?: string; a
   return (
     <p className={cx('text-[11.5px] leading-relaxed text-fg-subtle', align === 'center' ? 'text-center' : 'text-left', className)}>
       A Product of {UNIQUE_LABS_URL ? link(UNIQUE_LABS_URL, 'Unique Labs') : <span className="font-medium text-fg-muted">Unique Labs</span>}. Developed by{' '}
-      {link(DEVELOPER_URL, 'Shahriar Ahmed')}
+      <span className="whitespace-nowrap">
+        <img src={DEVELOPER.photo} alt="" className="mr-1 inline-block h-4 w-4 rounded-full object-cover align-[-4px] ring-1 ring-border" />
+        {link(DEVELOPER_URL, DEVELOPER.name)}
+      </span>
     </p>
+  );
+}
+
+/** "About the developer": photo, name, role and website. */
+export function DeveloperCard({ className, compact = false }: { className?: string; compact?: boolean }) {
+  return (
+    <div className={cx('flex items-center gap-4', className)} data-testid="developer-card">
+      <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="group/photo relative shrink-0" aria-label={`${DEVELOPER.name}'s website`}>
+        <span className="fr-accent-bg absolute -inset-[3px] rounded-full opacity-80 transition-opacity duration-300 group-hover/photo:opacity-100" aria-hidden />
+        <img
+          src={DEVELOPER.photo}
+          alt={DEVELOPER.name}
+          className={cx('relative rounded-full object-cover ring-2 ring-[var(--fr-surface-solid)] transition-transform duration-500 group-hover/photo:scale-105', compact ? 'h-12 w-12' : 'h-16 w-16')}
+          style={{ transitionTimingFunction: 'var(--fr-ease-spring)' }}
+        />
+      </a>
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-fg-subtle">About the developer</p>
+        <p className={cx('font-semibold tracking-tight text-fg', compact ? 'text-[14px]' : 'text-[16px]')}>{DEVELOPER.name}</p>
+        <p className="text-[12.5px] text-fg-muted">{DEVELOPER.role}</p>
+        <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className={cx(creditLink, 'mt-0.5 text-[12.5px] text-primary hover:text-primary')}>
+          {DEVELOPER.site}
+          <ArrowUpRight size={12} className="opacity-60" aria-hidden />
+        </a>
+      </div>
+    </div>
   );
 }
