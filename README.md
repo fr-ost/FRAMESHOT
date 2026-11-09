@@ -304,6 +304,7 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 | [WEBSITE.md](WEBSITE.md) | The marketing website: pages, Vercel deployment, store link, editing content |
 | [marketing/VIDEO.md](marketing/VIDEO.md) | The 2-minute showcase video: scenes, male AI narration, original soundtrack, captions, how to render it again |
 | [marketing/YOUTUBE.md](marketing/YOUTUBE.md) | YouTube upload kit: title, description with chapters, tags, thumbnails, upload settings |
+| [marketing/LINKEDIN.md](marketing/LINKEDIN.md) | LinkedIn kit: project fields, description, skills, media, profile banner, launch post |
 
 ---
 
