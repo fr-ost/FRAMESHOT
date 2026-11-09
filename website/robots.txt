@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://frameshot.vercel.app/sitemap.xml
+Sitemap: https://frameshot.uniquelabs.org/sitemap.xml

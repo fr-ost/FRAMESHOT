@@ -6,7 +6,7 @@
  *    Until then every "Add to Chrome" button opens /coming-soon.
  * Then run `npm run website` and commit the website/ folder.
  */
-export const SITE_URL = (process.env.SITE_URL || 'https://frameshot.vercel.app').replace(/\/+$/, '');
+export const SITE_URL = (process.env.SITE_URL || 'https://frameshot.uniquelabs.org').replace(/\/+$/, '');
 export const STORE_URL = process.env.STORE_URL || '';
 
 export const SITE = {

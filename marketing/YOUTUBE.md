@@ -1,6 +1,6 @@
 # YouTube upload kit: FrameShot showcase
 
-Everything needed to publish `marketing/frameshot-showcase.mp4` (or the higher-bitrate master from `.output/video/`). Replace the two links marked `[ ... ]` before publishing: the Chrome Web Store listing and the website.
+Everything needed to publish `marketing/frameshot-showcase.mp4` (or the higher-bitrate master from `.output/video/`). Replace the Chrome Web Store link marked `[ ... ]` once the listing is live. The website is https://frameshot.uniquelabs.org.
 
 ## Title
 
@@ -22,7 +22,7 @@ The first two lines show in search results and above "...more", so they carry th
 FrameShot is a free Chrome extension that records your screen with sound and your webcam, and captures entire web pages in one click. Annotate, blur and share. No watermark, no sign-up, nothing uploaded.
 
 ▶ Add FrameShot to Chrome (free): [Chrome Web Store link]
-🌐 Website and guides: [website link]
+🌐 Website and guides: https://frameshot.uniquelabs.org
 
 What you'll see in this video:
 • Full-page screenshots: FrameShot scrolls, captures every part and stitches it into one sharp image. Sticky headers show once, lazy images load first, and your page is put back as it was.

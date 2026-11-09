@@ -33,7 +33,7 @@ Both live at the top of [`scripts/website/config.mjs`](scripts/website/config.mj
 npm run website
 ```
 
-- **`SITE_URL`**: the address the site is served from. It is used in canonical links, the sitemap, the RSS feed and social previews, so it must match your real domain. The default is `https://frameshot.vercel.app`.
+- **`SITE_URL`**: the address the site is served from. It is used in canonical links, the sitemap, the RSS feed and social previews, so it must match your real domain. It is set to `https://frameshot.uniquelabs.org`.
 - **`STORE_URL`**: the Chrome Web Store listing. Until it is set, every "Add to Chrome" button links to `/chrome`, which redirects to `/coming-soon`. Once it is set, the buttons open the store listing directly, the structured data gets an install link, and the Support page shows a "Rate FrameShot" button.
 
 Both can also be passed for a one-off build:
