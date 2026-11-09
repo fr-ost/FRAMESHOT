@@ -123,8 +123,10 @@ fs.writeFileSync(list, segments.filter(Boolean).map((f) => `file '${f}'`).join('
 const run = (args) => new Promise((res, rej) => spawn('ffmpeg', args, { stdio: 'inherit' }).on('close', (c) => (c === 0 ? res() : rej(new Error(`ffmpeg exited ${c}`)))));
 const partial = from > 0 || to < TL.duration;
 const outFile = arg('out', path.join(OUT, partial ? `part-${from}-${to}.mp4` : 'frameshot-showcase.mp4'));
-const music = path.join(OUT, 'music.wav');
-if (!partial && fs.existsSync(music)) {
+// The narrated mix (scripts/video/voice.py) when there is one, else the music on its own.
+const music = [path.join(OUT, 'mix.wav'), path.join(OUT, 'music.wav')].find((f) => fs.existsSync(f));
+if (!partial && music) {
+  console.log(`audio: ${path.relative(ROOT, music)}`);
   await run(['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-i', music, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', '-shortest', outFile]);
 } else {
   await run(['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', outFile]);

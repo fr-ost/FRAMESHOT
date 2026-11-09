@@ -27,7 +27,8 @@
     "video:capture": "npm run build:e2e && node scripts/video/capture.mjs",
     "video:music": "python3 scripts/video/music.py scripts/video/timeline.json .output/video/music.wav",
     "video:render": "node scripts/video/render.mjs",
-    "video": "npm run video:capture && npm run video:music && npm run video:render",
+    "video:voice": "python3 scripts/video/voice.py",
+    "video": "npm run video:capture && npm run video:music && npm run video:voice && npm run video:render",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
