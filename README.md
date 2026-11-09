@@ -177,6 +177,7 @@ npm run dev
 | `npm run icons` | Re-render PNG icons from `src/assets/logo*.svg` |
 | `npm run website` | Build the static website into `website/` (see [WEBSITE.md](WEBSITE.md)) |
 | `npm run website:check` | Check the built website in a real browser (links, console errors, images, structured data) |
+| `npm run video` | Capture the UI, synthesize the soundtrack and render the showcase video (see [marketing/VIDEO.md](marketing/VIDEO.md)) |
 
 Stack: WXT 0.21, Vite 8, React 19, TypeScript 5.9, Tailwind CSS 4, Radix UI primitives, Lucide icons, `idb`, Vitest 5, and Playwright 1.63.
 
@@ -301,6 +302,7 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 | [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) | Market research and brand availability |
 | [WEBSITE.md](WEBSITE.md) | The marketing website: pages, Vercel deployment, store link, editing content |
+| [marketing/VIDEO.md](marketing/VIDEO.md) | The 2-minute showcase video: scenes, original soundtrack, how to render it again |
 
 ---
 

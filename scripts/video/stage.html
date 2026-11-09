@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FrameShot showcase stage</title>
+<style>
+@font-face{font-family:Inter;src:url(../../store-assets/promo/inter.woff2) format('woff2');font-weight:100 900}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#07070f}
+body{font-family:Inter,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:#090914}
+.scene,.layerbox{position:absolute;inset:0}
+.chip,.pill,.tall,.tag,.rec,.feat,.tile,.btn,.toast,.prog,.count,.tool,.scan,.card{left:0;top:0}
+.abs{position:absolute;left:0;top:0}
+img{display:block}
+/* background */
+.blob{position:absolute;left:0;top:0;border-radius:50%;will-change:transform}
+.grid{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.075) 1.3px,transparent 1.6px);background-size:34px 34px;-webkit-mask:radial-gradient(ellipse 75% 65% at 50% 45%,#000 30%,transparent 80%)}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse 85% 75% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.grain{position:absolute;inset:0;opacity:.05}
+/* type */
+.cap{position:absolute}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:21px;font-weight:750;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc}
+.eyebrow::before{content:'';width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#818cf8,#e879f9);box-shadow:0 0 14px #a78bfa}
+.cap h2{margin-top:20px;font-size:74px;line-height:1.03;font-weight:820;letter-spacing:-.045em}
+.sub{margin-top:24px;font-size:27px;line-height:1.45;color:rgba(235,235,255,.74);font-weight:450}
+.grad{background:linear-gradient(100deg,#a5b4fc 0%,#c4b5fd 45%,#f0abfc 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.chip{position:absolute;display:inline-flex;align-items:center;gap:12px;padding:13px 22px 13px 14px;border-radius:999px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.16);font-size:23px;font-weight:600;color:#ecebff;white-space:nowrap;box-shadow:0 10px 30px -12px rgba(0,0,0,.6)}
+.chip .ic{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff}
+.chip .ic svg{width:21px;height:21px}
+.chip.ok .ic{background:linear-gradient(135deg,#10b981,#059669)}
+.key{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:54px;padding:0 14px;border-radius:12px;background:linear-gradient(#2a2a40,#1c1c2c);border:1px solid rgba(255,255,255,.18);border-bottom-width:5px;font-size:24px;font-weight:750;color:#fff;box-shadow:0 10px 24px -10px rgba(0,0,0,.7)}
+.keyrow{position:absolute;display:flex;align-items:center;gap:10px;font-size:26px;font-weight:700;color:rgba(255,255,255,.55)}
+.tool{position:absolute;display:flex;align-items:center;gap:16px;font-size:25px;font-weight:650;color:rgba(255,255,255,.9)}
+.tool .key{min-width:48px;height:48px;font-size:22px}
+/* windows */
+.win{position:absolute;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 50px 120px -30px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.12)}
+.win .bar{height:44px;display:flex;align-items:center;gap:9px;padding:0 18px;background:#f1f1f6;border-bottom:1px solid #e3e3ec}
+.win.dark .bar{background:#16161f;border-color:#262633}
+.win .bar i{width:13px;height:13px;border-radius:50%}
+.win .bar i:nth-child(1){background:#ff5f57}.win .bar i:nth-child(2){background:#febc2e}.win .bar i:nth-child(3){background:#28c840}
+.win .ttl{margin-left:14px;display:flex;align-items:center;gap:9px;height:28px;padding:0 14px;border-radius:8px;background:#fff;border:1px solid #e1e1ea;font-size:15px;font-weight:600;color:#55556a}
+.win.dark .ttl{background:#1f1f2b;border-color:#30303f;color:#a8a8bd}
+.win .ttl img{width:17px;height:17px;border-radius:4px}
+.vp{position:relative;overflow:hidden;background:#fff}
+.cam{position:absolute;left:0;top:0;transform-origin:0 0}
+.cam>img,.cam>.ov{position:absolute;left:0;top:0}
+.cursor{position:absolute;left:0;top:0;transform-origin:0 0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+.cursor svg{width:100%;height:100%;display:block}
+.ring{position:absolute;left:0;top:0;border-radius:50%;border:3px solid #8b5cf6;background:rgba(139,92,246,.18)}
+.hl{position:absolute;border-radius:14px;border:3px solid #a78bfa;box-shadow:0 0 0 6px rgba(167,139,250,.25),0 0 40px rgba(167,139,250,.55)}
+/* browser mock */
+.browser{position:absolute;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 50px 120px -30px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.12)}
+.bbar{height:78px;display:flex;align-items:center;gap:16px;padding:0 20px;background:#eef0f5;border-bottom:1px solid #dfe2ea;color:#5b5f6e}
+.bbar .dots{display:flex;gap:9px}.bbar .dots i{width:13px;height:13px;border-radius:50%}
+.bbar .dots i:nth-child(1){background:#ff5f57}.bbar .dots i:nth-child(2){background:#febc2e}.bbar .dots i:nth-child(3){background:#28c840}
+.bbar svg{width:22px;height:22px}
+.addr{flex:1;height:46px;display:flex;align-items:center;gap:10px;padding:0 18px;border-radius:23px;background:#fff;border:1px solid #dcdfe8;font-size:19px;color:#3b3f4c}
+.addr svg{width:17px;height:17px;color:#6b7080}
+.ext{position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px}
+.ext img{width:28px;height:28px;border-radius:7px}
+.badge{position:absolute;right:-8px;bottom:-4px;padding:1px 6px;border-radius:7px;background:#4f46e5;color:#fff;font-size:12px;font-weight:800;border:2px solid #eef0f5}
+.bview{position:relative;overflow:hidden;background:#fff}
+.pill{position:absolute;display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:999px;background:rgba(15,15,30,.86);color:#fff;font-size:20px;font-weight:650;box-shadow:0 14px 34px -12px rgba(0,0,0,.6)}
+.pill .dot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25)}
+.pbar{width:150px;height:8px;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden}
+.pbar>b{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#e879f9);transform-origin:0 50%}
+.scan{position:absolute;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,#8b5cf6,#e879f9,transparent);box-shadow:0 0 22px 6px rgba(139,92,246,.55)}
+.flash{position:absolute;inset:0;background:#fff}
+/* cards */
+.card{position:absolute;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 70px -30px rgba(0,0,0,.8);overflow:hidden}
+.card .shot{position:relative;overflow:hidden;background:#fff}
+.card .shot img{position:absolute;left:0;top:0}
+.card h3{font-size:31px;font-weight:780;letter-spacing:-.02em;margin:24px 26px 0}
+.card p{font-size:20px;line-height:1.45;color:rgba(235,235,255,.7);margin:10px 26px 0}
+.card .keyrow{position:static;margin:18px 26px 0}
+.card .keyrow .key{min-width:46px;height:46px;font-size:20px;border-radius:10px}
+.tall{position:absolute;border-radius:14px;overflow:hidden;box-shadow:0 50px 120px -30px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.18);background:#fff}
+.tag{position:absolute;padding:9px 16px;border-radius:10px;background:rgba(15,15,30,.85);color:#fff;font-size:18px;font-weight:650}
+/* recorder overlays */
+.rec{position:absolute;display:flex;align-items:center;gap:16px;padding:16px 26px 16px 20px;border-radius:20px;background:#fff;color:#0b0b14;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+.rec .rdot{width:18px;height:18px;border-radius:50%;background:#ef4444}
+.rec b{font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.rec small{display:block;font-size:16px;color:#6c6c80;font-weight:600}
+.eq{display:flex;align-items:center;gap:4px;height:40px}
+.eq i{width:6px;height:40px;border-radius:3px;background:linear-gradient(#facc15,#22c55e 45%,#22c55e 55%,#facc15);transform-origin:center}
+.feat{position:absolute;display:flex;align-items:center;gap:18px;font-size:25px;font-weight:620;color:#f1f0ff;line-height:1.3}
+.feat .ic{flex:none;display:flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,rgba(99,102,241,.95),rgba(168,85,247,.95));box-shadow:0 12px 26px -10px rgba(139,92,246,.8)}
+.feat .ic svg{width:26px;height:26px}
+.count{position:absolute;font-size:300px;font-weight:850;letter-spacing:-.06em;line-height:1}
+.tile{position:absolute;display:flex;align-items:center;gap:18px;width:400px;height:104px;padding:0 26px;border-radius:22px;background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.14);font-size:27px;font-weight:700}
+.tile .ic{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#10b981,#059669)}
+.tile .ic svg{width:28px;height:28px}
+.btn{position:absolute;display:inline-flex;align-items:center;gap:16px;height:84px;padding:0 42px;border-radius:24px;font-size:31px;font-weight:750;color:#fff;background:linear-gradient(135deg,#4f46e5,#6d45ec 55%,#8b3ee6);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 24px 50px -16px rgba(99,102,241,.9);overflow:hidden}
+.btn svg{width:32px;height:32px}
+.btn .shine{position:absolute;top:0;bottom:0;width:120px;background:linear-gradient(105deg,transparent,rgba(255,255,255,.45),transparent)}
+.toast{position:absolute;display:flex;align-items:center;gap:14px;padding:16px 24px;border-radius:16px;background:#fff;color:#0b0b14;font-size:21px;font-weight:650;box-shadow:0 24px 50px -16px rgba(0,0,0,.7)}
+.toast .ic{display:flex;width:34px;height:34px;border-radius:50%;align-items:center;justify-content:center;background:#10b981;color:#fff}
+.toast .ic svg{width:20px;height:20px}
+.prog{position:absolute;display:flex;align-items:center;gap:14px;padding:14px 22px;border-radius:14px;background:#1d1d2b;color:#fff;font-size:20px;font-weight:650;box-shadow:0 20px 40px -14px rgba(0,0,0,.8);border:1px solid rgba(255,255,255,.12)}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+const TL = await (await fetch('timeline.json')).json();
+const RAW = '../../.output/video/raw/';
+const LOGO = '../../src/assets/logo.svg';
+const DEV = '../../public/developer.webp';
+const ICON = (name, size) => (window.ICONS?.[name] ?? '').replace('<svg', `<svg width="${size || 24}" height="${size || 24}"`);
+const W = 1920, H = 1080;
+const stage = document.getElementById('stage');
+await document.fonts.load('850 100px Inter');
+await document.fonts.load('500 30px Inter');
+await document.fonts.ready;
+
+// ── Timeline engine: every frame is a pure function of t ──
+const E = {
+  lin: (p) => p,
+  out: (p) => 1 - (1 - p) ** 3,
+  out5: (p) => 1 - (1 - p) ** 5,
+  in: (p) => p ** 3,
+  io: (p) => (p < 0.5 ? 4 * p ** 3 : 1 - (-2 * p + 2) ** 3 / 2),
+  sine: (p) => -(Math.cos(Math.PI * p) - 1) / 2,
+  back: (p) => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * (p - 1) ** 3 + c1 * (p - 1) ** 2; },
+  expo: (p) => (p >= 1 ? 1 : 1 - 2 ** (-10 * p)),
+};
+const nodes = [], updaters = [], scenes = [];
+let cur = null;
+function el(html, parent) {
+  const t = document.createElement('template');
+  t.innerHTML = html.trim();
+  const e = t.content.firstElementChild;
+  (parent || cur?.el || stage).appendChild(e);
+  return e;
+}
+function N(e, base = {}) {
+  const n = { e, tr: {}, base: { x: 0, y: 0, s: 1, r: 0, o: 1, ...base }, scene: cur, last: {} };
+  nodes.push(n);
+  return n;
+}
+// Keyframes accumulate: an entrance and an exit on the same property merge into one track.
+function K(n, prop, keys) {
+  n.tr[prop] = [...(n.tr[prop] || []), ...keys].sort((a, b) => a[0] - b[0]);
+  return n;
+}
+function val(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) {
+    if (t <= keys[i][0]) {
+      const [t0, v0] = keys[i - 1];
+      const [t1, v1, e = 'io'] = keys[i];
+      const p = t1 === t0 ? 1 : (t - t0) / (t1 - t0);
+      return v0 + (v1 - v0) * E[e](p);
+    }
+  }
+  return keys[keys.length - 1][1];
+}
+function set(n, k, v) {
+  if (n.last[k] !== v) {
+    n.last[k] = v;
+    n.e.style[k] = v;
+  }
+}
+function apply(n, t) {
+  const p = { ...n.base };
+  for (const k in n.tr) p[k] = val(n.tr[k], t);
+  if (n.cam) {
+    const { w, h, k } = n.cam;
+    const z = p.z ?? 1;
+    const fx = (p.fx ?? 1280) * k, fy = (p.fy ?? 800) * k;
+    const tx = Math.min(0, Math.max(w - z * w, w / 2 - z * fx));
+    const ty = Math.min(0, Math.max(h - z * h, h / 2 - z * fy));
+    set(n, 'transform', `translate(${tx.toFixed(2)}px,${ty.toFixed(2)}px) scale(${z.toFixed(4)})`);
+    return;
+  }
+  set(n, 'transform', `translate(${p.x.toFixed(2)}px,${p.y.toFixed(2)}px) rotate(${p.r.toFixed(3)}deg) scale(${p.s.toFixed(4)})`);
+  set(n, 'opacity', String(Math.max(0, Math.min(1, p.o)).toFixed(3)));
+  const f = [];
+  if (p.b > 0.05) f.push(`blur(${p.b.toFixed(2)}px)`);
+  if (p.br !== undefined && Math.abs(p.br - 1) > 0.001) f.push(`brightness(${p.br.toFixed(3)})`);
+  set(n, 'filter', f.join(' ') || 'none');
+  if (p.ct !== undefined) set(n, 'clipPath', `inset(${p.ct.toFixed(1)}px ${p.cr.toFixed(1)}px ${p.cb.toFixed(1)}px ${p.cl.toFixed(1)}px)`);
+  else if (p.circ !== undefined) set(n, 'clipPath', `circle(${Math.max(0, p.circ).toFixed(1)}px at ${p.cx}px ${p.cy}px)`);
+  if (p.sx !== undefined) set(n, 'transform', `translate(${p.x.toFixed(2)}px,${p.y.toFixed(2)}px) scale(${p.sx.toFixed(4)},1)`);
+}
+function scene(name, pre = 0.4) {
+  const [t0, t1] = TL.scenes[name];
+  const e = el(`<div class="scene" data-s="${name}"></div>`, stage);
+  const s = { name, t0, t1, v0: t0 - pre, v1: t1, el: e };
+  scenes.push(s);
+  cur = s;
+  const n = N(e);
+  K(n, 'o', [[t1 - 0.42, 1], [t1 - 0.02, 0, 'in']]);
+  K(n, 's', [[t1 - 0.42, 1], [t1 - 0.02, 1.035, 'in']]);
+  K(n, 'b', [[t1 - 0.42, 0], [t1 - 0.02, 6, 'in']]);
+  return s;
+}
+const up = (fn) => updaters.push({ fn, scene: cur });
+
+// Fade/slide in helper.
+function enter(n, t, { dy = 28, dx = 0, s = 1, blur = 8, d = 0.6, ease = 'out' } = {}) {
+  K(n, 'o', [[t, 0], [t + d * 0.8, 1, 'out']]);
+  if (dy || dx) {
+    if (dy) K(n, 'y', [[t, n.base.y + dy], [t + d, n.base.y, ease]]);
+    if (dx) K(n, 'x', [[t, n.base.x + dx], [t + d, n.base.x, ease]]);
+  }
+  if (s !== 1) K(n, 's', [[t, s], [t + d, 1, ease]]);
+  if (blur) K(n, 'b', [[t, blur], [t + d * 0.8, 0, 'out']]);
+  return n;
+}
+function at(html, x, y, parent) {
+  const e = el(html, parent);
+  if (getComputedStyle(e).position === 'static') e.style.position = 'absolute';
+  if (!e.style.left) e.style.left = '0';
+  if (!e.style.top) e.style.top = '0';
+  return N(e, { x, y });
+}
+function caption({ x, y, w, eyebrow, title, sub, t, align = 'left', size = 74 }) {
+  const e = el(`<div class="cap" style="left:${x}px;top:${y}px;width:${w}px;text-align:${align}"><div class="eyebrow">${eyebrow}</div><h2 style="font-size:${size}px">${title}</h2>${sub ? `<p class="sub">${sub}</p>` : ''}</div>`);
+  [...e.children].forEach((c, i) => enter(N(c), t + i * 0.16, { dy: 26 }));
+  return e;
+}
+function chip(text, x, y, t, icon = 'Check', cls = '', parent) {
+  return enter(at(`<div class="chip ${cls}"><span class="ic">${ICON(icon, 21)}</span>${text}</div>`, x, y, parent), t, { dy: 18, s: 0.94, d: 0.5, ease: 'back' });
+}
+// Lay nodes out in a centred row, using their real widths (fonts are loaded).
+function row(ns, cx = 960, gap = 24) {
+  const ws = ns.map((n) => n.e.offsetWidth);
+  let x = cx - (ws.reduce((a, b) => a + b, 0) + gap * (ns.length - 1)) / 2;
+  ns.forEach((n, i) => { n.base.x = x; x += ws[i] + gap; });
+}
+function centerX(n, cx = 960) { n.base.x = cx - n.e.offsetWidth / 2; }
+const keycap = (k) => `<span class="key">${k}</span>`;
+function press(n, t) {
+  K(n, 's', [[t - 0.05, 1], [t, 0.9, 'out'], [t + 0.16, 1, 'out']]);
+}
+
+// Window holding real captures, with a camera (zoom/pan) and a cursor inside.
+function win({ x, y, w, title, layers, dark = false }) {
+  const k = w / 2560, h = Math.round(1600 * k);
+  const e = el(`<div class="win${dark ? ' dark' : ''}" style="left:0;top:0;width:${w}px"><div class="bar"><i></i><i></i><i></i><span class="ttl"><img src="${LOGO}" alt=""><span class="tt">${title}</span></span></div><div class="vp" style="width:${w}px;height:${h}px"><div class="cam" style="width:${w}px;height:${h}px"></div></div></div>`);
+  const cam = e.querySelector('.cam');
+  const camN = N(cam);
+  camN.cam = { w, h, k };
+  const L = {};
+  layers.forEach((name, i) => (L[name] = N(el(`<img src="${RAW}${name}.png" style="width:${w}px;height:${h}px" alt="">`, cam), { o: i === 0 ? 1 : 0 })));
+  const n = N(e, { x, y });
+  return { e, n, cam: camN, camEl: cam, L, k, w, h, x, y, tt: e.querySelector('.tt') };
+}
+function swap(wn, name, t) {
+  K(wn.L[name], 'o', [[t - 0.001, 0], [t, 1, 'lin']]);
+}
+function fade(wn, name, t, d = 0.35) {
+  K(wn.L[name], 'o', [[t, 0], [t + d, 1, 'sine']]);
+}
+// Reveal part of the next state inside a box (raw px), like it is being drawn.
+function reveal(wn, name, [x0, y0, x1, y1], t0, t1, mode, hideAt) {
+  const { k, w, h } = wn;
+  const n = N(el(`<img class="ov" src="${RAW}${name}.png" style="width:${w}px;height:${h}px" alt="">`, wn.camEl), { o: 1 });
+  const X0 = x0 * k - 2, X1 = x1 * k + 2, Y0 = y0 * k - 2, Y1 = y1 * k + 2;
+  const e = 'lin';
+  if (mode === 'ltr') { K(n, 'ct', [[0, Y0]]); K(n, 'cb', [[0, h - Y1]]); K(n, 'cl', [[0, X0]]); K(n, 'cr', [[t0, w - X0], [t1, w - X1, e]]); }
+  if (mode === 'rtl') { K(n, 'ct', [[0, Y0]]); K(n, 'cb', [[0, h - Y1]]); K(n, 'cr', [[0, w - X1]]); K(n, 'cl', [[t0, X1], [t1, X0, e]]); }
+  if (mode === 'box') { K(n, 'ct', [[0, Y0]]); K(n, 'cl', [[0, X0]]); K(n, 'cr', [[t0, w - X0], [t1, w - X1, e]]); K(n, 'cb', [[t0, h - Y0], [t1, h - Y1, e]]); }
+  K(n, 'o', [[hideAt - 0.001, 1], [hideAt, 0, 'lin']]);
+  return n;
+}
+function pop(wn, name, cxRaw, cyRaw, r, t, hideAt) {
+  const { k, w, h } = wn;
+  const n = N(el(`<img class="ov" src="${RAW}${name}.png" style="width:${w}px;height:${h}px" alt="">`, wn.camEl), { o: 1, cx: cxRaw * k, cy: cyRaw * k });
+  K(n, 'circ', [[t, 0], [t + 0.28, r * k, 'back']]);
+  K(n, 'o', [[hideAt - 0.001, 1], [hideAt, 0, 'lin']]);
+  return n;
+}
+const CURSOR = '<svg viewBox="0 0 24 34"><path d="M2.5 2.5v25.5l6.3-6 4.4 10.4 4.3-1.9-4.4-10.2h8.9z" fill="#0b0b14" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>';
+// A cursor, either in stage px (parent = scene) or in raw px inside a window camera.
+function cursor(parent, size, unit = 1) {
+  const e = el(`<div class="cursor" style="width:${size}px;height:${size * 1.42}px">${CURSOR}</div>`, parent);
+  const r = el(`<div class="ring" style="width:${size * 2.2}px;height:${size * 2.2}px;margin:${-size * 1.1}px 0 0 ${-size * 1.1}px"></div>`, parent);
+  parent.appendChild(e);
+  const n = N(e, { o: 0 }), rn = N(r, { o: 0, s: 0.3 });
+  const xs = [], ys = [], os = [[0, 0]], ss = [[0, 1]], rx = [[0, 0]], ry = [[0, 0]], ro = [[0, 0]], rs = [[0, 0.3]];
+  const api = {
+    to(t, x, y, e = 'io') { xs.push([t, x * unit, e]); ys.push([t, y * unit, e]); return api; },
+    show(t) { os.push([t, 0], [t + 0.25, 1, 'out']); return api; },
+    hide(t) { os.push([t, 1], [t + 0.25, 0]); return api; },
+    click(t, x, y) {
+      ss.push([t - 0.05, 1], [t, 0.82, 'out'], [t + 0.16, 1, 'out']);
+      rx.push([t - 0.002, x * unit, 'lin'], [t, x * unit, 'lin']);
+      ry.push([t - 0.002, y * unit, 'lin'], [t, y * unit, 'lin']);
+      ro.push([t - 0.002, 0, 'lin'], [t, 0.95, 'lin'], [t + 0.5, 0, 'out']);
+      rs.push([t - 0.002, 0.3, 'lin'], [t + 0.5, 1.6, 'out']);
+      return api;
+    },
+    down(t0, t1) { ss.push([t0 - 0.05, 1], [t0, 0.86, 'out'], [t1, 0.86], [t1 + 0.12, 1, 'out']); return api; },
+    done() { K(n, 'x', xs); K(n, 'y', ys); K(n, 'o', os); K(n, 's', ss); K(rn, 'x', rx); K(rn, 'y', ry); K(rn, 'o', ro); K(rn, 's', rs); return api; },
+  };
+  return api;
+}
+function ring(parent, [x0, y0, x1, y1], unit, t0, t1) {
+  const e = el(`<div class="hl" style="left:0;top:0;width:${(x1 - x0) * unit + 24}px;height:${(y1 - y0) * unit + 24}px"></div>`, parent);
+  const n = N(e, { x: x0 * unit - 12, y: y0 * unit - 12, o: 0 });
+  K(n, 'o', [[t0, 0], [t0 + 0.3, 1, 'out'], [t1 - 0.3, 1], [t1, 0]]);
+  K(n, 's', [[t0, 1.08], [t0 + 0.4, 1, 'out']]);
+  return n;
+}
+
+// ── Background (always on): aurora, dot grid, grain, vignette; pulses with the kick ──
+{
+  cur = null;
+  const bg = el('<div class="layerbox"></div>', stage);
+  const blobs = [
+    ['rgba(79,70,229,.55)', 1300, 1100, -300, -420],
+    ['rgba(192,38,211,.32)', 1200, 1000, 1000, -380],
+    ['rgba(8,145,178,.28)', 1000, 900, 300, 420],
+    ['rgba(124,58,237,.42)', 1100, 1000, 1150, 380],
+  ].map(([c, w, h, x, y], i) => ({ n: N(el(`<div class="blob" style="width:${w}px;height:${h}px;background:radial-gradient(closest-side,${c},transparent 72%)"></div>`, bg), { x, y }), x, y, i }));
+  el('<div class="grid"></div>', bg);
+  const glow = N(el('<div class="layerbox" style="background:radial-gradient(ellipse 60% 50% at 50% 55%,rgba(139,92,246,.22),transparent 70%)"></div>', bg), { o: 0 });
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const img = g.createImageData(256, 256);
+  let seed = 7;
+  for (let i = 0; i < img.data.length; i += 4) {
+    seed = (seed * 16807) % 2147483647;
+    const v = seed % 255;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+    img.data[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  el(`<div class="grain" style="background-image:url(${c.toDataURL()})"></div>`, bg);
+  el('<div class="vignette"></div>', bg);
+  const beats = [];
+  const four = (b) => (b >= 4 && b < 28) || (b >= 32 && b < 52) || b === 56 || b === 57;
+  for (let b = 0; b < 60; b++) {
+    if (four(b)) for (let q = 0; q < 4; q++) beats.push(b * 2 + q * 0.5);
+    else if (b >= 52 && b < 56) beats.push(b * 2, b * 2 + 1);
+  }
+  updaters.push({
+    scene: null,
+    fn: (t) => {
+      for (const b of blobs) {
+        const a = t * 0.11 + b.i * 1.7;
+        b.n.base.x = b.x + Math.sin(a) * 140 + Math.cos(a * 0.6) * 60;
+        b.n.base.y = b.y + Math.cos(a * 0.8) * 90;
+        b.n.base.s = 1 + Math.sin(a * 0.7) * 0.06;
+      }
+      let last = -9;
+      for (const b of beats) if (b <= t) last = b; else break;
+      glow.base.o = 0.25 + 0.75 * Math.exp(-(t - last) / 0.2) * (t - last < 1 ? 1 : 0);
+    },
+  });
+}
+
+const S = TL.scenes;
+
+// ── 1. Intro: logo, name, promise ──
+{
+  const s = scene('intro');
+  const A = el('<div class="layerbox"></div>');
+  const hide = N(A);
+  K(hide, 'o', [[5.0, 1], [5.4, 0, 'in']]);
+  K(hide, 'y', [[5.0, 0], [5.4, -40, 'in']]);
+  const logo = at(`<img src="${LOGO}" style="width:170px;height:170px;border-radius:40px;box-shadow:0 30px 80px -20px rgba(99,102,241,.9)" alt="">`, 875, 250, A);
+  K(logo, 'o', [[0.6, 0], [1.1, 1, 'out']]);
+  K(logo, 's', [[0.6, 0.55], [1.4, 1, 'back'], [5.2, 1], [5.6, 0.8, 'in']]);
+  K(logo, 'b', [[0.6, 18], [1.2, 0, 'out']]);
+  K(logo, 'r', [[0.6, -12], [1.4, 0, 'back']]);
+  const name = at('<div style="width:1920px;text-align:center;font-size:150px;font-weight:850;letter-spacing:-.055em;line-height:1;white-space:nowrap">FrameShot</div>', 0, 455, A);
+  K(name, 'o', [[1.3, 0], [1.9, 1, 'out']]);
+  K(name, 'y', [[1.3, 500], [2.0, 455, 'out']]);
+  K(name, 'b', [[1.3, 14], [1.9, 0, 'out']]);
+  const shine = at('<div style="width:1920px;text-align:center;font-size:150px;font-weight:850;letter-spacing:-.055em;line-height:1;white-space:nowrap" class="grad">FrameShot</div>', 0, 455, A);
+  K(shine, 'o', [[2.1, 0], [2.7, 1, 'sine'], [3.6, 1], [4.4, 0, 'sine']]);
+  K(shine, 'y', [[1.3, 500], [2.0, 455, 'out']]);
+  const tag = at('<div style="width:1920px;text-align:center;font-size:38px;font-weight:550;color:rgba(235,235,255,.8)">Screen recorder &amp; full-page screenshots for Chrome</div>', 0, 640, A);
+  enter(tag, 2.5, { dy: 24 });
+  row(['Free forever', 'No watermark', 'No sign-up', 'Nothing uploaded'].map((t, i) => chip(t, 0, 750, 3.15 + i * 0.32, 'Check', 'ok', A)), 960, 22);
+  // Kinetic words on the beat.
+  const B = el('<div class="layerbox"></div>');
+  const grp = N(B);
+  K(grp, 's', [[7.4, 1], [7.95, 1.25, 'in']]);
+  const words = ['Capture.', 'Record.', 'Annotate.', 'Share.'].map((wd, i) => {
+    const n = at(`<div style="font-size:112px;font-weight:850;letter-spacing:-.05em;white-space:nowrap" class="${i === 3 ? 'grad' : ''}">${wd}</div>`, 0, 455, B);
+    const t = 5.5 + i * 0.5;
+    K(n, 'o', [[t - 0.02, 0], [t + 0.12, 1, 'out']]);
+    K(n, 's', [[t - 0.02, 1.35], [t + 0.3, 1, 'out']]);
+    K(n, 'b', [[t - 0.02, 12], [t + 0.2, 0, 'out']]);
+    return n;
+  });
+  row(words, 960, 34);
+  // Fade in from black (on top of everything in this scene).
+  const fadeIn = N(el('<div class="layerbox" style="background:#000"></div>'), { o: 1 });
+  K(fadeIn, 'o', [[0, 1], [1.2, 0, 'sine']]);
+}
+
+// ── 2. Full-page capture in a browser ──
+{
+  const s = scene('fullpage');
+  caption({ x: 110, y: 300, w: 560, eyebrow: 'Full-page screenshots', title: 'The whole page.<br><span class="grad">One click.</span>', sub: 'FrameShot scrolls the page, captures every part and stitches them into one sharp image.', t: 8.2 });
+  const BX = 720, BY = 150, BW = 1090, BH = 800, VH = BH - 78;
+  const sc = BW / 2560;
+  const b = el(`<div class="browser" style="width:${BW}px;height:${BH}px"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span>${ICON('ArrowLeft', 22)}${ICON('ArrowRight', 22)}${ICON('RotateCw', 22)}<div class="addr">${ICON('Lock', 17)}app.example.com/board</div>${ICON('Puzzle', 22)}<span class="ext"><img src="${LOGO}" alt=""><span class="badge" style="opacity:0">0%</span></span></div><div class="bview" style="width:${BW}px;height:${VH}px"><img class="page" src="${RAW}page-full.png" style="position:absolute;left:0;top:0;width:${BW}px" alt=""></div></div>`);
+  const bn = N(b, { x: BX, y: BY });
+  enter(bn, 8.0, { dy: 70, s: 0.96, d: 0.8 });
+  const page = N(b.querySelector('.page'));
+  const PH = Math.round(3790 * sc), MAXY = PH - VH;
+  K(page, 'y', [[13.1, 0], [13.45, -VH + 40, 'io'], [14.35, -VH + 40], [14.7, -MAXY, 'io'], [15.6, -MAXY], [16.3, 0, 'io']]);
+  const view = b.querySelector('.bview');
+  const scan = N(el('<div class="scan"></div>', view), { o: 0 });
+  K(scan, 'o', [[12.9, 0], [13.0, 1], [16.3, 1], [16.5, 0]]);
+  K(scan, 'y', [[12.95, 0], [13.1, 0], [13.45, VH - 4, 'lin'], [13.5, 0, 'lin'], [14.35, 0], [14.7, VH - 4, 'lin'], [14.75, 0, 'lin'], [15.6, VH - 4, 'lin'], [16.3, VH - 4]]);
+  const pill = N(el(`<div class="pill"><span class="dot"></span><span class="ptxt">Capturing full page…</span><span class="pbar"><b></b></span><span class="pct" style="font-variant-numeric:tabular-nums;width:56px;text-align:right">0%</span></div>`, view), { x: BW / 2 - 230, y: 22, o: 0 });
+  K(pill, 'o', [[12.8, 0], [13.0, 1, 'out'], [16.6, 1], [16.85, 0]]);
+  const pct = pill.e.querySelector('.pct'), bar = pill.e.querySelector('.pbar b'), badge = b.querySelector('.badge');
+  const prog = (t) => Math.round(val([[13.0, 0], [13.45, 18], [14.3, 34], [14.7, 52], [15.55, 67], [15.65, 83], [16.3, 100]], t));
+  up((t) => {
+    const v = prog(t);
+    pct.textContent = `${v}%`;
+    bar.style.transform = `scaleX(${v / 100})`;
+    badge.textContent = `${v}%`;
+    badge.style.opacity = t > 12.9 && t < 16.8 ? '1' : '0';
+  });
+  const flash = N(el('<div class="flash"></div>', view), { o: 0 });
+  K(flash, 'o', [[16.88, 0], [16.95, 0.75, 'lin'], [17.3, 0, 'out']]);
+  // The popup, anchored under the toolbar icon.
+  const IX = BX + BW - 46, IY = BY + 39;
+  const pw = 312, ph = Math.round(1120 * (pw / 720));
+  const popup = at(`<img src="${RAW}popup.png" style="width:${pw}px;height:${ph}px;border-radius:14px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.08)" alt="">`, IX + 22 - pw, IY + 34);
+  popup.e.style.transformOrigin = '100% 0';
+  K(popup, 'o', [[10.7, 0], [10.86, 1, 'out'], [12.55, 1], [12.7, 0]]);
+  K(popup, 's', [[10.7, 0.94], [10.9, 1, 'out']]);
+  const pk = pw / 720;
+  const cur2 = cursor(s.el, 30);
+  cur2.show(9.5).to(9.5, 1500, 1010).to(10.45, IX + 2, IY + 2, 'io').click(10.6, IX + 2, IY + 2)
+    .to(11.7, IX + 2, IY + 2).to(12.35, IX + 22 - pw + 160 * pk * 2.2, IY + 34 + 200 * pk, 'io').click(12.5, IX + 22 - pw + 160 * pk * 2.2, IY + 34 + 200 * pk)
+    .to(13.3, 1700, 1040, 'io').hide(13.1).done();
+  // The result: one tall image of the whole page.
+  const TH = 860, TW = Math.round(2560 * (TH / 3790));
+  const tall = at(`<div class="tall" style="width:${TW}px;height:${TH}px"><img src="${RAW}page-full.png" style="width:${TW}px;height:${TH}px" alt=""></div>`, 1215, 110);
+  K(tall, 'o', [[17.15, 0], [17.6, 1, 'out']]);
+  K(tall, 'y', [[17.15, 190], [17.9, 110, 'out']]);
+  K(tall, 's', [[17.15, 0.9], [17.9, 1, 'out']]);
+  K(bn, 'o', [[16.95, 1], [17.4, 0, 'in']]);
+  K(bn, 's', [[16.95, 1], [17.4, 0.94, 'in']]);
+  const lab = at('<div class="tag">Full page · 1280 × 1895 px · one image</div>', 1215 + TW / 2 - 175, 110 + TH - 66);
+  enter(lab, 18.0, { dy: 10, d: 0.4 });
+  [['Sticky header shown once', 18.6], ['Lazy images loaded first', 19.1], ['Scroll position restored', 19.6], ['Long pages split, never cut off', 20.1]].forEach(([t, at_], i) => chip(t, 735, 380 + i * 92, at_, 'Check', 'ok'));
+}
+
+// ── 3. Capture modes ──
+{
+  const s = scene('modes');
+  const head = at('<div style="width:1920px;text-align:center"><div class="eyebrow">Capture anything</div><h2 style="margin-top:18px;font-size:70px;font-weight:820;letter-spacing:-.045em">Or just the part <span class="grad">you need</span></h2></div>', 0, 92);
+  enter(head, 24.1, { dy: 24 });
+  const cards = [
+    { img: 'page-full', crop: [0, 0, 2560, 1600], title: 'Visible area', p: 'What’s on screen, with an optional 3, 5 or 10 second delay.', keys: ['Alt', 'Shift', 'V'] },
+    { img: 'area', crop: [0, 260, 1700, 1323], title: 'Selected area', p: 'Drag a box, nudge it with handles, scroll to make it taller.', keys: ['Alt', 'Shift', 'A'] },
+    { img: 'element', crop: [0, 560, 1660, 1598], title: 'Element', p: 'Hover to highlight a block, ↑ ↓ to pick its parent or child.', keys: ['Alt', 'Shift', 'E'] },
+  ];
+  const CW = 540, SH = 338;
+  cards.forEach((c, i) => {
+    const x = 120 + i * 580, t = 24.5 + i * 1.5;
+    const [cx0, cy0, cx1] = c.crop;
+    const scale = CW / (cx1 - cx0);
+    const e = el(`<div class="card" style="left:0;top:0;width:${CW}px;height:566px"><div class="shot" style="width:${CW}px;height:${SH}px"><img src="${RAW}${c.img}.png" style="width:${2560 * scale}px;left:${-cx0 * scale}px;top:${-cy0 * scale}px" alt=""></div><h3>${c.title}</h3><p>${c.p}</p><div class="keyrow">${c.keys.map(keycap).join('<span>+</span>')}</div></div>`);
+    const n = N(e, { x, y: 290 });
+    enter(n, t, { dy: 50, s: 0.95, d: 0.7, ease: 'back' });
+    [...e.querySelectorAll('.key')].forEach((kEl, j) => press(N(kEl), t + 0.5 + j * 0.04));
+    if (i === 0) {
+      const dash = N(el(`<div style="position:absolute;left:10px;top:10px;width:${CW - 20}px;height:${SH - 20}px;border:3px dashed #6366f1;border-radius:10px"></div>`, e.querySelector('.shot')), { o: 0 });
+      K(dash, 'o', [[t + 0.55, 0], [t + 0.75, 1], [t + 1.0, 0.4], [t + 1.25, 1]]);
+      const timer = N(el(`<div class="tag" style="left:auto;right:16px;top:16px">${ICON('Timer', 18)} 3 s</div>`, e.querySelector('.shot')), { o: 0 });
+      timer.e.style.display = 'flex';
+      timer.e.style.alignItems = 'center';
+      timer.e.style.gap = '8px';
+      K(timer, 'o', [[t + 0.7, 0], [t + 0.9, 1]]);
+    }
+  });
+  const note = at('<div style="width:1920px;text-align:center;font-size:27px;color:rgba(235,235,255,.72)">Plus scrolling panels inside web apps, and a shortcut for every mode.</div>', 0, 950);
+  enter(note, 28.8, { dy: 16 });
+}
+
+// ── 4. Editor: annotate step by step ──
+{
+  const s = scene('editor');
+  caption({ x: 110, y: 230, w: 480, eyebrow: 'Annotate', title: 'Explain it with arrows, <span class="grad">not paragraphs</span>', sub: 'Every mark stays editable, with up to 100 steps of undo.', t: 32.2, size: 66 });
+  const wn = win({ x: 640, y: 158, w: 1200, title: 'FrameShot Studio — Editor', layers: ['ed-0', 'ed-1', 'ed-2', 'ed-3', 'ed-4'] });
+  enter(wn.n, 32.0, { dy: 60, s: 0.95, d: 0.8 });
+  const R = { hl: [471, 443, 879, 483], box: [301, 613, 696, 803], text: [1122, 548, 1507, 588], arrow: [639, 568, 1117, 626] };
+  const MK = [[323, 821], [1199, 821], [323, 1245]];
+  // Live drawing, then the real state underneath.
+  reveal(wn, 'ed-1', R.hl, 34.6, 35.2, 'ltr', 35.3); swap(wn, 'ed-1', 35.3);
+  reveal(wn, 'ed-2', R.box, 37.0, 37.55, 'box', 37.65); swap(wn, 'ed-2', 37.65);
+  reveal(wn, 'ed-3', R.text, 39.4, 39.95, 'ltr', 40.75);
+  reveal(wn, 'ed-3', R.arrow, 40.2, 40.65, 'rtl', 40.75); swap(wn, 'ed-3', 40.75);
+  MK.forEach(([x, y], i) => pop(wn, 'ed-4', x, y, 46, 41.9 + i * 0.6, 43.4));
+  swap(wn, 'ed-4', 43.4);
+  K(wn.cam, 'z', [[33.6, 1], [34.3, 1.75], [35.9, 1.75], [36.5, 1.7], [38.3, 1.7], [38.8, 1.5], [41.0, 1.5], [41.5, 1.25], [43.9, 1.25], [44.6, 1]]);
+  K(wn.cam, 'fx', [[33.6, 1280], [34.3, 700], [35.9, 700], [36.5, 520], [38.3, 520], [38.8, 1060], [41.0, 1060], [41.5, 760], [43.9, 760], [44.6, 1280]]);
+  K(wn.cam, 'fy', [[33.6, 800], [34.3, 520], [35.9, 520], [36.5, 700], [38.3, 700], [38.8, 600], [41.0, 600], [41.5, 1030], [43.9, 1030], [44.6, 800]]);
+  const c = cursor(wn.camEl, 44 * wn.k, wn.k);
+  c.show(33.4).to(33.4, 1500, 1150).to(34.5, 471, 463).to(34.6, 471, 463).down(34.6, 35.2).to(35.2, 879, 463, 'lin')
+    .to(36.9, 301, 613).down(37.0, 37.55).to(37.0, 301, 613).to(37.55, 696, 803, 'lin')
+    .to(39.2, 1130, 560).click(39.3, 1130, 560).to(39.95, 1500, 575, 'lin')
+    .to(40.15, 1117, 572).down(40.2, 40.65).to(40.2, 1117, 572).to(40.65, 650, 620, 'lin')
+    .to(41.8, MK[0][0], MK[0][1]).click(41.9, ...MK[0]).to(42.4, ...MK[1]).click(42.5, ...MK[1]).to(43.0, ...MK[2]).click(43.1, ...MK[2])
+    .to(44.4, 1700, 1300).hide(44.2).done();
+  // Shortcut keys for each tool.
+  const tools = [['H', 'Highlighter', 34.2], ['R', 'Rectangle', 36.7], ['T', 'Text', 38.9], ['A', 'Arrow', 40.1], ['N', 'Numbered steps', 41.6]];
+  tools.forEach(([key, label, t], i) => {
+    const n = at(`<div class="tool">${keycap(key)}<span>${label}</span></div>`, 110, 640 + i * 66);
+    K(n, 'o', [[t - 0.25, 0], [t, 1, 'out']]);
+    K(n, 'x', [[t - 0.25, 80], [t, 110, 'out']]);
+    press(N(n.e.querySelector('.key')), t);
+  });
+}
+
+// ── 5. Protect: blur and redact ──
+{
+  const s = scene('protect');
+  const wn = win({ x: 100, y: 172, w: 1180, title: 'FrameShot Studio — Editor', layers: ['rd-0', 'rd-1', 'rd-2'] });
+  enter(wn.n, 48.0, { dx: -60, dy: 0, s: 0.96, d: 0.8 });
+  caption({ x: 1350, y: 210, w: 470, eyebrow: 'Privacy tools', title: 'Share the screenshot, <span class="grad">not the secrets</span>', sub: 'A solid box is flattened into every export, so the hidden text simply isn’t in the file.', t: 48.3, size: 62 });
+  const BL = [285, 923, 1075, 1049], CD = [289, 1073, 1071, 1193];
+  reveal(wn, 'rd-1', BL, 49.9, 50.45, 'box', 50.55); swap(wn, 'rd-1', 50.55);
+  reveal(wn, 'rd-2', CD, 52.7, 53.25, 'box', 53.35); swap(wn, 'rd-2', 53.35);
+  K(wn.cam, 'z', [[49.0, 1], [49.6, 1.45], [50.8, 1.45], [51.3, 2.0], [52.1, 2.0], [52.5, 1.45], [53.8, 1.45], [54.4, 1]]);
+  K(wn.cam, 'fx', [[49.0, 1280], [49.6, 690], [50.8, 690], [51.3, 2240], [52.1, 2240], [52.5, 690], [53.8, 690], [54.4, 1280]]);
+  K(wn.cam, 'fy', [[49.0, 800], [49.6, 1050], [50.8, 1050], [51.3, 420], [52.1, 420], [52.5, 1060], [53.8, 1060], [54.4, 800]]);
+  ring(wn.camEl, [2032, 320, 2528, 496], wn.k, 51.35, 52.15);
+  const c = cursor(wn.camEl, 44 * wn.k, wn.k);
+  c.show(49.2).to(49.2, 1400, 1300).to(49.8, 285, 923).down(49.9, 50.45).to(49.9, 285, 923).to(50.45, 1075, 1049, 'lin')
+    .to(52.6, 289, 1073).down(52.7, 53.25).to(52.7, 289, 1073).to(53.25, 1071, 1193, 'lin').to(54.3, 1600, 1400).hide(54.1).done();
+  [['B', 'Blur', 49.6], ['X', 'Pixelate', 50.0], ['D', 'Redact (solid)', 52.4]].forEach(([key, label, t], i) => {
+    const n = at(`<div class="tool">${keycap(key)}<span>${label}</span></div>`, 1350, 690 + i * 66);
+    K(n, 'o', [[t - 0.25, 0], [t, key === 'X' ? 0.6 : 1, 'out']]);
+    K(n, 'x', [[t - 0.25, 1320], [t, 1350, 'out']]);
+    if (key !== 'X') press(N(n.e.querySelector('.key')), t);
+  });
+  const warn = at(`<div class="chip"><span class="ic" style="background:linear-gradient(135deg,#f59e0b,#ea580c)">${ICON('TriangleAlert', 21)}</span>Blur can sometimes be reversed. FrameShot tells you.</div>`, 300, 960);
+  K(warn, 'o', [[51.4, 0], [51.7, 1, 'out'], [52.4, 1], [52.6, 0]]);
+  K(warn, 'y', [[51.4, 980], [51.75, 960, 'out']]);
+}
+
+// ── 6. Into the recorder: a countdown on the beat ──
+{
+  const s = scene('recIntro');
+  const words = ['Now,', 'record', 'your', 'screen.'].map((wd, i) => {
+    const n = at(`<div style="font-size:96px;font-weight:850;letter-spacing:-.05em;white-space:nowrap" class="${i === 3 ? 'grad' : ''}">${wd}</div>`, 0, 120);
+    const t = 56.4 + i * 0.5;
+    K(n, 'o', [[t, 0], [t + 0.15, 1, 'out'], [60.6, 1], [60.9, 0.35]]);
+    K(n, 'y', [[t, 150], [t + 0.35, 120, 'out']]);
+    K(n, 'b', [[t, 10], [t + 0.2, 0, 'out']]);
+    return n;
+  });
+  row(words, 960, 28);
+  const sub = at('<div style="width:1920px;text-align:center;font-size:30px;color:rgba(235,235,255,.75)">A tab, a window or your entire screen. With sound and your camera.</div>', 0, 262);
+  enter(sub, 58.3, { dy: 16 });
+  K(sub, 'o', [[58.3, 0], [58.8, 1], [60.6, 1], [60.9, 0.35]]);
+  const wn = win({ x: 460, y: 340, w: 1000, title: 'FrameShot Studio — Recorder', layers: ['rec-setup', 'rec-count'] });
+  enter(wn.n, 58.8, { dy: 80, s: 0.94, d: 0.9 });
+  fade(wn, 'rec-count', 61.0, 0.25);
+  K(wn.n, 'br', [[60.8, 1], [61.0, 0.42]]);
+  K(wn.n, 'b', [[58.8, 8], [59.5, 0, 'out'], [60.8, 0], [61.0, 5]]);
+  ['3', '2', '1'].forEach((d, i) => {
+    const t = 61 + i;
+    const n = at(`<div class="count ${i === 2 ? 'grad' : ''}" style="width:400px;text-align:center">${d}</div>`, 760, 470);
+    K(n, 'o', [[t - 0.01, 0], [t + 0.08, 1, 'out'], [t + 0.75, 1], [t + 0.95, 0]]);
+    K(n, 's', [[t - 0.01, 1.6], [t + 0.35, 1, 'out'], [t + 0.95, 0.85, 'in']]);
+    K(n, 'b', [[t - 0.01, 16], [t + 0.25, 0, 'out']]);
+    const r = at('<div style="width:380px;height:380px;border-radius:50%;border:8px solid rgba(167,139,250,.75)"></div>', 770, 485);
+    K(r, 'o', [[t - 0.002, 0], [t, 0.9, 'lin'], [t + 0.9, 0, 'out']]);
+    K(r, 's', [[t, 0.7], [t + 0.9, 1.35, 'out']]);
+  });
+  const flash = N(el('<div class="layerbox" style="background:#fff"></div>'), { o: 0 });
+  K(flash, 'o', [[63.82, 0], [63.97, 0.85, 'lin'], [64.05, 0.85]]);
+}
+
+// ── 7. Recorder ──
+{
+  const s = scene('recorder', 0.05);
+  const flashOut = N(el('<div class="layerbox" style="background:#fff;z-index:5"></div>'), { o: 0.85 });
+  K(flashOut, 'o', [[64.0, 0.85], [64.45, 0, 'out']]);
+  const wn = win({ x: 80, y: 158, w: 1300, title: 'FrameShot Studio — Recorder', layers: ['rec-live', 'player'] });
+  enter(wn.n, 64.0, { dx: 120, dy: 0, s: 1.04, blur: 0, d: 0.7, ease: 'out5' });
+  // Live timers drawn over the capture's own "0:05".
+  const k = wn.k;
+  // Same styles as the recorder (48px semibold, tracking-tight, at 2x), on the panel's white.
+  const big = N(el(`<div style="position:absolute;left:0;top:0;width:${300 * k}px;height:${120 * k}px;padding:${10 * k}px 0 0 ${14 * k}px;background:#fefeff;font-size:${96 * k}px;line-height:1;font-weight:600;letter-spacing:-.025em;color:#0b0b14;font-variant-numeric:tabular-nums">0:05</div>`, wn.camEl), { x: 1772 * k, y: 262 * k });
+  // The chip on the shared screen (bg-black/55 over the dark edge and the page), drawn opaque so it covers the original.
+  const small = N(el(`<div style="position:absolute;left:0;top:0;display:flex;align-items:center;gap:${16 * k}px;width:${146 * k}px;height:${62 * k}px;padding-left:${24 * k}px;border-radius:${31 * k}px;background:linear-gradient(90deg,rgb(12,12,22) 0%,rgb(12,12,22) 34%,rgb(96,93,106) 44%,rgb(104,101,113) 100%);color:#fff;font-size:${26 * k}px;font-weight:600;font-variant-numeric:tabular-nums"><i style="flex:none;width:${18 * k}px;height:${18 * k}px;border-radius:50%;background:#ef4444"></i><span>0:05</span></div>`, wn.camEl), { x: 82 * k, y: 201 * k });
+  const fmt = (t) => { const v = Math.max(5, Math.floor(5 + (t - 64.3))); return `${Math.floor(v / 60)}:${String(v % 60).padStart(2, '0')}`; };
+  const smallTxt = small.e.querySelector('span');
+  up((t) => { big.e.textContent = fmt(t); smallTxt.textContent = fmt(t); });
+  K(big, 'o', [[77.9, 1], [78.0, 0]]);
+  K(small, 'o', [[77.9, 1], [78.0, 0]]);
+  K(wn.cam, 'z', [[65.6, 1], [66.4, 1.75], [69.4, 1.75], [70.2, 1.85], [73.4, 1.85], [74.2, 1]]);
+  K(wn.cam, 'fx', [[65.6, 1280], [66.4, 1300], [69.4, 1300], [70.2, 2140], [73.4, 2140], [74.2, 1280]]);
+  K(wn.cam, 'fy', [[65.6, 800], [66.4, 860], [69.4, 860], [70.2, 520], [73.4, 520], [74.2, 800]]);
+  fade(wn, 'player', 78.0, 0.4);
+  up((t) => { wn.tt.textContent = t < 78.0 ? 'FrameShot Studio — Recorder' : 'FrameShot Studio — Player'; });
+  ring(wn.camEl, [1680, 1500, 2520, 1590], wn.k, 78.7, 79.9);
+  // Floating REC chip with a live equalizer.
+  const rec = at(`<div class="rec"><span class="rdot"></span><span><b class="rt">0:05</b><small>Tab sound + microphone</small></span><span class="eq">${'<i></i>'.repeat(9)}</span></div>`, 980, 98);
+  enter(rec, 64.6, { dy: -20, s: 0.9, d: 0.5, ease: 'back' });
+  K(rec, 'o', [[64.6, 0], [65.0, 1], [77.6, 1], [77.9, 0]]);
+  const bars = [...rec.e.querySelectorAll('.eq i')], rt = rec.e.querySelector('.rt'), dot = rec.e.querySelector('.rdot');
+  up((t) => {
+    rt.textContent = fmt(t);
+    bars.forEach((b, i) => {
+      const v = 0.25 + 0.75 * Math.abs(Math.sin(t * (5.1 + i * 0.83) + i * 1.9) * Math.sin(t * (2.3 + i * 0.37)));
+      b.style.transform = `scaleY(${v.toFixed(3)})`;
+    });
+    dot.style.boxShadow = `0 0 0 ${(8 * ((t * 1.25) % 1)).toFixed(1)}px rgba(239,68,68,${(0.5 * (1 - ((t * 1.25) % 1))).toFixed(2)})`;
+  });
+  const head = at('<div class="cap"><div class="eyebrow">Screen recorder</div><h2 style="font-size:58px">Record with <span class="grad">sound &amp; camera</span></h2></div>', 1440, 170);
+  head.e.style.width = '440px';
+  enter(head, 64.4, { dy: 24 });
+  const F = [
+    ['Monitor', 'Tab, window or entire screen'],
+    ['Mic', 'Microphone + tab or system sound'],
+    ['Camera', 'Webcam bubble you can move'],
+    ['Sparkles', '720p to 4K, up to 60 fps'],
+    ['Pause', 'Pause and resume freely'],
+    ['ShieldCheck', 'Saved as you go, crash-safe'],
+    ['Download', 'MP4 or WebM, or save a frame'],
+  ];
+  F.forEach(([ic, text], i) => {
+    const n = at(`<div class="feat"><span class="ic">${ICON(ic, 26)}</span><span>${text}</span></div>`, 1440, 400 + i * 84);
+    n.e.style.width = '450px';
+    enter(n, 65.0 + i * 1.5, { dx: 40, dy: 0, d: 0.5 });
+  });
+}
+
+// ── 8. GIF export ──
+{
+  const s = scene('gif');
+  caption({ x: 110, y: 250, w: 480, eyebrow: 'GIF export', title: 'Turn any moment <span class="grad">into a GIF</span>', sub: 'Pick the part, the width and the frame rate. Made on your computer.', t: 80.2, size: 66 });
+  const wn = win({ x: 640, y: 158, w: 1200, title: 'FrameShot Studio — Player', layers: ['gif'], dark: true });
+  enter(wn.n, 80.0, { dy: 60, s: 0.95, d: 0.8 });
+  K(wn.cam, 'z', [[80.6, 1], [81.3, 1.22], [82.0, 1.22], [82.6, 1.75], [83.4, 1.75], [83.9, 1.3], [86.8, 1.3], [87.4, 1]]);
+  K(wn.cam, 'fx', [[80.6, 1280], [81.3, 1280], [82.0, 1280], [82.6, 1090], [83.4, 1090], [83.9, 1400], [86.8, 1400], [87.4, 1280]]);
+  K(wn.cam, 'fy', [[80.6, 800], [81.3, 800], [82.0, 800], [82.6, 890], [83.4, 890], [83.9, 1200], [86.8, 1200], [87.4, 800]]);
+  const k = wn.k;
+  [[890, 893], [1290, 893]].forEach(([x, y], i) => {
+    const r = N(el(`<div class="ring" style="width:${70 * k}px;height:${70 * k}px;margin:${-35 * k}px 0 0 ${-35 * k}px;border-color:#a78bfa"></div>`, wn.camEl), { x: x * k, y: y * k, o: 0 });
+    K(r, 'o', [[82.6 + i * 0.25, 0], [82.7 + i * 0.25, 1], [83.5, 0]]);
+    K(r, 's', [[82.6 + i * 0.25, 0.6], [83.4, 1.6, 'out']]);
+  });
+  const c = cursor(wn.camEl, 44 * k, k);
+  c.show(83.2).to(83.2, 1500, 1250).to(83.9, 1664, 1434).click(84.0, 1664, 1434).to(85.0, 1850, 1520).hide(84.9).done();
+  const prog = N(el(`<div class="prog">${ICON('Film', 20)}<span>Creating GIF…</span><span class="pbar" style="width:${300 * k * 1.3}px"><b></b></span><span class="pc" style="font-variant-numeric:tabular-nums;width:52px;text-align:right">0%</span></div>`, wn.camEl), { x: 1080 * k, y: 1330 * k, o: 0 });
+  prog.e.style.fontSize = `${30 * k * 1.3}px`;
+  K(prog, 'o', [[84.15, 0], [84.3, 1], [86.1, 1], [86.25, 0]]);
+  const pb = prog.e.querySelector('.pbar b'), pc = prog.e.querySelector('.pc');
+  up((t) => { const v = Math.round(val([[84.3, 0], [86.0, 100, 'sine']], t)); pb.style.transform = `scaleX(${v / 100})`; pc.textContent = `${v}%`; });
+  const toast = at(`<div class="toast"><span class="ic">${ICON('Check', 20)}</span>GIF saved · 640 × 400 · loops forever</div>`, 1180, 905);
+  K(toast, 'o', [[86.2, 0], [86.45, 1, 'out'], [87.4, 1]]);
+  K(toast, 'y', [[86.2, 935], [86.55, 905, 'back']]);
+  [['320 to 800 px wide', 84.6], ['10, 15 or 20 fps', 85.1], ['Up to 60 seconds', 85.6]].forEach(([t, at_], i) => chip(t, 110, 640 + i * 84, at_, 'Check', 'ok'));
+}
+
+// ── 9. Composer ──
+{
+  const s = scene('composer');
+  const wn = win({ x: 100, y: 172, w: 1180, title: 'FrameShot Studio — Composer', layers: ['cp-1', 'cp-2', 'cp-3'] });
+  enter(wn.n, 88.0, { dx: -60, dy: 0, s: 0.96, d: 0.8 });
+  caption({ x: 1350, y: 230, w: 470, eyebrow: 'Composer', title: 'Make it look good <span class="grad">enough to post</span>', sub: 'Gradients, padding, rounded corners, shadows and a browser frame.', t: 88.3, size: 62 });
+  fade(wn, 'cp-2', 90.7, 0.35);
+  fade(wn, 'cp-3', 92.7, 0.35);
+  K(wn.cam, 'z', [[88.5, 1], [95.5, 1.07, 'lin']]);
+  K(wn.cam, 'fx', [[88.5, 1280], [95.5, 1180, 'lin']]);
+  const c = cursor(wn.camEl, 44 * wn.k, wn.k);
+  c.show(89.6).to(89.6, 2300, 1200).to(90.5, 2480, 720).click(90.6, 2480, 720).to(92.5, 2018, 720).click(92.6, 2018, 720).to(93.6, 2200, 1100).hide(93.4).done();
+  [['Sizes for posts, slides and stories', 93.4], ['Light or dark browser frame', 93.9], ['Transparent backgrounds too', 94.4]].forEach(([t, at_], i) => chip(t, 1350, 700 + i * 84, at_, 'Sparkles'));
+}
+
+// ── 10. Library ──
+{
+  const s = scene('library');
+  caption({ x: 110, y: 240, w: 480, eyebrow: 'Library', title: 'Every capture, <span class="grad">organised</span>', sub: 'Screenshots and recordings in one place, stored on your computer.', t: 96.2, size: 66 });
+  const wn = win({ x: 640, y: 158, w: 1200, title: 'FrameShot Studio — Library', layers: ['lib-dark'], dark: true });
+  enter(wn.n, 96.0, { dy: 60, s: 0.95, d: 0.8 });
+  const k = wn.k;
+  const light = N(el(`<img class="ov" src="${RAW}lib-light.png" style="width:${wn.w}px;height:${wn.h}px" alt="">`, wn.camEl), { o: 1, cx: 2290 * k, cy: 60 * k });
+  K(light, 'circ', [[99.0, 0], [99.9, 3200 * k, 'in']]);
+  const sc2 = N(el(`<img class="ov" src="${RAW}shortcuts.png" style="width:${wn.w}px;height:${wn.h}px" alt="">`, wn.camEl), { o: 0 });
+  K(sc2, 'o', [[101.5, 0], [101.75, 1, 'out']]);
+  up((t) => wn.e.classList.toggle('dark', t < 99.45));
+  const c = cursor(wn.camEl, 44 * k, k);
+  c.show(97.8).to(97.8, 1700, 900).to(98.9, 2290, 60).click(99.0, 2290, 60).to(100.4, 2100, 700).hide(100.3).done();
+  const q = at(`<div class="tool">${keycap('?')}<span>Every shortcut, one key away</span></div>`, 110, 880);
+  K(q, 'o', [[101.1, 0], [101.4, 1, 'out']]);
+  press(N(q.e.querySelector('.key')), 101.4);
+  [['Search by title, site or tag', 'Search', 97.2], ['Collections & favourites', 'FolderOpen', 97.6], ['Duplicate finder', 'Copy', 98.0]].forEach(([t, ic, at_], i) => chip(t, 110, 600 + i * 82, at_, ic));
+}
+
+// ── 11. Privacy ──
+{
+  const s = scene('privacy');
+  const shield = at(`<div style="width:150px;height:150px;border-radius:44px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 30px 80px -20px rgba(16,185,129,.8)">${ICON('ShieldCheck', 80)}</div>`, 885, 110);
+  enter(shield, 104.2, { dy: 0, s: 0.6, d: 0.7, ease: 'back' });
+  const title = at('<div style="width:1920px;text-align:center;font-size:96px;font-weight:850;letter-spacing:-.05em">Private <span class="grad">by design</span></div>', 0, 300);
+  enter(title, 104.5, { dy: 30 });
+  const sub = at('<div style="width:1920px;text-align:center;font-size:30px;color:rgba(235,235,255,.76)">No servers and no account. Your captures stay on your computer until you download or copy them.</div>', 0, 430);
+  enter(sub, 104.9, { dy: 18 });
+  const T = [['CloudOff', 'Nothing uploaded'], ['UserX', 'No account'], ['BadgeCheck', 'No watermark'], ['EyeOff', 'No ads or tracking'], ['WifiOff', 'Works offline'], ['Gift', 'Free forever']];
+  T.forEach(([ic, label], i) => {
+    const x = 300 + (i % 3) * 450, y = 560 + Math.floor(i / 3) * 138;
+    enter(at(`<div class="tile"><span class="ic">${ICON(ic, 28)}</span>${label}</div>`, x, y), 105.5 + i * 0.5, { dy: 24, s: 0.92, d: 0.5, ease: 'back' });
+  });
+  const fine = at('<div style="width:1920px;text-align:center;font-size:24px;color:rgba(235,235,255,.55)">It reads a page only when you start a capture, and asks for no access to your websites in advance.</div>', 0, 880);
+  enter(fine, 109.0, { dy: 12 });
+}
+
+// ── 12. Outro ──
+{
+  const s = scene('outro', 0.4);
+  const logo = at(`<img src="${LOGO}" style="width:150px;height:150px;border-radius:36px;box-shadow:0 30px 80px -20px rgba(99,102,241,.9)" alt="">`, 885, 150);
+  enter(logo, 112.1, { dy: 0, s: 0.6, d: 0.8, ease: 'back' });
+  const name = at('<div style="width:1920px;text-align:center;font-size:130px;font-weight:850;letter-spacing:-.055em;line-height:1">FrameShot</div>', 0, 330);
+  enter(name, 112.4, { dy: 30 });
+  const tag = at('<div style="width:1920px;text-align:center;font-size:36px;font-weight:550;color:rgba(235,235,255,.8)">Capture the web. Edit every detail. <span class="grad" style="font-weight:750">Free forever.</span></div>', 0, 490);
+  enter(tag, 112.9, { dy: 20 });
+  const btn = at(`<div class="btn">${ICON('Puzzle', 32)}Add to Chrome — it’s free<span class="shine"></span></div>`, 0, 600);
+  centerX(btn);
+  enter(btn, 113.6, { dy: 30, s: 0.92, d: 0.6, ease: 'back' });
+  const shine = N(btn.e.querySelector('.shine'), { x: -160 });
+  K(shine, 'x', [[115.0, -160], [115.9, 620, 'io'], [117.2, 620], [117.21, -160], [118.0, 620, 'io']]);
+  row(['No watermark', 'No sign-up', 'Nothing uploaded'].map((t, i) => chip(t, 0, 740, 114.4 + i * 0.3, 'Check', 'ok')), 960, 22);
+  const dev = at(`<div style="display:flex;align-items:center;gap:16px;font-size:23px;color:rgba(235,235,255,.7);white-space:nowrap"><img src="${DEV}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px rgba(255,255,255,.2)" alt="">A product of Unique Labs · Developed by Shahriar Ahmed</div>`, 0, 900);
+  centerX(dev);
+  enter(dev, 115.4, { dy: 14 });
+  const black = N(el('<div class="layerbox" style="background:#000"></div>'), { o: 0 });
+  K(black, 'o', [[118.6, 0], [119.9, 1, 'sine']]);
+}
+
+// The break ends on a white flash and the outro on black: neither scene fades itself out.
+for (const name of ['recIntro', 'outro']) nodes.find((n) => n.e.dataset?.s === name).tr = {};
+
+// ── Seek ──
+function seek(t) {
+  for (const s of scenes) s.vis = t >= s.v0 && t < s.v1;
+  for (const s of scenes) s.el.style.display = s.vis ? 'block' : 'none';
+  for (const u of updaters) if (!u.scene || u.scene.vis) u.fn(t);
+  for (const n of nodes) if (!n.scene || n.scene.vis) apply(n, t);
+}
+window.seek = seek;
+await document.fonts.load('800 100px Inter');
+await document.fonts.ready;
+await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+seek(0);
+window.ready = true;
+</script>
+</body>
+</html>
