@@ -303,6 +303,7 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 | [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) | Market research and brand availability |
 | [WEBSITE.md](WEBSITE.md) | The marketing website: pages, Vercel deployment, store link, editing content |
 | [marketing/VIDEO.md](marketing/VIDEO.md) | The 2-minute showcase video: scenes, male AI narration, original soundtrack, captions, how to render it again |
+| [marketing/YOUTUBE.md](marketing/YOUTUBE.md) | YouTube upload kit: title, description with chapters, tags, thumbnails, upload settings |
 
 ---
 
