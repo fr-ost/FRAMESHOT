@@ -79,7 +79,8 @@ export function chip(ic, big, small, grad, cls = '') {
 /** The "Add to Chrome" button (store link once approved, else the coming-soon page). */
 export function installButton({ size = '', label = 'Add to Chrome — it’s free', note = false, light = false } = {}) {
   const external = STORE_URL ? ' rel="noopener" target="_blank"' : '';
-  const cls = ['btn', light ? 'btn-light' : 'btn-primary', size].filter(Boolean).join(' ');
+  // Emerald on light and dark surfaces alike: the one filled call to action.
+  const cls = ['btn', 'btn-primary', size].filter(Boolean).join(' ');
   return `<a class="${cls}" href="${esc(INSTALL_HREF)}"${external} data-install>${icon('Puzzle', size === 'btn-sm' ? 17 : 20)}<span class="lbl"><span class="lbl-long">${label}</span>${size === 'btn-sm' ? '<span class="lbl-short sr-only">Add to Chrome</span>' : ''}</span></a>${note ? '<span class="btn-note">Free forever · No account · Works in Google Chrome</span>' : ''}`;
 }
 
@@ -163,8 +164,8 @@ export function page(p) {
 <meta name="description" content="${esc(p.description)}">
 ${p.noindex ? '' : `<link rel="canonical" href="${url}">`}
 ${p.noindex ? '<meta name="robots" content="noindex,follow">' : '<meta name="robots" content="index,follow,max-image-preview:large">'}
-<meta name="theme-color" content="#f5f5fa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#07070c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1c" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <meta property="og:type" content="${p.type || 'website'}">
 <meta property="og:site_name" content="FrameShot">

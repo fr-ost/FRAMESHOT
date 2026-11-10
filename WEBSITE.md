@@ -65,6 +65,8 @@ The quickest way to point the buttons at the store, without a rebuild, is to cha
 | Styles (the extension's colours, light and dark) | `scripts/website/styles.css` |
 | Interactions | `scripts/website/site.js` |
 
+The visual system (white canvas, near-black ink, one emerald call-to-action colour, Inter 500 display type, 6 px buttons, 12 px hairline cards, no gradients) follows `docs/WEBSITE-DESIGN.md`; its tokens live at the top of `scripts/website/styles.css`.
+
 Every product fact on the site matches the extension's code (see [FEATURES.md](FEATURES.md)). There are no ratings, user counts, reviews or testimonials; please keep it that way until real ones exist. Write in plain sentences rather than lists of keywords or file formats.
 
 ## How it stays fast

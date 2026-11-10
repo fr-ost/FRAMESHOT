@@ -32,7 +32,7 @@ const FEATURES = [
   ['Film', 'g2', 'Turn clips into GIFs', 'Pick the moment, choose a width and a frame rate, and get a small looping GIF, made entirely on your computer.'],
   ['Frame', 'g5', 'Backgrounds and browser frames', 'Place a capture on a gradient with padding, rounded corners, a soft shadow and a browser frame, sized for social posts or slides.'],
   ['LibraryBig', 'g1', 'A library that stays organised', 'Search by page title, site or tag, sort captures into collections, mark favourites and find duplicates. Videos and screenshots live side by side.'],
-  ['Download', 'g3', 'Export the way you need', 'Download an image or a multi-page PDF, copy to the clipboard, or export a whole selection as a ZIP. Recordings are saved as MP4 or WebM.'],
+  ['Download', 'g5', 'Export the way you need', 'Download an image or a multi-page PDF, copy to the clipboard, or export a whole selection as a ZIP. Recordings are saved as MP4 or WebM.'],
 ];
 
 const TOUR = [
@@ -142,8 +142,6 @@ export function homePage() {
 
   const body = `
 <section class="hero">
-<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
-<div class="dots-bg" aria-hidden="true"></div>
 <div class="wrap hero-grid">
 <div class="hero-copy">
 <span class="kicker"><b>FREE</b><span class="kk"><span>Chrome extension</span> · <span>No watermark</span> · <span>No sign-up</span></span></span>
@@ -299,7 +297,7 @@ ${[
 <section class="section" id="privacy">
 <div class="wrap">
 <div class="band reveal">
-<span class="eyebrow" style="color:#e0e7ff">${icon('Lock', 16)}Privacy</span>
+<span class="eyebrow">${icon('Lock', 16)}Privacy</span>
 <h2 style="margin-top:12px">Your screen is nobody else’s business</h2>
 <p>FrameShot was built so it can’t see more than you show it, and can’t send what it sees anywhere.</p>
 <div class="band-grid">

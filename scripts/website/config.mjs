@@ -22,7 +22,7 @@ export const SITE = {
   telegram: 'https://t.me/igfrostt',
   published: '2026-11-08',
   locale: 'en_US',
-  themeColor: '#4f46e5',
+  themeColor: '#3ecf8e',
 };
 
 /** Where "Add to Chrome" goes: the store listing once it is known, else the coming-soon page. */

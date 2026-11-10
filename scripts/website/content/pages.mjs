@@ -10,7 +10,8 @@ import { formatDate, postCard, readingMinutes, wordCount } from './shared.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
-const aurora = '<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div><div class="dots-bg" aria-hidden="true"></div>';
+// The white canvas is the design: no backdrop behind page headers.
+const aurora = '';
 const crumbs = (items) =>
   `<nav aria-label="Breadcrumb"><ol class="crumbs">${items.map(([name, url], i) => (i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${url}">${esc(name)}</a></li>`)).join('')}</ol></nav>`;
 const byline = (date, minutes) =>

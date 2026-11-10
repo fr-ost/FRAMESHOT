@@ -114,7 +114,7 @@ write(
       description: SITE.description,
       start_url: '/',
       display: 'browser',
-      background_color: '#f5f5fa',
+      background_color: '#ffffff',
       theme_color: SITE.themeColor,
       icons: [
         { src: asset('/assets/img/icon-192.png'), sizes: '192x192', type: 'image/png' },

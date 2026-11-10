@@ -4,8 +4,8 @@
   "description": "Free Chrome extension to record your screen with sound and webcam, or capture a whole web page in one click. Annotate, blur and share. No watermark, no sign-up.",
   "start_url": "/",
   "display": "browser",
-  "background_color": "#f5f5fa",
-  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "theme_color": "#3ecf8e",
   "icons": [
     {
       "src": "/assets/img/icon-192.png?v=2459f69568",
