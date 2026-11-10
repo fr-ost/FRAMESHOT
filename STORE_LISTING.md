@@ -175,7 +175,7 @@ Do I need to create an account or sign in?
 No. Install it and start using it straight away.
 
 Are my files uploaded anywhere?
-No. Your videos and images are stored only on your computer, and they leave it only when you download, copy or share them yourself. The only thing FrameShot sends is an anonymous install count (a random ID, the version, your operating system and language when it is installed, updated or removed), which you can turn off in Settings.
+No. Your videos and images are stored only on your computer, and they leave it only when you download, copy or share them yourself. The only thing FrameShot sends is an anonymous install count when it is installed, updated or removed. It contains a random ID and basic facts such as the version, and you can turn it off in Settings.
 
 Why is there no sound in my recording?
 Check what you shared. A tab includes its sound when "Also share tab audio" is on. Your whole screen includes computer sound when you tick "Also share system audio", where your system offers it. A single app window never includes sound. The recorder shows a hint before you start and a message if no sound is coming in.

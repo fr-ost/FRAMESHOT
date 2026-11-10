@@ -111,13 +111,14 @@ test('install counts: only the tracker origin is allowed, test builds send nothi
   const page = await ext.context.newPage();
   await page.goto(`chrome-extension://${ext.extId}/studio.html#/settings`);
   const toggle = page.getByRole('switch', { name: /Share anonymous install counts/ });
+  const label = page.getByText('Share anonymous install counts', { exact: true });
   await expect(toggle).toBeChecked();
-  await toggle.click({ force: true });
+  await label.click();
   await expect(toggle).not.toBeChecked();
   await expect
     .poll(() => ext.sw.evaluate(async () => ((await chrome.storage.local.get('frameora.settings'))['frameora.settings'] as { shareStats?: boolean })?.shareStats))
     .toBe(false);
-  await toggle.click({ force: true });
+  await label.click();
   await expect(toggle).toBeChecked();
   await page.close();
 });
