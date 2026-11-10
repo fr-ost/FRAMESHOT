@@ -2,12 +2,12 @@
  * Website settings. The two values to set:
  *  - SITE_URL: the address the site is served from (used for canonical links,
  *    the sitemap and social previews). Set it to your Vercel or custom domain.
- *  - STORE_URL: the Chrome Web Store listing, once FrameShot is approved.
- *    Until then every "Add to Chrome" button opens /coming-soon.
+ *  - STORE_URL: the Chrome Web Store listing. Every "Add to Chrome" button opens it
+ *    (with no listing set, they would open /coming-soon instead).
  * Then run `npm run website` and commit the website/ folder.
  */
 export const SITE_URL = (process.env.SITE_URL || 'https://frameshot.uniquelabs.org').replace(/\/+$/, '');
-export const STORE_URL = process.env.STORE_URL || '';
+export const STORE_URL = process.env.STORE_URL || 'https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac';
 
 export const SITE = {
   name: 'FrameShot',

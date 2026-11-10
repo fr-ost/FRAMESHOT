@@ -34,7 +34,7 @@ npm run website
 ```
 
 - **`SITE_URL`**: the address the site is served from. It is used in canonical links, the sitemap, the RSS feed and social previews, so it must match your real domain. It is set to `https://frameshot.uniquelabs.org`.
-- **`STORE_URL`**: the Chrome Web Store listing. Until it is set, every "Add to Chrome" button links to `/chrome`, which redirects to `/coming-soon`. Once it is set, the buttons open the store listing directly, the structured data gets an install link, and the Support page shows a "Rate FrameShot" button.
+- **`STORE_URL`**: the Chrome Web Store listing, set to https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac. Every "Add to Chrome" button opens it, the structured data has an install link, the Support page shows a "Rate FrameShot" button, and `/chrome` and the old `/coming-soon` address redirect to it. (With no listing set, the buttons would lead to a coming-soon page instead.)
 
 Both can also be passed for a one-off build:
 

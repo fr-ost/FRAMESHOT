@@ -5,8 +5,13 @@
   "redirects": [
     {
       "source": "/chrome",
-      "destination": "/coming-soon",
+      "destination": "https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac",
       "permanent": false
+    },
+    {
+      "source": "/coming-soon",
+      "destination": "https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac",
+      "permanent": true
     }
   ],
   "headers": [

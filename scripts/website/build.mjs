@@ -45,7 +45,7 @@ const pages = [
   ...articlePages(),
   privacyPage(),
   supportPage(),
-  comingSoonPage(),
+  ...(STORE_URL ? [] : [comingSoonPage()]),
   notFoundPage(),
 ];
 const problems = [];
@@ -148,7 +148,11 @@ write(
       $schema: 'https://openapi.vercel.sh/vercel.json',
       cleanUrls: true,
       trailingSlash: false,
-      redirects: [{ source: '/chrome', destination: INSTALL_TARGET, permanent: false }],
+      redirects: [
+        { source: '/chrome', destination: INSTALL_TARGET, permanent: false },
+        // Old links to the pre-launch page go straight to the store.
+        ...(STORE_URL ? [{ source: '/coming-soon', destination: STORE_URL, permanent: true }] : []),
+      ],
       headers: [
         {
           source: '/(.*)',

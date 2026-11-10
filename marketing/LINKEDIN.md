@@ -9,7 +9,7 @@ Profile → **Add profile section** → **Recommended** → **Add projects** (or
 | Field | What to enter |
 |---|---|
 | Project name | `FrameShot: Free Screen Recorder & Full-Page Screenshot Extension for Chrome` |
-| Description | The text below (1,747 of 2,000 characters) |
+| Description | The text below (1,839 of 2,000 characters) |
 | Skills (up to 5) | TypeScript · React.js · Chrome extensions (pick "Google Chrome Extensions", "Chrome Extension Development" or "Browser Extensions", whichever LinkedIn suggests) · Product Design · User Interface Design |
 | Media | See the list below |
 | I am currently working on this project | Tick it (FrameShot is still being developed) |
@@ -41,6 +41,7 @@ How it's built
 • 146 unit tests (Vitest) and 89 end-to-end browser tests (Playwright), including pixel-by-pixel checks of full-page captures
 
 Website: frameshot.uniquelabs.org
+Chrome Web Store: https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac
 ```
 
 ### Media
@@ -49,7 +50,8 @@ In the project form, **Add media**. Each item takes a title and a short descript
 
 | Order | Add | Title | Description |
 |---|---|---|---|
-| 1 | Link: `https://frameshot.uniquelabs.org` (LinkedIn pulls the site's own preview image) | FrameShot website | Features, guides and the privacy policy |
+| 1 | Link: `https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac` | FrameShot on the Chrome Web Store | Add it to Chrome for free |
+| 1b | Link: `https://frameshot.uniquelabs.org` (LinkedIn pulls the site's own preview image) | FrameShot website | Features, guides and the privacy policy |
 | 2 | Image: `marketing/linkedin/frameshot-linkedin-1200x627.jpg` | FrameShot overview | Free screen recorder and full-page screenshots for Chrome |
 | 3 | Image: `store-assets/screenshots/02-screen-recorder.png` | Screen recorder | Record a tab, a window or your screen with sound and a webcam bubble |
 | 4 | Image: `store-assets/screenshots/03-full-page-editor.png` | Full-page capture and editor | Capture a whole page, then annotate it |
@@ -86,7 +88,7 @@ What it does:
 
 Under the hood: TypeScript, React and Chrome's Manifest V3, with a stitching engine for pixel-accurate full-page captures, the Web Audio API for mixing sound, and more than 230 automated tests.
 
-Free forever. Try it: [Chrome Web Store link]
+Free forever. Try it: https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac
 More at frameshot.uniquelabs.org
 
 What would you add next? 👇
@@ -94,7 +96,7 @@ What would you add next? 👇
 #ChromeExtension #ScreenRecorder #ProductLaunch #TypeScript #BuildInPublic
 ```
 
-Post it once the Chrome Web Store listing is live and replace `[Chrome Web Store link]`. Until then, the website's "Add to Chrome" buttons lead to a coming-soon page; if you post earlier, change that line to `Coming soon to the Chrome Web Store. See it at frameshot.uniquelabs.org`.
+FrameShot is live on the Chrome Web Store, so the post is ready to publish as it is.
 
 ## Regenerating the images
 

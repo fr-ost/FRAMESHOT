@@ -23,7 +23,8 @@ const server = await serve(PORT);
 const sitemap = fs.readFileSync(path.join(ROOT, 'website/sitemap.xml'), 'utf8');
 const site = /<loc>(https?:\/\/[^/<]+)/.exec(sitemap)[1];
 const pages = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace(site, '') || '/');
-pages.push('/coming-soon', '/does-not-exist');
+if (fs.existsSync(path.join(ROOT, 'website/coming-soon.html'))) pages.push('/coming-soon');
+pages.push('/does-not-exist');
 
 const errors = [];
 const browser = await chromium.launch();
@@ -152,7 +153,7 @@ if (!process.env.NO_SHOTS) {
   await shoot('blog-desktop', '/blog', desktop, false);
   await shoot('support-desktop', '/support', desktop, false);
   await shoot('privacy-phone', '/privacy', phone, true);
-  await shoot('coming-soon-desktop', '/chrome', desktop, false, false);
+  if (fs.existsSync(path.join(ROOT, 'website/coming-soon.html'))) await shoot('coming-soon-desktop', '/chrome', desktop, false, false);
   await shoot('404-phone', '/nope', phone, false, false);
   console.log(`screenshots in ${path.relative(ROOT, SHOTS)}/`);
 }
