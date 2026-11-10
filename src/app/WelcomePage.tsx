@@ -159,7 +159,7 @@ export function WelcomePage() {
           <div className="flex-1">
             <h3 className="text-[17px] font-semibold tracking-tight">Private by design</h3>
             <p className="mt-1 text-[14px] leading-relaxed text-fg-subtle">
-              No servers, no accounts, no analytics. FrameShot works offline, and its pages are blocked from making any network request.
+              No accounts, no ads, no uploads. Your screenshots and recordings stay on this device, and FrameShot works offline. It only counts installs anonymously, which you can turn off in Settings.
             </p>
           </div>
           <Button variant="primary" icon={<ArrowRight size={16} />} onClick={() => navigate('/')}>

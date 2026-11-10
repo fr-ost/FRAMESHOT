@@ -12,15 +12,18 @@ import tailwindcss from '@tailwindcss/vite';
 const E2E = process.env.FRAMESHOT_E2E === '1';
 
 // Strict CSP for every extension page and the service worker. `connect-src`
-// only allows the extension itself plus blob:/data: URLs, so extension pages
-// cannot make network requests even if a bug tried to.
+// only allows the extension itself, blob:/data: URLs, and FrameShot's own
+// tracker Worker (anonymous install counts, src/core/telemetry.ts). Pages
+// cannot reach any other server, even if a bug tried to.
+// Keep in sync with TELEMETRY_ORIGIN in src/core/telemetry.ts.
+const TELEMETRY_ORIGIN = 'https://frameshot.shahriarahmed614.workers.dev';
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' blob: data:",
   "font-src 'self'",
-  "connect-src 'self' blob: data:",
+  `connect-src 'self' blob: data: ${TELEMETRY_ORIGIN}`,
   "media-src 'self' blob: data:",
   "worker-src 'self'",
   "object-src 'none'",

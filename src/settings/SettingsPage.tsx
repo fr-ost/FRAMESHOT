@@ -401,9 +401,16 @@ export function SettingsPage({ settings }: { settings: Settings }) {
         </Card>
 
         <Card title="Privacy" id="privacy">
+          <Switch
+            id="fr-share-stats"
+            label="Share anonymous install counts"
+            description="Tells FrameShot’s server when it is installed, updated or removed, with a random ID, the version, your operating system and browser language. Nothing about the pages you capture, your screenshots or recordings, or your settings is ever sent. Turning this off also deletes the random ID."
+            checked={settings.shareStats}
+            onChange={(v) => void update({ shareStats: v })}
+          />
           <ul className="space-y-2 text-[13px] text-fg-muted">
-            <li className="flex gap-2"><Lock size={15} className="mt-0.5 shrink-0 text-success" /> Screenshots and recordings never leave your device. FrameShot has no servers, accounts, analytics, or tracking.</li>
-            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> FrameShot’s pages block all network connections through a strict Content Security Policy.</li>
+            <li className="flex gap-2"><Lock size={15} className="mt-0.5 shrink-0 text-success" /> Screenshots and recordings never leave your device. FrameShot has no accounts, ads, or analytics of what you do.</li>
+            <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> A strict Content Security Policy blocks FrameShot’s pages from connecting anywhere except its own install-count server.</li>
             <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> FrameShot only accesses a tab when you start a capture on it (the “activeTab” permission).</li>
             <li className="flex gap-2"><Shield size={15} className="mt-0.5 shrink-0 text-success" /> Screen recording uses Chrome’s own share picker: you choose exactly which tab, window or screen is recorded, and Chrome shows that it is being shared.</li>
           </ul>

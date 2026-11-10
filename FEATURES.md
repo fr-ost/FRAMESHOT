@@ -182,10 +182,11 @@ Every implemented feature is free and available to every user. There are no tier
 
 | Feature | Status | Notes / test |
 |---|---|---|
-| No network access from extension pages or the SW (CSP) | ✅ | `privacy.spec` |
+| No network access from extension pages or the SW except the install-count Worker (CSP) | ✅ | `privacy.spec`, bundle check |
+| Anonymous install/update counts, uninstall page, opt-out in Settings → Privacy | ✅ | unit `telemetry`, `privacy.spec` |
 | No foreign requests during capture → edit → export | ✅ | `privacy.spec` |
 | Works offline | ✅ | `privacy.spec` |
-| No host permissions, no remote code, no analytics | ✅ | Manifest check; bundle contains no tracking libraries |
+| No host permissions, no remote code, no usage analytics | ✅ | Manifest check; bundle contains no tracking libraries |
 | Screen recording adds no permissions; microphone/camera only after Chrome's prompt | ✅ | Manifest check (`check:bundle`); prompts are Chrome's own |
 
 ## Optional advanced features

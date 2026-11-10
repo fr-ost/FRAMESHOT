@@ -23,7 +23,7 @@ What it does:
 - Turns part of a recording into an animated GIF; beautifies screenshots with backgrounds and browser frames.
 - Copy to clipboard, download as an image, a PDF document or a video, bulk export.
 - Private library with search, favourites, collections and duplicate finder.
-- Privacy: no servers, no uploads, no analytics, no ads; works offline.
+- Privacy: no uploads, no accounts, no ads; only anonymous install counts (can be turned off); works offline.
 Assets: unzip {KIT_ZIP_PATH} — images/screenshot-1..5.png (1280x800), images/marquee-1400x560.png, images/small-promo-440x280.png, images/icon-128.png; full description in 1-store-listing/description.txt.
 
 == RULES (always) ==

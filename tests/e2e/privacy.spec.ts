@@ -99,3 +99,25 @@ test('the Studio works offline: library, editor and export', async ({ ext }) => 
     await ext.context.setOffline(false);
   }
 });
+
+test('install counts: only the tracker origin is allowed, test builds send nothing, and the Settings switch turns them off', async ({ ext }) => {
+  // The one remote origin in the CSP is FrameShot's install-count Worker.
+  const csp = await ext.sw.evaluate(() => (chrome.runtime.getManifest() as chrome.runtime.ManifestV3).content_security_policy?.extension_pages ?? '');
+  const connect = /connect-src ([^;]*)/.exec(csp)?.[1].trim().split(/\s+/) ?? [];
+  expect(connect).toEqual(["'self'", 'blob:', 'data:', 'https://frameshot.shahriarahmed614.workers.dev']);
+  // E2E builds never create an install id (nothing is sent).
+  expect(await ext.sw.evaluate(() => chrome.storage.local.get('frameshot.telemetry'))).toEqual({});
+
+  const page = await ext.context.newPage();
+  await page.goto(`chrome-extension://${ext.extId}/studio.html#/settings`);
+  const toggle = page.getByRole('switch', { name: /Share anonymous install counts/ });
+  await expect(toggle).toBeChecked();
+  await toggle.click({ force: true });
+  await expect(toggle).not.toBeChecked();
+  await expect
+    .poll(() => ext.sw.evaluate(async () => ((await chrome.storage.local.get('frameora.settings'))['frameora.settings'] as { shareStats?: boolean })?.shareStats))
+    .toBe(false);
+  await toggle.click({ force: true });
+  await expect(toggle).toBeChecked();
+  await page.close();
+});

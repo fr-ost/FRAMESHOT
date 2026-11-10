@@ -5,7 +5,7 @@ Thanks for helping make FrameShot better. These rules keep the product what it p
 ## Non-negotiable principles
 
 1. **Free forever.** No paid features, upsells, feature flags for tiers, watermarks, or usage limits.
-2. **Local-first.** No network requests, no analytics or telemetry SDKs, no remote code, no accounts. The CSP (`connect-src 'self' blob: data:`) must not be loosened.
+2. **Local-first.** No network requests besides the anonymous install count in `src/core/telemetry.ts`, no analytics or telemetry SDKs, no remote code, no accounts. The CSP (`connect-src 'self' blob: data:` plus the install-count Worker) must not be loosened further, and the install count must never carry more than its documented fields.
 3. **Minimal permissions.** Don't add permissions, especially host permissions, without a written justification. Prefer optional permissions requested at the moment of use.
 4. **Honesty.** Never claim success that didn't happen. For example, report downloads as saved only after completion, and never save incomplete captures. Document limitations instead of hiding them.
 5. **No dead controls.** Every visible control must do what it says.

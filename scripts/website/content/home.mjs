@@ -101,7 +101,7 @@ const TOUR = [
 
 export const FAQ = [
   ['Is FrameShot really free?', '<p>Yes. Every feature is free for everyone: full-page screenshots, screen recording up to 4K, the editor, GIF export and PDF. There is no paid plan, no trial, no watermark and no sign-up. If you want to help, you can rate it or <a href="/support">support the project</a>, but that unlocks nothing extra.</p>'],
-  ['Does FrameShot upload my screenshots or recordings?', '<p>No. FrameShot has no servers and makes no network requests. Its pages run under a security policy that blocks network connections, so your files stay in your browser until you download or copy them. It works offline too.</p>'],
+  ['Does FrameShot upload my screenshots or recordings?', '<p>No. Your files stay in your browser until you download or copy them, and FrameShot’s pages are blocked from connecting to any server except its own install counter. The only thing FrameShot sends is an anonymous install count: a random ID, the version, your operating system and language when it is installed, updated or removed. You can turn that off in Settings. It works offline too.</p>'],
   ['How do I take a full-page screenshot in Chrome?', `<p>Click the FrameShot icon and choose <b>Full page</b>, or press ${k('Alt+Shift+F')} (Option+Shift+F on a Mac). FrameShot scrolls the page, captures each part, stitches them into one image and restores your scroll position. The result opens in the editor. Our <a href="/blog/how-to-take-a-full-page-screenshot-in-chrome">full-page screenshot guide</a> covers tricky pages too.</p>`],
   ['Can I record my screen with sound?', '<p>Yes. Sharing a Chrome tab records that tab’s sound on every system. Sharing your entire screen records the computer’s sound on Windows and ChromeOS, and on macOS 14.2 or later with Chrome 141 or later. You can add your microphone to any recording, and FrameShot mixes everything into one track.</p>'],
   ['Why is my screen recording silent?', '<p>Sound is shared by Chrome, not by the extension, so it depends on what you pick in Chrome’s dialog. Keep <b>Also share tab audio</b> on for a tab, or tick <b>Also share system audio</b> for your entire screen. A single window never includes sound in Chrome. FrameShot shows a live sound meter and warns you as soon as a recording has no sound. See <a href="/blog/how-to-record-your-screen-with-audio-in-chrome">how to record your screen with audio</a>.</p>'],
@@ -256,7 +256,7 @@ ${ticks(['Drag the slider to compare the original and the shared version', 'The 
 <section class="section-tight">
 <div class="wrap stats">
 <div class="card stat reveal"><b><span data-count="0">0</span></b><span>files uploaded, ever</span></div>
-<div class="card stat reveal" style="--i:1"><b><span data-count="0">0</span></b><span>trackers, ads or analytics</span></div>
+<div class="card stat reveal" style="--i:1"><b><span data-count="0">0</span></b><span>ads, accounts or paywalls</span></div>
 <div class="card stat reveal" style="--i:2"><b><span data-count="4" data-suffix="K">4K</span></b><span>top recording quality</span></div>
 <div class="card stat reveal" style="--i:3"><b><span data-count="60">60</span></b><span>frames per second</span></div>
 <div class="card stat reveal" style="--i:4"><b class="grad">$0</b><span>for every feature</span></div>
@@ -269,7 +269,7 @@ ${ticks(['Drag the slider to compare the original and the shared version', 'The 
 <div class="why-grid">
 ${[
   ['Gift', 'Free, with nothing held back', 'There is no paid plan to upgrade to. Every feature, including 4K recording, GIF export and PDF, is free for everyone, with no watermark and no trial timer.'],
-  ['ShieldCheck', 'Private by design', 'No accounts and no servers. FrameShot’s pages block network connections, so your captures can’t leave your computer unless you download or copy them.'],
+  ['ShieldCheck', 'Private by design', 'No accounts and no cloud. FrameShot’s pages can’t connect anywhere except its anonymous install counter, so your captures can’t leave your computer unless you download or copy them.'],
   ['Ruler', 'Accurate, complete captures', 'Full-page captures are checked for gaps, sticky headers are handled, and very long pages are split into full-resolution parts instead of being cut off.'],
   ['Layers', 'One tool instead of three', 'Recorder, screenshot tool and image editor in one extension with one library. Capture, mark up and export without switching apps.'],
   ['WifiOff', 'Works offline', 'Everything runs inside Chrome on your computer, so FrameShot works the same on a plane, on a train or on a slow connection.'],
@@ -278,7 +278,7 @@ ${[
   .map(([ic, h, p], i) => `<article class="card why spot lift reveal" style="--i:${i % 3}"><h3><span>${icon(ic, 19)}</span>${h}</h3><p>${p}</p></article>`)
   .join('\n')}
 </div>
-<div class="card never reveal"><b>What you’ll never get:</b><ul>${['Uploads', 'Accounts', 'Watermarks', 'Ads', 'Tracking', 'Paywalls'].map((x) => `<li>${icon('CircleX', 17)}${x}</li>`).join('')}</ul></div>
+<div class="card never reveal"><b>What you’ll never get:</b><ul>${['Uploads', 'Accounts', 'Watermarks', 'Ads', 'Data selling', 'Paywalls'].map((x) => `<li>${icon('CircleX', 17)}${x}</li>`).join('')}</ul></div>
 </div>
 </section>
 
@@ -301,7 +301,7 @@ ${[
 <h2 style="margin-top:12px">Your screen is nobody else’s business</h2>
 <p>FrameShot was built so it can’t see more than you show it, and can’t send what it sees anywhere.</p>
 <div class="band-grid">
-<div class="band-item"><span>${icon('ServerOff', 20)}</span><div><b>No servers, no uploads</b><small>There is no FrameShot cloud. Captures stay in your browser and leave only when you download or copy them.</small></div></div>
+<div class="band-item"><span>${icon('ServerOff', 20)}</span><div><b>No cloud, no uploads</b><small>There is no FrameShot cloud. Captures stay in your browser and leave only when you download or copy them.</small></div></div>
 <div class="band-item"><span>${icon('MousePointerClick', 20)}</span><div><b>Access only when you ask</b><small>FrameShot reads a page only after you start a capture, through Chrome’s one-time activeTab permission.</small></div></div>
 <div class="band-item"><span>${icon('ScreenShare', 20)}</span><div><b>Chrome’s own share dialog</b><small>You choose exactly what to record, and Chrome shows that sharing is on for the whole recording.</small></div></div>
 <div class="band-item"><span>${icon('Trash2', 20)}</span><div><b>Delete everything at once</b><small>Clear all local data in Settings, or uninstall: every screenshot and recording is removed from the browser.</small></div></div>

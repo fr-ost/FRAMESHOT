@@ -2,6 +2,16 @@
 
 All notable changes to FrameShot (formerly Frameora) are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] — 2026-11-10
+
+### Added
+- **Anonymous install counts.** When FrameShot is installed or updated it sends its own server (a Cloudflare Worker, source in `server/telemetry/`) a random install ID made on your device, the version (and the previous version after an update), your operating system family and browser language. When it is removed, Chrome opens a short "FrameShot was removed" page on the same server with a link for feedback. Nothing about pages, screenshots, recordings, file names or settings is ever sent, and the server keeps a country code but never the IP address. Turn it off in **Settings → Privacy → Share anonymous install counts**; that also deletes the random ID. Developer test builds never send anything.
+- `server/telemetry/`: the tracker Worker with a D1 database and a built-in dashboard (installs, updates and uninstalls per day, active installs, how long installs are kept, 1/7/30-day retention, versions, countries, operating systems, languages), protected by an optional `STATS_KEY`. It already accepts feature-count events for a later version; FrameShot 1.0.1 doesn't send any.
+
+### Changed
+- The Content Security Policy now allows exactly one remote origin, `https://frameshot.shahriarahmed614.workers.dev`, in `connect-src`; every other server stays blocked. The bundle check enforces this.
+- The privacy policy, the Chrome Web Store privacy answers (now **Location: Yes**, for the country code), the store description, the website and the in-app privacy notes describe the install counts.
+
 ## [1.0.0] — 2026-11-08 — first public release
 
 The first version published on the Chrome Web Store. It includes everything from the internal development builds listed under "Development history" below; this section lists what was added in the last of them.

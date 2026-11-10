@@ -162,7 +162,7 @@ export function DonatePage() {
               Keep FrameShot <span className="fr-accent-text">free for everyone</span>
             </h2>
             <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-fg-muted">
-              FrameShot has no ads, no subscriptions, no locked features and no tracking, and it never will. If it saves you time, a small tip helps keep it improving.
+              FrameShot has no ads, no subscriptions and no locked features, and it never will. If it saves you time, a small tip helps keep it improving.
             </p>
             <div className="mt-4 flex max-w-xl items-start gap-2.5 rounded-[14px] border border-amber-400/30 bg-amber-400/10 px-3.5 py-3 text-[13px] leading-snug text-fg-muted">
               <Sparkles size={15} className="mt-0.5 shrink-0 text-amber-500" />
@@ -192,7 +192,7 @@ export function DonatePage() {
               Every Chrome release can change how capturing and recording work. Your support pays for the hours of testing that keep FrameShot reliable.
             </Why>
             <Why i={2} icon={<Lock size={19} />} title="Private by design">
-              No accounts, no analytics, no ads, no uploads. Your screenshots and recordings never leave your device.
+              No accounts, no ads, no uploads. Your screenshots and recordings never leave your device.
             </Why>
             <Why i={3} icon={<Coffee size={19} />} title="An independent developer">
               Built by one developer at Unique Labs. Your tip goes straight to the person who fixes bugs and answers your messages.

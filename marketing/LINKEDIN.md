@@ -37,7 +37,7 @@ How it's built
 • A capture engine that plans and stitches frames at any display scale, handling sticky and fixed headers, lazy loading, infinite scroll and inner scrolling panels
 • Recording with MediaRecorder and the Web Audio API, camera compositing on canvas, and recordings saved in chunks to IndexedDB so a crash doesn't lose them
 • A GIF encoder in a Web Worker that shares one palette and skips unchanged pixels to keep files small
-• Private by design: no servers or analytics, a content security policy that blocks network access, and page access only through activeTab
+• Private by design: captures never leave the device, a content security policy that blocks every server except an anonymous install counter, and page access only through activeTab
 • 146 unit tests (Vitest) and 89 end-to-end browser tests (Playwright), including pixel-by-pixel checks of full-page captures
 
 Website: frameshot.uniquelabs.org

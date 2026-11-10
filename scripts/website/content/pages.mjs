@@ -186,7 +186,7 @@ export function privacyPage() {
 <header class="art-head">${aurora}<div class="wrap">
 ${crumbs([['Home', '/'], ['Privacy policy', '/privacy']])}
 <h1>Privacy policy</h1>
-<p class="lead">FrameShot does not collect, transmit, sell or share any data. Here is exactly what it stores on your device, and why.</p>
+<p class="lead">FrameShot never uploads your screenshots or recordings, and never sells or shares data. It only sends anonymous install counts, which you can turn off. Here is exactly what it stores, what it sends, and why.</p>
 <div class="byline"><span class="bl-item">${icon('CalendarDays', 16)}Last updated <time datetime="${updated}">${formatDate(updated)}</time></span><span class="bl-item">${icon('ShieldCheck', 16)}Applies to the FrameShot Chrome extension and this website</span></div>
 </div></header>
 <div class="wrap">
@@ -203,7 +203,7 @@ ${html}
     path: '/privacy',
     file: 'privacy.html',
     title: 'Privacy Policy | FrameShot',
-    description: 'FrameShot collects no data. Screenshots, recordings and settings stay in your browser, with no accounts, servers, analytics or tracking. Read the full policy.',
+    description: 'Your screenshots, recordings and settings stay in your browser. FrameShot only sends anonymous install counts, which you can turn off. Read the full policy.',
     og: 'privacy',
     body,
     ld: [{ '@type': 'WebPage', '@id': `${SITE_URL}/privacy#webpage`, url: `${SITE_URL}/privacy`, name: 'FrameShot privacy policy', dateModified: updated, isPartOf: { '@id': `${SITE_URL}/#site` } }, breadcrumbLd([['Home', '/'], ['Privacy policy', '/privacy']])],

@@ -6,7 +6,7 @@
 <atom:link href="https://frameshot.uniquelabs.org/feed.xml" rel="self" type="application/rss+xml"/>
 <description>Guides for screenshots and screen recording in Chrome.</description>
 <language>en</language>
-<lastBuildDate>Sun, 08 Nov 2026 09:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 10 Nov 2026 09:00:00 GMT</lastBuildDate>
 <item>
 <title>How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)</title>
 <link>https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</link>
@@ -50,7 +50,7 @@
 <pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
 <dc:creator>Shahriar Ahmed</dc:creator>
 <category>Privacy</category>
-<description>How FrameShot captures and records without servers, accounts or tracking, what each permission is for, and how to check it yourself in a minute.</description>
+<description>How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.</description>
 </item>
 <item>
 <title>Better Bug Reports With Screenshots and Short Videos</title>

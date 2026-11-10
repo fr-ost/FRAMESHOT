@@ -32,17 +32,19 @@ for (const size of ['16', '32', '48', '128']) {
   if (!icon || !fs.existsSync(path.join(dir, icon))) problems.push(`missing ${size}px icon`);
 }
 const csp = manifest.content_security_policy?.extension_pages ?? '';
-for (const directive of ["script-src 'self'", "connect-src 'self' blob: data:", "object-src 'none'"]) {
+// The only remote origin allowed anywhere: FrameShot's own tracker Worker (anonymous install counts).
+const TELEMETRY_ORIGIN = 'https://frameshot.shahriarahmed614.workers.dev';
+for (const directive of ["script-src 'self'", `connect-src 'self' blob: data: ${TELEMETRY_ORIGIN}`, "object-src 'none'"]) {
   if (!csp.includes(directive)) problems.push(`CSP missing: ${directive}`);
 }
-if (/unsafe-eval|https?:/.test(csp.replace("'wasm-unsafe-eval'", ''))) problems.push('CSP allows eval or remote origins');
+if (/unsafe-eval|https?:/.test(csp.replace("'wasm-unsafe-eval'", '').replace(TELEMETRY_ORIGIN, ''))) problems.push('CSP allows eval or remote origins other than the tracker');
 
 // Strings that may legitimately appear in the bundle but never trigger a
 // request from the extension: library namespace/error-doc strings, the
 // Tailwind license banner, and the developer credit link in the footer
 // (a normal <a target="_blank"> the user may click; it opens a new tab).
 // Links opened only when the user clicks: the developer credit and the Web Store review page.
-const ALLOWED_URL = [/^https:\/\/www\.shahriarahmed\.net$/, /^https:\/\/t\.me\/igfrostt$/, /^https:\/\/chromewebstore\.google\.com\/detail\//, /^https:\/\/tailwindcss\.com$/, /^https?:\/\/www\.w3\.org\//, /^https:\/\/react\.dev\/errors\//, /^https:\/\/reactjs\.org\/docs\/error-decoder/, /^https:\/\/github\.com\/radix-ui\//];
+const ALLOWED_URL = [/^https:\/\/frameshot\.shahriarahmed614\.workers\.dev;?$/, /^https:\/\/www\.shahriarahmed\.net$/, /^https:\/\/t\.me\/igfrostt$/, /^https:\/\/chromewebstore\.google\.com\/detail\//, /^https:\/\/tailwindcss\.com$/, /^https?:\/\/www\.w3\.org\//, /^https:\/\/react\.dev\/errors\//, /^https:\/\/reactjs\.org\/docs\/error-decoder/, /^https:\/\/github\.com\/radix-ui\//];
 for (const f of files) {
   const rel = path.relative(dir, f);
   if (rel.endsWith('.map')) problems.push(`source map shipped: ${rel}`);
@@ -65,4 +67,4 @@ if (problems.length) {
   for (const p of problems) console.error('  ✗', p);
   process.exit(1);
 }
-console.log('Bundle check passed: MV3, minimal permissions, no host permissions, strict CSP, no remote code, no eval, no test hooks, no source maps.');
+console.log('Bundle check passed: MV3, minimal permissions, no host permissions, strict CSP (only the install-count Worker), no remote code, no eval, no test hooks, no source maps.');

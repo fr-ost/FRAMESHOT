@@ -37,7 +37,7 @@ Suggested: **Tools** (alternative: Productivity). Both are where users browse fo
 ```
 FrameShot is a screen recorder and screenshot tool that works entirely inside your browser. Record a tab, a window or your whole screen with sound and an optional camera bubble. Save an entire web page as one tall image with a single click. Then add notes, hide private details, and copy or download the result in seconds.
 
-It costs nothing and never adds a watermark. There is no account to create and no trial that runs out. Everything you make stays on your own computer, because FrameShot has no servers and uploads nothing.
+It costs nothing and never adds a watermark. There is no account to create and no trial that runs out. Everything you make stays on your own computer: FrameShot never uploads your screenshots or videos.
 
 ━━━━━━━━━━━━━━━━━━━━
 WHAT YOU CAN DO WITH FRAMESHOT
@@ -175,7 +175,7 @@ Do I need to create an account or sign in?
 No. Install it and start using it straight away.
 
 Are my files uploaded anywhere?
-No. FrameShot has no servers. Your videos and images are stored only on your computer, and they leave it only when you download, copy or share them yourself.
+No. Your videos and images are stored only on your computer, and they leave it only when you download, copy or share them yourself. The only thing FrameShot sends is an anonymous install count (a random ID, the version, your operating system and language when it is installed, updated or removed), which you can turn off in Settings.
 
 Why is there no sound in my recording?
 Check what you shared. A tab includes its sound when "Also share tab audio" is on. Your whole screen includes computer sound when you tick "Also share system audio", where your system offers it. A single app window never includes sound. The recorder shows a hint before you start and a message if no sound is coming in.
@@ -187,7 +187,7 @@ Where are my files saved?
 Everything is kept in FrameShot's library on your computer. When you download something, it also goes to your Downloads folder, or to the folder you chose in Settings.
 
 Can I capture pages that need me to sign in?
-Yes. FrameShot saves what your browser shows, including pages you are signed in to, and nothing is sent anywhere.
+Yes. FrameShot saves what your browser shows, including pages you are signed in to, and none of it is sent anywhere.
 
 Why can't I capture some pages?
 For your security, the browser does not let any extension work on its own settings pages or on the Web Store. Everything else, including local files you allow, can be captured.
@@ -247,7 +247,7 @@ Regenerate with `npm run store:assets` (captures the real UI, then lays it out).
 
 ## Single purpose statement
 
-> FrameShot captures what is on the user's screen: screenshots of web pages (visible area, full page, selected area, single element or scrolling panel) and recordings of a tab, window or screen the user chooses in Chrome's share dialog. It lets the user annotate, redact, organize and export these captures locally in the browser. All features serve this one purpose; nothing is collected or uploaded.
+> FrameShot captures what is on the user's screen: screenshots of web pages (visible area, full page, selected area, single element or scrolling panel) and recordings of a tab, window or screen the user chooses in Chrome's share dialog. It lets the user annotate, redact, organize and export these captures locally in the browser. All features serve this one purpose; captures are never uploaded.
 
 ## Review prompt (policy notes)
 
@@ -262,4 +262,4 @@ The link is `https://chromewebstore.google.com/detail/frameshot/<item id>/review
 
 ## Data usage disclosure
 
-FrameShot collects **no user data**. See [PRIVACY_DISCLOSURE.md](PRIVACY_DISCLOSURE.md) for the form answers and [PRIVACY.md](PRIVACY.md) for the policy.
+FrameShot (from 1.0.1) sends anonymous install counts: a random install ID, version, OS family and browser language on install and update, plus Chrome's uninstall page; the server keeps the request's country code. Users can turn this off. Captures and page data are never sent. See [PRIVACY_DISCLOSURE.md](PRIVACY_DISCLOSURE.md) for the form answers and [PRIVACY.md](PRIVACY.md) for the policy.

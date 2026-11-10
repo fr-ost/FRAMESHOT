@@ -311,7 +311,8 @@ ${callout('Lightbulb', '<p>If a GIF is still too big, the clip is probably too l
 <li><strong>GIFs, PDFs and ZIP files</strong> are built on your computer, too.</li>
 <li><strong>Downloads</strong> go through Chrome’s normal download system into your Downloads folder.</li>
 </ul>
-<p>On top of that, FrameShot’s pages run under a strict content security policy that only allows connections to the extension itself. Even if someone wanted to add an upload later, the extension’s own rules would block it, and an automated test checks that no requests leave the extension during a capture, an edit and an export.</p>`,
+<p>On top of that, FrameShot’s pages run under a strict content security policy that only allows connections to the extension itself and to FrameShot’s anonymous install counter. Even if a bug tried to upload a capture somewhere, the extension’s own rules would block it, and an automated test checks that no requests leave the extension during a capture, an edit and an export.</p>
+<p>The install counter is the one thing FrameShot sends. When FrameShot is installed, updated or removed, it reports a random ID, the version, your operating system and your browser language, so the developer knows how many people use it. It never includes pages, screenshots, recordings or settings, and you can turn it off in <strong>Settings → Privacy</strong>.</p>`,
       },
       {
         id: 'permissions',

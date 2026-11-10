@@ -39,7 +39,8 @@ export const POSTS = [
   {
     slug: 'why-frameshot-keeps-your-screenshots-on-your-device',
     title: 'Private by Design: Why FrameShot Keeps Your Files Local',
-    description: 'How FrameShot captures and records without servers, accounts or tracking, what each permission is for, and how to check it yourself in a minute.',
+    description: 'How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.',
+    updated: '2026-11-10',
     tag: 'Privacy',
     image: 'library-light',
     alt: 'The FrameShot library with screenshots and a recording stored on the computer',
@@ -59,7 +60,7 @@ export const POSTS = [
 export const OG_PAGES = [
   { name: 'home', title: 'Free screen recorder &amp; full page screenshots for Chrome', kicker: 'Chrome extension', image: 'editor' },
   { name: 'blog', title: 'Guides for screenshots and screen recording', kicker: 'FrameShot blog', image: 'library-light' },
-  { name: 'privacy', title: 'Privacy policy: nothing leaves your device', kicker: 'Privacy', image: 'library-light' },
+  { name: 'privacy', title: 'Privacy policy: your captures stay on your device', kicker: 'Privacy', image: 'library-light' },
   { name: 'support', title: 'Support FrameShot and keep it free', kicker: 'Free forever', image: 'composer' },
   ...POSTS.map((p) => ({ name: p.slug, title: p.title.replace(/&/g, '&amp;'), kicker: p.tag, image: p.image })),
 ];

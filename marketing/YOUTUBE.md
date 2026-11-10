@@ -35,7 +35,7 @@ What you'll see in this video:
 • Library: search by title, site or tag, collections, favourites and a duplicate finder.
 • Export images or PDFs, copy to the clipboard, or download a ZIP. Recordings save as MP4 or WebM.
 
-Private by design: FrameShot has no account, no servers and no tracking. Your screenshots and recordings stay on your computer until you download or copy them, and it works offline.
+Private by design: FrameShot has no account and no uploads. Your screenshots and recordings stay on your computer until you download or copy them, and it works offline.
 
 Chapters
 0:00 Meet FrameShot

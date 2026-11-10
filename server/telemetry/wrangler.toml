@@ -1,0 +1,15 @@
+# Cloudflare Worker config for the FrameShot tracker (D1).
+# Only needed when deploying from a terminal; the dashboard-only way is in README.md.
+#
+#   npx wrangler d1 create frameshot-telemetry   -> paste the database_id below
+#   npx wrangler deploy
+#   npx wrangler secret put STATS_KEY            (protects the dashboard)
+
+name = "frameshot"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "DB"                          # the Worker reads env.DB: keep this name
+database_name = "frameshot-telemetry"
+database_id = "PASTE_YOUR_D1_DATABASE_ID_HERE"

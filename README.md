@@ -242,10 +242,11 @@ Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Privacy commitments
 
-- **Nothing leaves your device.** There are no servers, accounts, analytics, telemetry, tracking, ads, or remote code.
+- **Your captures never leave your device.** There are no accounts, ads, usage analytics or remote code.
+- **Anonymous install counts only.** On install and update FrameShot sends a random install ID, its version, the OS family and the browser language to its own Cloudflare Worker ([`server/telemetry/`](server/telemetry/)), and Chrome opens the Worker's uninstall page on removal. Users turn it off in **Settings → Privacy**; test builds never send anything.
 - Screenshots, recordings, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
 - The microphone and camera are used only while you record, after you switch them on, and Chrome asks for your permission. Screen recording uses Chrome's share picker, so you choose exactly what is recorded.
-- Extension pages run under a strict Content Security Policy that **blocks all network connections** (`connect-src 'self' blob: data:`). This is verified by an automated test.
+- Extension pages run under a strict Content Security Policy that **blocks connections to every server except the install-count Worker** (`connect-src 'self' blob: data: https://frameshot.shahriarahmed614.workers.dev`). This is verified by an automated test.
 - **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added no permissions; `offscreen` only plays sound effects for background captures and shows no install warning.
 - Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
 

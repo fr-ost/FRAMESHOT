@@ -17,6 +17,8 @@ import {
   stopCapture,
 } from './capture-session';
 import { initReviewState } from '../core/review';
+import { onSettingsChanged } from '../core/settings';
+import { onInstalledTelemetry, onShareStatsChanged, onStartupTelemetry } from '../core/telemetry';
 import { askStudioToOpen, findStudioPages, isLibraryRoute, isRecorderRoute, type StudioPresence } from '../core/studio-channel';
 import { isActivePhase, queryRecorder, sendRecorderCommand } from '../recorder/channel';
 import { playBackgroundSound } from './sound';
@@ -217,8 +219,14 @@ export function registerBackground(): void {
     // Starts the clock for the (rare, polite) review prompt; keeps existing state on updates.
     void initReviewState();
     if (details.reason === 'install' && !__FRAMESHOT_E2E__) void openStudio('/welcome');
+    // Anonymous install/update count (off in test builds and when the user turns it off).
+    void onInstalledTelemetry(details.reason, details.previousVersion).catch(() => undefined);
   });
-  chrome.runtime.onStartup.addListener(createMenus);
+  chrome.runtime.onStartup.addListener(() => {
+    createMenus();
+    void onStartupTelemetry().catch(() => undefined);
+  });
+  onSettingsChanged((s) => void onShareStatsChanged(s.shareStats).catch(() => undefined));
 
   if (__FRAMESHOT_E2E__) {
     // Test-only hook (excluded from production builds by a compile-time flag).

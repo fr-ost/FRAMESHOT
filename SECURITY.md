@@ -16,7 +16,7 @@ FrameShot is a local-first Chrome extension with no backend. The assets worth pr
 
 | Threat | Mitigation |
 |---|---|
-| Exfiltration of screenshots or metadata | No servers, no analytics, no telemetry. The CSP sets `connect-src 'self' blob: data:` for every extension page and the service worker, so even a bug cannot send data over the network. Tested in `tests/e2e/privacy.spec.ts`: `fetch`, `sendBeacon`, and remote images are blocked. |
+| Exfiltration of screenshots or metadata | No usage analytics; the only outbound message is the anonymous install count (`src/core/telemetry.ts`: random id, version, OS family, language). The CSP sets `connect-src 'self' blob: data: https://frameshot.shahriarahmed614.workers.dev` for every extension page and the service worker, so even a bug cannot send data to any other server, and the install-count Worker only accepts and stores those fixed fields. Tested in `tests/e2e/privacy.spec.ts`: `fetch`, `sendBeacon`, and remote images are blocked. |
 | Remote code execution / supply-chain injection | `script-src 'self'`; no remote scripts, `eval`, or `new Function`. All dependencies are bundled at build time and the font is bundled locally. No WASM (so no `'wasm-unsafe-eval'`). |
 | Over-broad access to websites | No host permissions. Access to a tab comes only from `activeTab`, granted when the user invokes FrameShot. The capture script is injected on demand, never declared as an always-on content script. |
 | Malicious pages tampering with the capture UI | Overlays live in a **closed** shadow root attached to `<html>`, so page scripts cannot reach inside. They are styled with CSSOM `setProperty(..., 'important')` (immune to page CSS and to page CSP), and text is only ever set via `textContent`. |

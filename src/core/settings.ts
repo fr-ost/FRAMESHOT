@@ -1,6 +1,7 @@
 /**
  * User settings: defaults, validation, and persistence in chrome.storage.local.
  * Settings never leave the device (storage.local, not storage.sync).
+ * `shareStats` only decides whether anonymous install counts are sent (core/telemetry.ts); the settings themselves are never sent.
  */
 import type { DisplaySurfaceKind, ImageFormat } from './types';
 
@@ -75,6 +76,8 @@ export interface Settings {
   };
   recorder: RecorderSettings;
   sounds: SoundSettings;
+  /** Send anonymous install, update and uninstall counts (see core/telemetry.ts). */
+  shareStats: boolean;
 }
 
 export const DEFAULT_FILENAME_TEMPLATE = 'frameshot-{domain}-{date}-{time}';
@@ -115,6 +118,7 @@ export const DEFAULT_SETTINGS: Settings = Object.freeze({
     countdown: 3,
   }),
   sounds: Object.freeze({ enabled: true, volume: 0.6 }),
+  shareStats: true,
 }) as Settings;
 
 // Storage key kept from the product's former name (Frameora) so existing
@@ -234,6 +238,7 @@ export function sanitizeSettings(input: unknown): Settings {
       enabled: bool(snd.enabled, d.sounds.enabled),
       volume: Math.round(num(snd.volume, 0, 1, d.sounds.volume) * 100) / 100,
     },
+    shareStats: bool(s.shareStats, d.shareStats),
   };
 }
 
