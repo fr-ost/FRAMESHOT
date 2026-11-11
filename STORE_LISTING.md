@@ -6,9 +6,9 @@ Draft listing copy for *FrameShot*. **The paste-ready files are in [`store-kit/`
 
 ## Name
 
-**FrameShot: Free Screen Recorder & Full Page Screenshot**
+**FrameShot: Screen Recorder & Full Page Screenshot**
 
-(54 characters; the Web Store limit is 75.) Matches the manifest `name`. Built from the owner's proposal "FrameShot: Free Screen Recorder & Full Page Capture", with "Capture" swapped for "Screenshot", the most-searched word in this category; "capture" moves into the summary.
+(49 characters; the Web Store limit is 75.) Matches the manifest `name`. Since 1.0.2 the name has no "Free": the store rejected 1.0.1 because promotional words such as "free", "new", "#1", "premium" or "recommended" are not allowed in the title or images (policy: metadata must not mimic ranking, status or promotions). Built from the owner's proposal "FrameShot: Free Screen Recorder & Full Page Capture", with "Capture" swapped for "Screenshot", the most-searched word in this category; "capture" moves into the summary.
 
 ## Short description (summary, ≤ 132 characters)
 
@@ -220,7 +220,7 @@ Marketing images in the style of Unique Labs' GrowX and UnfollowX listings: a nu
 2. `02-screen-recorder.png` — Record your screen with sound & camera.
 3. `03-full-page-editor.png` — Capture whole pages. Annotate in seconds.
 4. `04-blur-gif-export.png` — Hide private details. Share it anywhere.
-5. `05-free-private.png` — Free. Unlimited. Private.
+5. `05-private.png` — Private by design.
 
 Regenerate with `npm run store:assets` (captures the real UI, then lays it out).
 

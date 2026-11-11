@@ -19,7 +19,7 @@
 
 ## 3. Build & package
 - [ ] `npm run build`, then confirm `.output/chrome-mv3/manifest.json`:
-  - [ ] name "FrameShot: Free Screen Recorder & Full Page Screenshot", correct description and version
+  - [ ] name "FrameShot: Screen Recorder & Full Page Screenshot", correct description and version
   - [ ] permissions are exactly `activeTab, scripting, storage, unlimitedStorage, downloads, contextMenus, offscreen`
   - [ ] **no `host_permissions`**
   - [ ] the CSP includes `connect-src 'self' blob: data:` and `script-src 'self'`

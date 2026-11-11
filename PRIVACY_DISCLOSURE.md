@@ -1,6 +1,6 @@
 # Chrome Web Store: Privacy Practices Disclosure
 
-Paste-ready versions of these answers are in [`store-kit/2-privacy-practices/`](store-kit/2-privacy-practices/). Prepared answers for the **Privacy practices** tab of the Chrome Web Store Developer Dashboard for *FrameShot: Free Screen Recorder & Full Page Screenshot*. Review against the current form wording before submitting.
+Paste-ready versions of these answers are in [`store-kit/2-privacy-practices/`](store-kit/2-privacy-practices/). Prepared answers for the **Privacy practices** tab of the Chrome Web Store Developer Dashboard for *FrameShot: Screen Recorder & Full Page Screenshot*. Review against the current form wording before submitting.
 
 ## Single purpose
 

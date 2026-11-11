@@ -92,7 +92,7 @@ export function softwareLd() {
     '@type': 'SoftwareApplication',
     '@id': `${SITE_URL}/#app`,
     name: 'FrameShot',
-    alternateName: 'FrameShot: Free Screen Recorder & Full Page Screenshot',
+    alternateName: 'FrameShot: Screen Recorder & Full Page Screenshot',
     description: SITE.description,
     applicationCategory: 'BrowserApplication',
     applicationSubCategory: 'Screen recorder and screenshot tool',

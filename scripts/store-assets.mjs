@@ -212,7 +212,7 @@ async function click(page, x, y) {
   const noteY = k.y - 50;
   await page.keyboard.press('t');
   await click(page, noteX, noteY);
-  await page.keyboard.type('New record this week!');
+  await page.keyboard.type('Up 18% this week!');
   await page.keyboard.press('Escape');
   await page.keyboard.press('a');
   await drag(page, [noteX - 14, noteY + 6], [k.x + k.w - 26, k.y - 14]);

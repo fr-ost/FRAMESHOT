@@ -144,7 +144,6 @@ export function PopupApp() {
         <header className="flex items-center justify-between px-4 pb-2 pt-3.5">
           <div className="flex items-center gap-2">
             <Logo size={26} />
-            <Badge tone="primary">FREE</Badge>
           </div>
           <div className="flex items-center gap-0.5">
             <button
@@ -460,7 +459,7 @@ function StatusView({ status, onDismiss, onOpen }: { status: CaptureStatus; onDi
               </Button>
             )}
             <Button className="flex-1" onClick={onDismiss}>
-              New capture
+              Capture again
             </Button>
           </div>
         </div>

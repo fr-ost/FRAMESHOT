@@ -1,6 +1,6 @@
 # FrameShot Privacy Policy
 
-*Last updated: 2026-11-10. Applies to FrameShot: Free Screen Recorder & Full Page Screenshot, by Unique Labs.*
+*Last updated: 2026-11-10. Applies to FrameShot: Screen Recorder & Full Page Screenshot, by Unique Labs.*
 
 ## The short version
 

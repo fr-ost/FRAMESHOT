@@ -2,6 +2,16 @@
 
 All notable changes to FrameShot (formerly Frameora) are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] — 2026-11-11
+
+### Changed
+- **New store name: "FrameShot: Screen Recorder & Full Page Screenshot"** (was "FrameShot: Free Screen Recorder & Full Page Screenshot"). The Chrome Web Store rejected 1.0.1 (violation "Red Nickel") because the small promo tile showed "Free": store titles and images may not use words that mimic ranking, status or promotions, such as "free", "new", "#1", "premium" or "recommended".
+- Store images rebuilt without those words: the small tile, the marquee and screenshots 1 and 5 (now `05-private.png`, "Private by design.") drop "Free", "Free forever", "100% free" and "Unlimited". The demo page and the annotation they show no longer say "new".
+- The popup no longer shows a "FREE" badge next to the logo (it appeared in every store image), and its "New capture" button is now "Capture again".
+- The store-kit check now fails if the name, the summary, the text drawn on the store images, the demo pages or the popup use such words.
+
+FrameShot is still free, with no paid features. The store description still says so in plain sentences, which the policy allows.
+
 ## [1.0.1] — 2026-11-10
 
 ### Added

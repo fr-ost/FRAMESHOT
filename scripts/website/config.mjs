@@ -12,7 +12,7 @@ export const STORE_URL = process.env.STORE_URL || 'https://chromewebstore.google
 export const SITE = {
   name: 'FrameShot',
   /** The default <title>, written for search. */
-  title: 'FrameShot: Free Screen Recorder & Full Page Screenshot',
+  title: 'FrameShot: Screen Recorder & Full Page Screenshot',
   description:
     'Free Chrome extension to record your screen with sound and webcam, or capture a whole web page in one click. Annotate, blur and share. No watermark, no sign-up.',
   tagline: 'Capture the web. Edit every detail. Free forever.',

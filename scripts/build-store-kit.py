@@ -51,6 +51,28 @@ if manifest_path.exists():
 else:
     problems.append("run `npm run build` first (manifest not found)")
 
+# The store rejected 1.0.1 (violation "Red Nickel") for "Free" on the small
+# tile: titles and images must not use words that mimic ranking, status or
+# promotions ("free", "new", "#1", "premium", "recommended" and similar). The
+# name, the summary, every promo tile and screenshot (their text is written in
+# store-render.mjs and the demo pages they capture), and the popup UI shown in
+# them are checked.
+PROMO = re.compile(r"\b(free|new|premium|recommended|best|top[- ]rated|unlimited|no\.\s?1|number one|sale|discount|award)\b|#1\b", re.I)
+for label, text in [("name", name), ("summary", summary)]:
+    m = PROMO.search(text)
+    check(not m, f'{label} uses the promotional word "{m.group(0) if m else ""}"')
+def visible_text(src):
+    # Strings a viewer can read: HTML text between tags and quoted labels, not JS keywords like `new Set`.
+    parts = re.findall(r">([^<>{}$`]+)<", src) + re.findall(r"'([^'\n]{2,80})'", src)
+    return " | ".join(parts)
+for f in [ROOT / "scripts/store-render.mjs", ROOT / "src/popup/PopupApp.tsx", *sorted((ROOT / "store-assets/demo").glob("*.html"))]:
+    for m in PROMO.finditer(visible_text(f.read_text())):
+        problems.append(f'{f.relative_to(ROOT)} shows the promotional word "{m.group(0)}" (not allowed in store images)')
+cap = (ROOT / "scripts/store-assets.mjs").read_text()
+for typed in re.findall(r"keyboard\.type\('([^']*)'\)", cap):
+    m = PROMO.search(typed)
+    check(not m, f'store-assets.mjs types "{typed}" into a screenshot (promotional word "{m.group(0) if m else ""}")')
+
 # A clear, well-written description. The store rejected an earlier version for
 # "excessive keywords" over a list of file formats ("MP4, WebM, PNG, JPEG, WebP
 # or PDF"), so lists of format names and long keyword runs are not allowed in

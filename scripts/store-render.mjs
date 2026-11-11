@@ -102,9 +102,9 @@ const SLIDES = {
   1: () =>
     page(`<div class="bg"></div><div class="dots"></div>
       <div class="abs" style="left:72px;top:62px;width:640px">
-        <div class="brand"><img src="${LOGO}"><span><b>FrameShot</b><small>Free forever · no watermark</small></span></div>
+        <div class="brand"><img src="${LOGO}"><span><b>FrameShot</b><small>Screen recorder &amp; screenshots</small></span></div>
         <h1 style="font-size:66px;margin-top:44px">Record your screen.<br><span class="gt">Capture full pages.</span></h1>
-        <p class="sub" style="font-size:21px;margin-top:22px;max-width:560px">The free all-in-one screen recorder and screenshot tool for Chrome. No sign-up, no limits, nothing uploaded.</p>
+        <p class="sub" style="font-size:21px;margin-top:22px;max-width:560px">An all-in-one screen recorder and screenshot tool for Chrome. No sign-up, no time limit, nothing uploaded.</p>
         <div style="margin-top:34px">${bullets([
           ['Video', 'Record tab, window or desktop with sound'],
           ['ScrollText', 'Full page, area &amp; element screenshots'],
@@ -114,8 +114,8 @@ const SLIDES = {
       </div>
       <div class="tool" style="left:744px;top:46px;width:480px"><span style="display:flex;gap:10px;color:#77778a">${icon('ArrowLeft', 18, '#77778a')}${icon('RotateCw', 18, '#77778a')}</span><span class="addr">${icon('Lock', 14, '#77778a')} app.example.com</span><span class="ext"><img src="${LOGO}"></span></div>
       <div class="popup" style="left:832px;top:122px;width:360px">${crop('popup.png', { cw: 360, ch: 560 }, 360)}</div>
-      ${chip('Infinity', 'Unlimited', 'screenshots &amp; recordings', 'left:618px;top:560px')}
-      ${chip('BadgeCheck', 'No watermark', 'no account, no time limit', 'left:930px;top:690px', 'var(--g3)')}`),
+      ${chip('Clapperboard', 'No time limit', 'record as long as you need', 'left:618px;top:560px')}
+      ${chip('BadgeCheck', 'No watermark', 'no account, no ads', 'left:930px;top:690px', 'var(--g3)')}`),
 
   2: () =>
     page(`<div class="bg"></div><div class="dots"></div>
@@ -153,8 +153,8 @@ const SLIDES = {
     page(`<div class="abs" style="inset:0;background:linear-gradient(135deg,#3730a3 0%,#4f46e5 35%,#7c3aed 70%,#a21caf 120%)"></div>
       <div class="abs" style="inset:0;background-image:radial-gradient(rgba(255,255,255,.12) 1.2px,transparent 1.4px);background-size:22px 22px;-webkit-mask:linear-gradient(120deg,#000,transparent 60%)"></div>
       <div class="abs" style="right:-160px;top:-160px;width:560px;height:560px;border-radius:50%;border:1px solid rgba(255,255,255,.14)"></div>
-      <div class="abs" style="left:72px;top:58px"><div class="kicker" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3);box-shadow:none">${`<span class="kn" style="background:#fff">${icon('Heart', 15, '#6d28d9')}</span>`}100% free · no sign-up</div></div>
-      <h1 class="abs" style="left:72px;top:122px;font-size:68px;color:#fff">Free. Unlimited. Private.</h1>
+      <div class="abs" style="left:72px;top:58px"><div class="kicker" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3);box-shadow:none">${`<span class="kn" style="background:#fff">${icon('Heart', 15, '#6d28d9')}</span>`}No sign-up · no ads</div></div>
+      <h1 class="abs" style="left:72px;top:122px;font-size:68px;color:#fff">Private by design.</h1>
       <p class="abs" style="left:72px;top:212px;font-size:20px;color:rgba(255,255,255,.85);width:720px;line-height:1.5">No ads, no watermark, no account. Your screenshots and recordings never leave your device.</p>
       <div class="abs" style="left:72px;top:300px;width:744px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
         ${[
@@ -183,13 +183,13 @@ const PROMOS = {
       <div class="abs" style="inset:0;background-image:radial-gradient(rgba(255,255,255,.1) 1.2px,transparent 1.4px);background-size:22px 22px;-webkit-mask:linear-gradient(110deg,transparent 40%,#000)"></div>
       <div class="abs" style="left:80px;top:74px;width:620px;color:#fff">
         <div class="brand"><img src="${LOGO}" style="background:#fff;padding:6px"><b style="font-size:32px">FrameShot</b></div>
-        <h1 style="font-size:58px;margin-top:34px">Free Screen Recorder<br>&amp; Full Page Screenshot</h1>
+        <h1 style="font-size:58px;margin-top:34px">Screen Recorder<br>&amp; Full Page Screenshot</h1>
         <p style="font-size:20px;line-height:1.5;margin-top:18px;color:rgba(255,255,255,.88);max-width:560px">Record your screen with sound and camera. Capture, annotate and blur whole pages. No watermark.</p>
         <div style="display:flex;gap:10px;margin-top:26px">${[['Video', 'Screen recorder'], ['ScrollText', 'Full page'], ['PenLine', 'Annotate &amp; blur']].map(([ic, t]) => `<span style="display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:16px;font-weight:650">${icon(ic, 17)}${t}</span>`).join('')}</div>
       </div>
       ${win('editor.png', { x: 0, y: 0, cw: 1280, ch: 800 }, 720, 'FrameShot · Editor', 'left:744px;top:64px;transform:perspective(1600px) rotateY(-14deg) rotateX(3deg)')}
       <div class="popup" style="left:1150px;top:250px;width:230px">${crop('popup.png', { cw: 360, ch: 470 }, 230)}</div>
-      ${chip('BadgeCheck', 'Free forever', 'no watermark, no sign-up', 'left:690px;top:400px', 'var(--g3)')}`,
+      ${chip('BadgeCheck', 'No watermark', 'no sign-up, no ads', 'left:690px;top:400px', 'var(--g3)')}`,
       1400,
       560,
     ),
@@ -199,7 +199,7 @@ const PROMOS = {
       <div class="abs" style="left:24px;top:22px;color:#fff;width:260px">
         <div class="brand" style="gap:10px"><img src="${LOGO}" style="width:36px;height:36px;border-radius:10px;background:#fff;padding:4px"><b style="font-size:21px">FrameShot</b></div>
         <h1 style="font-size:28px;margin-top:22px;line-height:1.08">Screen recorder &amp; full page screenshots</h1>
-        <div style="display:flex;gap:6px;margin-top:20px">${['Free', 'No watermark'].map((t) => `<span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);font-size:12px;font-weight:700">${t}</span>`).join('')}</div>
+        <div style="display:flex;gap:6px;margin-top:20px">${['No watermark', 'No sign-up'].map((t) => `<span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);font-size:12px;font-weight:700">${t}</span>`).join('')}</div>
       </div>
       <div class="popup" style="left:286px;top:30px;width:170px;transform:rotate(-4deg)">${crop('popup.png', { cw: 360, ch: 470 }, 170)}</div>`,
       440,
@@ -212,7 +212,7 @@ fs.mkdirSync(PROMO, { recursive: true });
 for (const f of ['popup.png', 'recorder.png', 'editor.png', 'redact.png', 'gif.png', 'library-dark.png']) {
   if (!fs.existsSync(path.join(RAW, f))) throw new Error(`Missing store-assets/raw/${f}. Run \`npm run store:assets\` (it captures, then renders).`);
 }
-const NAMES = { 1: '01-overview.png', 2: '02-screen-recorder.png', 3: '03-full-page-editor.png', 4: '04-blur-gif-export.png', 5: '05-free-private.png' };
+const NAMES = { 1: '01-overview.png', 2: '02-screen-recorder.png', 3: '03-full-page-editor.png', 4: '04-blur-gif-export.png', 5: '05-private.png' };
 const browser = await chromium.launch();
 async function render(html, w, h, file) {
   const p = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });

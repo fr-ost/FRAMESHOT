@@ -14,7 +14,7 @@ Everything here is made from the **real FrameShot interface**, driven by a scrip
 
 ## Upload order
 
-`01-overview.png`, `02-screen-recorder.png`, `03-full-page-editor.png`, `04-blur-gif-export.png`, `05-free-private.png`. What each one says is in [store-kit/README.md](../store-kit/README.md).
+`01-overview.png`, `02-screen-recorder.png`, `03-full-page-editor.png`, `04-blur-gif-export.png`, `05-private.png`. What each one says is in [store-kit/README.md](../store-kit/README.md).
 
 ## Regenerate
 

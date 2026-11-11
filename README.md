@@ -1,6 +1,6 @@
 # FrameShot
 
-**FrameShot: Free Screen Recorder & Full Page Screenshot** — by Unique Labs
+**FrameShot: Screen Recorder & Full Page Screenshot** — by Unique Labs
 
 > Capture the web. Edit every detail. Free forever.
 

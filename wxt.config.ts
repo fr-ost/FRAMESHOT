@@ -43,7 +43,7 @@ export default defineConfig({
   },
   manifest: () => ({
     // Written for Chrome Web Store search (see STORE_LISTING.md, "SEO").
-    name: 'FrameShot: Free Screen Recorder & Full Page Screenshot',
+    name: 'FrameShot: Screen Recorder & Full Page Screenshot',
     short_name: 'FrameShot',
     description:
       'Record your screen with sound and camera, or capture a whole web page in one click. Then annotate, blur and share. No watermark.',

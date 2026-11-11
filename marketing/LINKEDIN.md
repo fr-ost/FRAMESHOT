@@ -56,7 +56,7 @@ In the project form, **Add media**. Each item takes a title and a short descript
 | 3 | Image: `store-assets/screenshots/02-screen-recorder.png` | Screen recorder | Record a tab, a window or your screen with sound and a webcam bubble |
 | 4 | Image: `store-assets/screenshots/03-full-page-editor.png` | Full-page capture and editor | Capture a whole page, then annotate it |
 | 5 | Image: `store-assets/screenshots/04-blur-gif-export.png` | Blur, redact and GIF export | Hide private details and turn recordings into GIFs |
-| 6 | Image: `store-assets/screenshots/05-free-private.png` | Free and private | No account, no uploads, no watermark |
+| 6 | Image: `store-assets/screenshots/05-private.png` | Private by design | No account, no uploads, no watermark |
 | 7 | Link: the YouTube video, once published | FrameShot in 2 minutes | A walkthrough of every feature |
 
 The first image is used as the project's thumbnail, so keep the overview image first after the link. LinkedIn's profile media takes links, images and documents rather than video files, so the video goes in as a link.

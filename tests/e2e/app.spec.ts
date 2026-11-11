@@ -227,7 +227,7 @@ test('popup: capture full page with live progress, then open recent', async ({ e
   const status = await waitForResult(ext.sw, 90_000, since);
   expect(status.phase, status.message).toBe('done');
   await expect(popup!.getByText('Capture saved')).toBeVisible();
-  await popup!.getByRole('button', { name: 'New capture' }).click();
+  await popup!.getByRole('button', { name: 'Capture again' }).click();
   await expect(popup!.getByRole('region', { name: 'Recent captures' }).getByRole('button').first()).toBeVisible();
   await popup!.close();
   await fx.close();
