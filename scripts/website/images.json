@@ -95,7 +95,103 @@
       1200
     ]
   },
+  "og-about": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
   "og-support": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-screenshot-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-screenshot-on-a-chromebook": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-screen-record-on-windows": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-screen-record-on-a-mac-with-sound": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-scrolling-screenshot": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-screenshot-part-of-a-web-page": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-annotate-a-screenshot": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-save-a-web-page-as-a-pdf-or-image": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-record-a-video-tutorial-with-your-webcam": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-choose-a-screen-recorder-extension-for-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-why-frameshot-keeps-your-screenshots-on-your-device": {
     "w": 1200,
     "h": 630,
     "widths": [
@@ -128,14 +224,6 @@
     ]
   },
   "og-how-to-turn-a-screen-recording-into-a-gif": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
-  "og-why-frameshot-keeps-your-screenshots-on-your-device": {
     "w": 1200,
     "h": 630,
     "widths": [

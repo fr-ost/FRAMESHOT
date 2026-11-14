@@ -7,14 +7,15 @@ The marketing site for FrameShot is a set of static pages in [`website/`](websit
 | Address | Contents |
 |---|---|
 | `/` | Hero, features, an interactive tour, full-page capture, the screen recorder, a before/after redaction slider, why FrameShot, three steps, privacy, FAQ, guides and a closing call to action |
-| `/blog` | All guides |
-| `/blog/<slug>` | Six guides: full-page screenshots, recording with sound, blurring and redacting, GIFs from recordings, privacy by design, better bug reports |
+| `/blog` | All guides: the newest as a featured card, a topic filter (Guide, Recording, Tips, Workflow, Privacy), and every guide grouped by topic |
+| `/blog/<slug>` | 16 guides: screenshots in Chrome, on a Chromebook, of part of a page, scrolling and full-page screenshots; screen recording on Windows, on a Mac with sound, in Chrome with audio, and tutorials with a webcam; annotating, blurring and redacting; saving pages as PDF or image; GIFs; choosing a recorder extension; privacy; bug reports |
+| `/about` | What FrameShot is, how it is built, who makes it, contact |
 | `/privacy` | The privacy policy, rendered from [`PRIVACY.md`](PRIVACY.md), plus a note about the website itself |
 | `/support` | Free ways to help and the donation addresses (read from `src/core/donate.ts`) |
 | `/coming-soon` | Where "Add to Chrome" goes until the store link is set (not indexed) |
 | `404.html` | Not-found page |
 
-Also generated: `sitemap.xml`, `robots.txt`, `feed.xml` (RSS), `site.webmanifest`, social preview images in `og/`, favicons, and `vercel.json`.
+Also generated: `sitemap.xml` (with image entries), `robots.txt`, `llms.txt` (a plain summary for AI assistants), `feed.xml` (RSS), `site.webmanifest`, social preview images in `og/`, favicons, and `vercel.json`.
 
 ## Deploy to Vercel
 
@@ -59,8 +60,8 @@ The quickest way to point the buttons at the store, without a rebuild, is to cha
 |---|---|
 | Site name, default title and description, developer details | `scripts/website/config.mjs` |
 | Home page sections and the FAQ | `scripts/website/content/home.mjs` |
-| Article titles, descriptions, tags and dates | `scripts/website/meta.mjs` |
-| Article text | `scripts/website/content/posts.mjs` |
+| Article titles, descriptions, tags, keywords and dates | `scripts/website/meta.mjs` (first six guides), `content/posts-a.mjs` and `content/posts-b.mjs` (`META_A`, `META_B`) |
+| Article text | `scripts/website/content/posts.mjs`, `posts-a.mjs`, `posts-b.mjs` |
 | Blog index, privacy, support, coming soon, 404 | `scripts/website/content/pages.mjs` |
 | Styles (the extension's colours, light and dark) | `scripts/website/styles.css` |
 | Interactions | `scripts/website/site.js` |
@@ -68,6 +69,14 @@ The quickest way to point the buttons at the store, without a rebuild, is to cha
 The visual system (white canvas, near-black ink, one emerald call-to-action colour, Inter 500 display type, 6 px buttons, 12 px hairline cards, no gradients) follows `docs/WEBSITE-DESIGN.md`; its tokens live at the top of `scripts/website/styles.css`.
 
 Every product fact on the site matches the extension's code (see [FEATURES.md](FEATURES.md)). There are no ratings, user counts, reviews or testimonials; please keep it that way until real ones exist. Write in plain sentences rather than lists of keywords or file formats.
+
+## Search optimisation
+
+- Every page has a unique title (under about 62 characters) and description (110–160 characters); the build warns otherwise. Canonical links, Open Graph and Twitter cards, and a 1200×630 social image per page.
+- Structured data on every page: Organization, Person (the developer) and WebSite; SoftwareApplication and FAQPage on the home page; BlogPosting (with keywords, section, word count and reading time), FAQPage (from each guide's "Common questions") and BreadcrumbList on guides; Blog, CollectionPage and ItemList on `/blog`; AboutPage on `/about`.
+- Guides are written for one search each: the answer comes first, steps are numbered lists, comparisons are tables, and each ends with the questions people ask. Each links to related guides; "Keep reading" picks the three guides that share the most topics.
+- `sitemap.xml` lists every indexed page with its last change and its images. `llms.txt` lists the pages and guides for AI assistants.
+- To add a guide: add its metadata (with `keywords`) and body, run `npm run website:assets` (social image and card), then `npm run website` and `npm run website:check`.
 
 ## How it stays fast
 

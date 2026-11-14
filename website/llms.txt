@@ -1,0 +1,31 @@
+# FrameShot
+
+> Free Chrome extension to record your screen with sound and webcam, or capture a whole web page in one click. Annotate, blur and share. No watermark, no sign-up.
+
+FrameShot is a Chrome extension by Unique Labs, developed by Shahriar Ahmed. It records a tab, a window or the whole screen with sound, microphone and a webcam bubble, and captures the visible area, a full page, a selected area, an element or a scrolling panel. Captures open in an editor with annotation, blur and redaction, GIF export from recordings, and image, PDF and video export. Files are stored in the browser on the user's device; there are no accounts or uploads. Install: https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac
+
+## Pages
+
+- [Home](https://frameshot.uniquelabs.org/): features, screen recorder, full-page capture, privacy, FAQ
+- [About](https://frameshot.uniquelabs.org/about): who makes FrameShot and how it is built
+- [Privacy policy](https://frameshot.uniquelabs.org/privacy): what is stored on the device and the anonymous install counts
+- [Support](https://frameshot.uniquelabs.org/support): ways to support the project
+
+## Guides
+
+- [How to Screenshot in Chrome on Windows, Mac and Chromebook](https://frameshot.uniquelabs.org/blog/how-to-take-a-screenshot-in-chrome): How to screenshot in Chrome on Windows, Mac, ChromeOS and Linux: keyboard shortcuts, the hidden DevTools commands, and full-page, area and element captures.
+- [How to Screenshot on a Chromebook: Shortcuts and Tools](https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-a-chromebook): How to screenshot on a Chromebook with keyboard shortcuts, the Screen capture tool or tablet buttons, where files are saved, and how to capture a full page.
+- [How to Screen Record on Windows 11 (4 Simple Ways)](https://frameshot.uniquelabs.org/blog/how-to-screen-record-on-windows): How to screen record on Windows 11 with Snipping Tool, Xbox Game Bar, PowerPoint or a Chrome extension, with sound, mic and webcam, and which to pick.
+- [How to Screen Record on a Mac With Sound](https://frameshot.uniquelabs.org/blog/how-to-screen-record-on-a-mac-with-sound): How to screen record on Mac with sound: record your voice with Cmd+Shift+5 or QuickTime, and a Chrome tab’s or your Mac’s own audio with an extension.
+- [How to Take a Scrolling Screenshot on Windows and Mac](https://frameshot.uniquelabs.org/blog/how-to-take-a-scrolling-screenshot): A scrolling screenshot captures more than fits on screen. Why Windows and Mac lack one, and how to capture long pages, chats and scrolling panels in Chrome.
+- [How to Screenshot Part of a Web Page in Chrome](https://frameshot.uniquelabs.org/blog/how-to-screenshot-part-of-a-web-page): Screenshot part of a web page or capture a single element in Chrome: system snipping tools, DevTools commands and an extension that scrolls past the screen.
+- [How to Annotate a Screenshot: Arrows, Text and Steps](https://frameshot.uniquelabs.org/blog/how-to-annotate-a-screenshot): How to annotate a screenshot so it’s clear at a glance: which tools to use, simple design rules, and worked examples for bug reports, tutorials and feedback.
+- [How to Save a Web Page as a PDF or Image in Chrome](https://frameshot.uniquelabs.org/blog/how-to-save-a-web-page-as-a-pdf-or-image): Save a web page as a PDF with Chrome’s print dialog, or as a PDF or image that looks exactly like the screen. Which to pick, plus PNG, JPEG and WebP compared.
+- [How to Record Your Screen and Webcam for a Tutorial](https://frameshot.uniquelabs.org/blog/how-to-record-a-video-tutorial-with-your-webcam): Record screen and webcam for a tutorial video: plan a short script, set up your mic and camera, choose what to share, record in Chrome and export MP4.
+- [Screen Recorder Extensions for Chrome: What to Check](https://frameshot.uniquelabs.org/blog/how-to-choose-a-screen-recorder-extension-for-chrome): What to check in a screen recorder extension for Chrome before you install: watermarks, time limits, uploads, permissions, sound, formats and privacy.
+- [Private by Design: Why FrameShot Keeps Your Files Local](https://frameshot.uniquelabs.org/blog/why-frameshot-keeps-your-screenshots-on-your-device): How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.
+- [How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)](https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome): Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.
+- [How to Record Your Screen With Audio in Chrome](https://frameshot.uniquelabs.org/blog/how-to-record-your-screen-with-audio-in-chrome): Record a tab, a window or your whole screen with sound, your microphone and a webcam bubble. What to tick in Chrome’s dialog, and how to fix a silent video.
+- [How to Blur or Redact Sensitive Information in Screenshots](https://frameshot.uniquelabs.org/blog/how-to-blur-or-redact-sensitive-information-in-screenshots): Why blur and pixelation can sometimes be undone, when to use a solid redaction box, and a checklist of details to hide before you share a screenshot.
+- [How to Turn a Screen Recording Into a GIF](https://frameshot.uniquelabs.org/blog/how-to-turn-a-screen-recording-into-a-gif): Make small, sharp GIFs from screen recordings: when a GIF beats a video, which size and frame rate to choose, and how to keep the file light.
+- [Better Bug Reports With Screenshots and Short Videos](https://frameshot.uniquelabs.org/blog/better-bug-reports-with-screenshots-and-screen-recordings): A practical template for bug reports developers can act on: what to capture, how to annotate it, and when a short screen recording beats a paragraph.
