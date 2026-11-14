@@ -52,6 +52,31 @@
     reveal.forEach((el) => io.observe(el));
   } else reveal.forEach((el) => el.classList.add('in'));
 
+  // Blog topic filter. The buttons stay hidden without JavaScript, and every guide is listed anyway.
+  $$('.blog-filter').forEach((bar) => {
+    const grid = d.querySelector('[data-posts]');
+    const empty = d.querySelector('.blog-empty');
+    if (!grid) return;
+    bar.hidden = false;
+    const buttons = $$('button', bar);
+    buttons.forEach((b) =>
+      b.addEventListener('click', () => {
+        const v = b.dataset.filter;
+        buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        let shown = 0;
+        $$('[data-tag]', grid).forEach((card) => {
+          const on = v === 'all' || card.dataset.tag === v;
+          card.hidden = !on;
+          if (on) {
+            shown++;
+            card.classList.add('in');
+          }
+        });
+        if (empty) empty.hidden = shown > 0;
+      }),
+    );
+  });
+
   // Pointer spotlight on cards: one listener, one write per frame, non-inherited custom properties.
   let raf = 0;
   let target = null;

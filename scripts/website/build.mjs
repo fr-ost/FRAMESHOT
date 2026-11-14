@@ -13,7 +13,7 @@ import { INSTALL_TARGET, SITE, SITE_URL, STORE_URL } from './config.mjs';
 import { POSTS } from './meta.mjs';
 import { asset, esc, page, THEME_SCRIPT_HASH } from './layout.mjs';
 import { homePage } from './content/home.mjs';
-import { articlePages, blogPage, comingSoonPage, notFoundPage, privacyPage, supportPage } from './content/pages.mjs';
+import { aboutPage, articlePages, blogPage, comingSoonPage, notFoundPage, privacyPage, supportPage } from './content/pages.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.resolve(HERE, '../../website');
@@ -43,6 +43,7 @@ const pages = [
   { ...homePage(), file: 'index.html' },
   blogPage(),
   ...articlePages(),
+  aboutPage(),
   privacyPage(),
   supportPage(),
   ...(STORE_URL ? [] : [comingSoonPage()]),
@@ -67,16 +68,45 @@ if (problems.length) console.warn(`SEO warnings:\n  ${problems.join('\n  ')}`);
 
 // ── Sitemap, robots, feed, manifest ──
 const indexed = pages.filter((p) => !p.noindex);
-const lastmod = (p) => p.article?.modified || SITE.published;
+// The blog and home page change whenever a guide is added.
+const newest = POSTS.map((p) => p.updated || p.date).sort().at(-1);
+const lastmod = (p) => p.article?.modified || (p.path === '/' || p.path === '/blog' ? newest : SITE.published);
 write(
   'sitemap.xml',
   `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${indexed.map((p) => `<url><loc>${SITE_URL}${p.path === '/' ? '/' : p.path}</loc><lastmod>${lastmod(p)}</lastmod></url>`).join('\n')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${indexed
+  .map((p) => {
+    const images = [...(p.sitemapImages || []), `/og/${p.og || 'home'}.jpg`].filter((v, i, a) => a.indexOf(v) === i);
+    return `<url><loc>${SITE_URL}${p.path === '/' ? '/' : p.path}</loc><lastmod>${lastmod(p)}</lastmod>${images.map((im) => `<image:image><image:loc>${SITE_URL}${im}</image:loc></image:image>`).join('')}</url>`;
+  })
+  .join('\n')}
 </urlset>
 `,
 );
 write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+
+// llms.txt: a plain summary of the site and its guides for AI assistants and answer engines (https://llmstxt.org).
+write(
+  'llms.txt',
+  `# FrameShot
+
+> ${SITE.description}
+
+FrameShot is a Chrome extension by ${SITE.company}, developed by ${SITE.developer}. It records a tab, a window or the whole screen with sound, microphone and a webcam bubble, and captures the visible area, a full page, a selected area, an element or a scrolling panel. Captures open in an editor with annotation, blur and redaction, GIF export from recordings, and image, PDF and video export. Files are stored in the browser on the user's device; there are no accounts or uploads. Install: ${STORE_URL || SITE_URL}
+
+## Pages
+
+- [Home](${SITE_URL}/): features, screen recorder, full-page capture, privacy, FAQ
+- [About](${SITE_URL}/about): who makes FrameShot and how it is built
+- [Privacy policy](${SITE_URL}/privacy): what is stored on the device and the anonymous install counts
+- [Support](${SITE_URL}/support): ways to support the project
+
+## Guides
+
+${POSTS.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.description}`).join('\n')}
+`,
+);
 
 const rfc822 = (iso) => new Date(`${iso}T09:00:00Z`).toUTCString();
 write(

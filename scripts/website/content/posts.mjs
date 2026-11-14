@@ -1,5 +1,7 @@
 /** Blog article bodies. Every product fact here matches the extension's code and FEATURES.md. */
 import { icon, windowFrame } from '../layout.mjs';
+import { BODIES_A } from './posts-a.mjs';
+import { BODIES_B } from './posts-b.mjs';
 
 const k = (keys) => keys.split('+').map((x) => `<kbd>${x}</kbd>`).join('+');
 const callout = (ic, html) => `<div class="callout">${icon(ic, 20)}<div>${html}</div></div>`;
@@ -445,3 +447,6 @@ ${fig('editor', 'FrameShot Studio — Editor', 'A screenshot annotated with arro
     ],
   },
 };
+
+// Newer guides (2026-11-14) are written in their own files.
+Object.assign(BODIES, BODIES_A, BODIES_B);

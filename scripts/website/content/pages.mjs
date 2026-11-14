@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE, SITE_URL, STORE_URL } from '../config.mjs';
-import { POSTS } from '../meta.mjs';
+import { POSTS, TAGS } from '../meta.mjs';
 import { asset, breadcrumbLd, esc, icon, installButton, softwareLd, windowFrame } from '../layout.mjs';
 import { BODIES } from './posts.mjs';
 import { formatDate, postCard, readingMinutes, wordCount } from './shared.mjs';
@@ -14,8 +14,36 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const aurora = '';
 const crumbs = (items) =>
   `<nav aria-label="Breadcrumb"><ol class="crumbs">${items.map(([name, url], i) => (i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${url}">${esc(name)}</a></li>`)).join('')}</ol></nav>`;
-const byline = (date, minutes) =>
-  `<div class="byline"><a class="dev" href="${SITE.developerUrl}" rel="noopener author" target="_blank"><img src="${asset('/assets/img/developer.webp')}" alt="" width="44" height="44"><span><b>${SITE.developer}</b><small>Developer of FrameShot</small></span></a><span class="bl-item">${icon('CalendarDays', 16)}<time datetime="${date}">${formatDate(date)}</time></span>${minutes ? `<span class="bl-item">${icon('Clock', 16)}${minutes} min read</span>` : ''}</div>`;
+const byline = (date, minutes, updated) =>
+  `<div class="byline"><a class="dev" href="/about" rel="author"><img src="${asset('/assets/img/developer.webp')}" alt="" width="44" height="44"><span><b>${SITE.developer}</b><small>Developer of FrameShot</small></span></a><span class="bl-item">${icon('CalendarDays', 16)}<time datetime="${date}">${formatDate(date)}</time></span>${updated && updated !== date ? `<span class="bl-item">${icon('RefreshCw', 16)}Updated <time datetime="${updated}">${formatDate(updated)}</time></span>` : ''}${minutes ? `<span class="bl-item">${icon('Clock', 16)}${minutes} min read</span>` : ''}</div>`;
+
+const strip = (html) => html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+
+/** Question-and-answer pairs from an article's "faq" section (an <h3> followed by its paragraphs). */
+export function faqPairs(body) {
+  const faq = body.sections.find((s) => s.id === 'faq');
+  if (!faq) return [];
+  return faq.html
+    .split(/<h3[^>]*>/)
+    .slice(1)
+    .map((part) => {
+      const [q, rest = ''] = part.split('</h3>');
+      return [strip(q), strip(rest)];
+    })
+    .filter(([q, a]) => q && a);
+}
+
+/** Guides that share the most search topics with this one (keywords and title words), then the same tag. */
+const STOP = new Set('a an and the to in on of for with how your you is it or by from what when why can do does'.split(' '));
+const terms = (p) => new Set(`${p.title} ${(p.keywords || []).join(' ')}`.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w)));
+function relatedTo(post, n = 3) {
+  const mine = terms(post);
+  return POSTS.filter((p) => p.slug !== post.slug)
+    .map((p) => ({ p, score: [...terms(p)].filter((w) => mine.has(w)).length + (p.tag === post.tag ? 2 : 0) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n)
+    .map((x) => x.p);
+}
 
 const tryCard = () =>
   `<div class="card art-cta"><div><b>Try FrameShot free</b><small>Full-page screenshots and screen recording for Chrome. No watermark, no account, nothing uploaded.</small></div>${installButton({ label: 'Add to Chrome' })}</div>`;
@@ -27,7 +55,8 @@ export function articlePages() {
     if (!body) throw new Error(`No body for ${post.slug}`);
     const url = `/blog/${post.slug}`;
     const minutes = readingMinutes(post.slug);
-    const related = [...POSTS.filter((p) => p.slug !== post.slug && p.tag === post.tag), ...POSTS.filter((p) => p.slug !== post.slug && p.tag !== post.tag)].slice(0, 3);
+    const related = relatedTo(post);
+    const faq = faqPairs(body);
     const html = `
 <div class="progress" aria-hidden="true"></div>
 <article>
@@ -36,7 +65,7 @@ ${crumbs([['Home', '/'], ['Blog', '/blog'], [post.title, url]])}
 <span class="eyebrow" style="margin-top:22px">${esc(post.tag)}</span>
 <h1>${esc(post.title)}</h1>
 <p class="lead">${esc(post.description)}</p>
-${byline(post.date, minutes)}
+${byline(post.date, minutes, post.updated)}
 </div></header>
 <div class="wrap">
 <div class="art-hero">${windowFrame(post.image, { title: 'FrameShot Studio', alt: post.alt, sizes: '(max-width: 1220px) 94vw, 1180px', eager: true, priority: true })}</div>
@@ -62,7 +91,7 @@ ${tryCard()}
         '@id': `${SITE_URL}${url}#article`,
         headline: post.title,
         description: post.description,
-        image: [`${SITE_URL}/og/${post.slug}.jpg`],
+        image: { '@type': 'ImageObject', url: `${SITE_URL}/og/${post.slug}.jpg`, width: 1200, height: 630 },
         datePublished: post.date,
         dateModified: post.updated || post.date,
         author: { '@id': `${SITE_URL}/#developer` },
@@ -71,8 +100,12 @@ ${tryCard()}
         isPartOf: { '@id': `${SITE_URL}/blog#blog` },
         about: { '@id': `${SITE_URL}/#app` },
         wordCount: wordCount(post.slug),
+        timeRequired: `PT${minutes}M`,
+        articleSection: post.tag,
+        ...(post.keywords ? { keywords: post.keywords.join(', ') } : {}),
         inLanguage: 'en',
       },
+      ...(faq.length ? [{ '@type': 'FAQPage', '@id': `${SITE_URL}${url}#faq`, mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] : []),
       breadcrumbLd([['Home', '/'], ['Blog', '/blog'], [post.title, url]]),
     ];
     return {
@@ -82,8 +115,9 @@ ${tryCard()}
       description: post.description,
       og: post.slug,
       type: 'article',
-      article: { published: post.date, modified: post.updated || post.date },
+      article: { published: post.date, modified: post.updated || post.date, section: post.tag, tags: post.keywords || [] },
       current: '/blog',
+      sitemapImages: [`/og/${post.slug}.jpg`],
       body: html,
       ld,
     };
@@ -92,37 +126,106 @@ ${tryCard()}
 
 // ── Blog index ──
 export function blogPage() {
+  const count = (t) => POSTS.filter((p) => p.tag === t).length;
+  const tags = TAGS.filter(count);
+  const filter = `<div class="blog-filter" role="group" aria-label="Show guides about" hidden>${[['all', 'All guides', POSTS.length], ...tags.map((t) => [t, t, count(t)])]
+    .map(([v, label, n], i) => `<button type="button" data-filter="${v}" aria-pressed="${i === 0}">${esc(label)} <span>${n}</span></button>`)
+    .join('')}</div>`;
+  const [featured, ...rest] = POSTS;
   const body = `
 <header class="art-head">${aurora}<div class="wrap">
 ${crumbs([['Home', '/'], ['Blog', '/blog']])}
-<h1>Guides for screenshots and <span class="grad">screen recording</span></h1>
-<p class="lead">Practical, no-nonsense guides to capturing web pages, recording your screen with sound, hiding private details and sharing your work clearly.</p>
+<h1>Screenshot and screen recording <span class="grad">guides</span></h1>
+<p class="lead">Step-by-step guides to screenshots in Chrome, Windows, Mac and Chromebook, recording your screen with sound and a webcam, hiding private details and sharing your work clearly.</p>
 </div></header>
 <section class="section-tight" style="padding-top:20px">
-<div class="wrap"><h2 class="sr-only">All guides</h2><div class="post-grid">${POSTS.map((p, i) => postCard(p, i)).join('\n')}</div></div>
+<div class="wrap">
+<h2 class="sr-only">All guides</h2>
+${filter}
+<div class="post-grid" data-posts>
+${postCard(featured, 0, { featured: true })}
+${rest.map((p, i) => postCard(p, i + 1)).join('\n')}
+</div>
+<p class="blog-empty" hidden>No guides in this topic yet.</p>
+</div>
+</section>
+<section class="section-tight">
+<div class="wrap">
+<div class="sec-head left reveal"><span class="eyebrow">${icon('ListTree', 16)}By topic</span><h2>Every guide, grouped by topic</h2></div>
+<div class="topic-index">${tags
+    .map((t) => `<div class="card topic"><h3>${esc(t)}</h3><ul>${POSTS.filter((p) => p.tag === t).map((p) => `<li><a href="/blog/${p.slug}">${esc(p.title)}</a></li>`).join('')}</ul></div>`)
+    .join('')}</div>
+</div>
 </section>
 <section class="section-tight"><div class="wrap"><div class="cta reveal"><h2>Put a guide into practice</h2><p>FrameShot is free, works offline and never uploads your files.</p>${installButton({ size: 'btn-lg', light: true, note: true })}</div></div></section>`;
   const ld = [
     {
-      '@type': 'Blog',
+      '@type': ['Blog', 'CollectionPage'],
       '@id': `${SITE_URL}/blog#blog`,
       url: `${SITE_URL}/blog`,
       name: 'FrameShot blog',
-      description: 'Guides for screenshots and screen recording in Chrome.',
+      description: 'Guides for screenshots and screen recording in Chrome, Windows, Mac and Chromebook.',
       publisher: { '@id': `${SITE_URL}/#org` },
-      blogPost: POSTS.map((p) => ({ '@type': 'BlogPosting', '@id': `${SITE_URL}/blog/${p.slug}#article`, headline: p.title, url: `${SITE_URL}/blog/${p.slug}`, datePublished: p.date })),
+      inLanguage: 'en',
+      blogPost: POSTS.map((p) => ({ '@type': 'BlogPosting', '@id': `${SITE_URL}/blog/${p.slug}#article`, headline: p.title, url: `${SITE_URL}/blog/${p.slug}`, datePublished: p.date, dateModified: p.updated || p.date })),
     },
+    { '@type': 'ItemList', '@id': `${SITE_URL}/blog#list`, numberOfItems: POSTS.length, itemListElement: POSTS.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE_URL}/blog/${p.slug}`, name: p.title })) },
     breadcrumbLd([['Home', '/'], ['Blog', '/blog']]),
   ];
   return {
     path: '/blog',
     file: 'blog/index.html',
-    title: 'FrameShot Blog: Screenshot and Screen Recording Guides',
-    description: 'Step-by-step guides to full-page screenshots, screen recording with sound, GIFs, redacting private details and clearer bug reports in Chrome.',
+    title: 'Screenshot & Screen Recording Guides | FrameShot Blog',
+    description: `${POSTS.length} step-by-step guides to screenshots and screen recording in Chrome, Windows, Mac and Chromebook, plus GIFs, PDFs, annotation and redaction.`,
     og: 'blog',
     current: '/blog',
     body,
     ld,
+  };
+}
+
+// ── About ──
+export function aboutPage() {
+  const body = `
+<header class="art-head">${aurora}<div class="wrap">
+${crumbs([['Home', '/'], ['About', '/about']])}
+<h1>About FrameShot</h1>
+<p class="lead">FrameShot is a Chrome extension for recording your screen and capturing whole web pages, then annotating, blurring and sharing them. It is made by ${esc(SITE.company)} and developed by ${esc(SITE.developer)}.</p>
+</div></header>
+<div class="wrap">
+<div class="art-layout" style="margin-top:20px">
+<div class="prose">
+<h2 id="what">What FrameShot does</h2>
+<p>FrameShot records a browser tab, a window or your whole screen with sound, your microphone and a webcam bubble, and it captures the visible part of a page, a full page, a selected area, a single element or a scrolling panel. Everything opens in FrameShot Studio, where you can annotate, blur and redact, make a GIF from part of a recording, and export images, PDFs and videos. Read <a href="/#features">the full feature list</a> or start with <a href="/blog">the guides</a>.</p>
+<h2 id="principles">How it is built</h2>
+<ul>
+<li><strong>Your files stay on your device.</strong> Screenshots and recordings are saved in your browser and leave it only when you download or copy them. FrameShot has no accounts and no cloud. The only thing it sends is an anonymous install count, which you can turn off. The details are in the <a href="/privacy">privacy policy</a>.</li>
+<li><strong>No watermark and no paid tier.</strong> Every feature is available to everyone.</li>
+<li><strong>Few permissions.</strong> FrameShot reads a page only when you start a capture on it, and records only what you choose in Chrome’s own share dialog.</li>
+<li><strong>Tested in a real browser.</strong> Captures, recordings and exports are checked by automated tests that run the extension in Chromium and compare the results pixel by pixel.</li>
+</ul>
+<p>The idea behind FrameShot is simple: useful technology, accessible to everyone.</p>
+<h2 id="developer">Who makes FrameShot</h2>
+<div class="card about-dev"><img src="${asset('/assets/img/developer.webp')}" alt="${esc(SITE.developer)}" width="88" height="88" loading="lazy"><div><b>${esc(SITE.developer)}</b><span>Developer of FrameShot · ${esc(SITE.company)}</span><p>Shahriar designs, builds and maintains FrameShot, and publishes the guides on this site.</p><p><a href="${SITE.developerUrl}" rel="noopener me" target="_blank">www.shahriarahmed.net</a></p></div></div>
+<h2 id="contact">Contact and feedback</h2>
+<p>Found a bug, or missing a feature? Send a message on <a href="${SITE.telegram}" rel="noopener" target="_blank">Telegram</a>. If FrameShot helps you, a rating on the Chrome Web Store or sharing it with a colleague helps others find it; see <a href="/support">ways to support FrameShot</a>.</p>
+</div>
+<aside class="toc card" aria-label="On this page"><b>On this page</b><ol><li><a href="#what">What FrameShot does</a></li><li><a href="#principles">How it is built</a></li><li><a href="#developer">Who makes FrameShot</a></li><li><a href="#contact">Contact and feedback</a></li></ol></aside>
+</div>
+</div>
+<section class="section-tight"><div class="wrap"><div class="cta reveal"><h2>Try FrameShot</h2><p>Screen recording and full-page screenshots for Chrome. No watermark, no account.</p>${installButton({ size: 'btn-lg', light: true, note: true })}</div></div></section>`;
+  return {
+    path: '/about',
+    file: 'about.html',
+    title: 'About FrameShot: Who Makes It and How It Works',
+    description: `FrameShot is a Chrome screen recorder and full-page screenshot extension by ${SITE.company}, developed by ${SITE.developer}. How it is built and how to get in touch.`,
+    og: 'about',
+    body,
+    ld: [
+      { '@type': 'AboutPage', '@id': `${SITE_URL}/about#webpage`, url: `${SITE_URL}/about`, name: 'About FrameShot', about: { '@id': `${SITE_URL}/#app` }, mainEntity: { '@id': `${SITE_URL}/#org` }, isPartOf: { '@id': `${SITE_URL}/#site` } },
+      softwareLd(),
+      breadcrumbLd([['Home', '/'], ['About', '/about']]),
+    ],
   };
 }
 

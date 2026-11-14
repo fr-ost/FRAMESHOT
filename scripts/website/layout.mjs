@@ -85,8 +85,8 @@ export function installButton({ size = '', label = 'Add to Chrome — it’s fre
 }
 
 // ── Structured data ──
-export const ORG = { '@type': 'Organization', '@id': `${SITE_URL}/#org`, name: SITE.company, url: SITE_URL, logo: `${SITE_URL}/assets/img/icon-512.png` };
-export const PERSON = { '@type': 'Person', '@id': `${SITE_URL}/#developer`, name: SITE.developer, url: SITE.developerUrl, image: `${SITE_URL}/assets/img/developer.webp`, worksFor: { '@id': `${SITE_URL}/#org` } };
+export const ORG = { '@type': 'Organization', '@id': `${SITE_URL}/#org`, name: SITE.company, url: SITE_URL, logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/icon-512.png`, width: 512, height: 512 }, founder: { '@id': `${SITE_URL}/#developer` }, contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', url: SITE.telegram } };
+export const PERSON = { '@type': 'Person', '@id': `${SITE_URL}/#developer`, name: SITE.developer, url: SITE.developerUrl, image: `${SITE_URL}/assets/img/developer.webp`, jobTitle: 'Developer of FrameShot', sameAs: [SITE.developerUrl, SITE.telegram], worksFor: { '@id': `${SITE_URL}/#org` } };
 export function softwareLd() {
   return {
     '@type': 'SoftwareApplication',
@@ -140,8 +140,8 @@ function footer() {
 <p>The free screen recorder and full-page screenshot extension for Chrome. No watermark, no account, nothing uploaded.</p>
 <a class="dev" href="${SITE.developerUrl}" rel="noopener" target="_blank"><img src="${asset('/assets/img/developer.webp')}" alt="Shahriar Ahmed" width="44" height="44" loading="lazy"><span><b>Shahriar Ahmed</b><small>Developer · Unique Labs · www.shahriarahmed.net</small></span></a></div>
 <div><h2>Product</h2><ul><li><a href="/#features">Features</a></li><li><a href="/#recorder">Screen recorder</a></li><li><a href="/#full-page">Full-page screenshots</a></li><li><a href="/#why">Why FrameShot</a></li><li><a href="/#faq">FAQ</a></li></ul></div>
-<div><h2>Guides</h2><ul><li><a href="/blog/how-to-take-a-full-page-screenshot-in-chrome">Full-page screenshots</a></li><li><a href="/blog/how-to-record-your-screen-with-audio-in-chrome">Record with audio</a></li><li><a href="/blog/how-to-blur-or-redact-sensitive-information-in-screenshots">Blur &amp; redact</a></li><li><a href="/blog">All articles</a></li></ul></div>
-<div><h2>FrameShot</h2><ul><li><a href="/privacy">Privacy policy</a></li><li><a href="/support">Support FrameShot</a></li><li><a href="${SITE.telegram}" rel="noopener" target="_blank">Contact (Telegram)</a></li><li><a href="/feed.xml">RSS feed</a></li></ul></div>
+<div><h2>Guides</h2><ul><li><a href="/blog/how-to-take-a-screenshot-in-chrome">Screenshot in Chrome</a></li><li><a href="/blog/how-to-take-a-full-page-screenshot-in-chrome">Full-page screenshots</a></li><li><a href="/blog/how-to-record-your-screen-with-audio-in-chrome">Record with audio</a></li><li><a href="/blog/how-to-screen-record-on-windows">Screen record on Windows</a></li><li><a href="/blog/how-to-screen-record-on-a-mac-with-sound">Screen record on a Mac</a></li><li><a href="/blog/how-to-screenshot-on-a-chromebook">Screenshot on a Chromebook</a></li><li><a href="/blog">All guides</a></li></ul></div>
+<div><h2>FrameShot</h2><ul><li><a href="/about">About</a></li><li><a href="/privacy">Privacy policy</a></li><li><a href="/support">Support FrameShot</a></li><li><a href="${SITE.telegram}" rel="noopener" target="_blank">Contact (Telegram)</a></li><li><a href="/feed.xml">RSS feed</a></li></ul></div>
 </div>
 <div class="legal"><span>© 2026 Unique Labs. A product of Unique Labs, developed by <a href="${SITE.developerUrl}" rel="noopener" target="_blank">Shahriar Ahmed</a>.</span><span>Chrome and the Chrome Web Store are trademarks of Google LLC.</span></div>
 </div></footer>`;
@@ -154,7 +154,7 @@ function footer() {
 export function page(p) {
   const url = `${SITE_URL}${p.path === '/' ? '/' : p.path}`;
   const og = `${SITE_URL}/og/${p.og || 'home'}.jpg`;
-  const graph = [ORG, PERSON, { '@type': 'WebSite', '@id': `${SITE_URL}/#site`, url: SITE_URL, name: 'FrameShot', publisher: { '@id': `${SITE_URL}/#org` } }, ...(p.ld || [])];
+  const graph = [ORG, PERSON, { '@type': 'WebSite', '@id': `${SITE_URL}/#site`, url: SITE_URL, name: 'FrameShot', publisher: { '@id': `${SITE_URL}/#org` }, inLanguage: 'en' }, ...(p.ld || [])];
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -176,7 +176,7 @@ ${p.noindex ? '<meta name="robots" content="noindex,follow">' : '<meta name="rob
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="${SITE.locale}">
-${p.article ? `<meta property="article:published_time" content="${p.article.published}">\n<meta property="article:modified_time" content="${p.article.modified}">\n<meta property="article:author" content="${SITE.developerUrl}">` : ''}
+${p.article ? `<meta property="article:published_time" content="${p.article.published}">\n<meta property="article:modified_time" content="${p.article.modified}">\n<meta property="article:author" content="${SITE.developerUrl}">${p.article.section ? `\n<meta property="article:section" content="${esc(p.article.section)}">` : ''}${(p.article.tags || []).map((t) => `\n<meta property="article:tag" content="${esc(t)}">`).join('')}\n<meta name="author" content="${esc(SITE.developer)}">` : ''}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(p.title)}">
 <meta name="twitter:description" content="${esc(p.description)}">

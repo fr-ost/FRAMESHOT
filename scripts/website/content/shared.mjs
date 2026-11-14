@@ -13,6 +13,7 @@ export function wordCount(slug) {
 }
 export const readingMinutes = (slug) => Math.max(1, Math.round(wordCount(slug) / 220));
 
-export function postCard(p, i = 0) {
-  return `<a class="card post-card lift reveal" style="--i:${i % 3}" href="/blog/${p.slug}"><div class="pc-img">${picture(`og-${p.slug}`, { alt: '', sizes: '(max-width: 620px) 92vw, (max-width: 980px) 46vw, 380px' })}</div><div class="pc-body"><span class="tag">${esc(p.tag)}</span><h3>${esc(p.title)}</h3><p>${esc(p.description)}</p><span class="meta"><time datetime="${p.date}">${formatDate(p.date)}</time> · ${readingMinutes(p.slug)} min read</span></div></a>`;
+export function postCard(p, i = 0, { featured = false } = {}) {
+  const sizes = featured ? '(max-width: 620px) 92vw, (max-width: 980px) 92vw, 640px' : '(max-width: 620px) 92vw, (max-width: 980px) 46vw, 380px';
+  return `<a class="card post-card lift reveal${featured ? ' featured' : ''}" style="--i:${i % 3}" href="/blog/${p.slug}" data-tag="${esc(p.tag)}"><div class="pc-img">${picture(`og-${p.slug}`, { alt: '', sizes })}</div><div class="pc-body"><span class="tag">${featured ? 'Latest · ' : ''}${esc(p.tag)}</span><h3>${esc(p.title)}</h3><p>${esc(p.description)}</p><span class="meta"><time datetime="${p.date}">${formatDate(p.date)}</time> · ${readingMinutes(p.slug)} min read</span></div></a>`;
 }

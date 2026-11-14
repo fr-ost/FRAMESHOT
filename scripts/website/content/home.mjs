@@ -323,7 +323,7 @@ ${faq}
 <section class="section" id="guides">
 <div class="wrap">
 <div class="sec-head reveal"><span class="eyebrow">${icon('BookOpen', 16)}Guides</span><h2>Learn the <span class="grad">tricks</span></h2><p>Short, practical guides to screenshots, screen recording and sharing safely.</p></div>
-<div class="post-grid">${POSTS.slice(0, 3).map((p, i) => postCard(p, i)).join('\n')}</div>
+<div class="post-grid">${POSTS.slice(0, 6).map((p, i) => postCard(p, i)).join('\n')}</div>
 <p class="center more" style="margin-top:28px"><a href="/blog">Read all guides ${icon('ArrowRight', 16)}</a></p>
 </div>
 </section>
