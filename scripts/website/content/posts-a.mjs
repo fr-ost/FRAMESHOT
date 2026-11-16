@@ -164,7 +164,7 @@ ${fig('editor', 'FrameShot Studio — Editor', 'A captured web page in the Frame
 <li><strong>Choose the right format.</strong> PNG keeps text sharp, JPEG and WebP make photos and long pages smaller, and a PDF is easy to attach and print. Read more in <a href="/blog/how-to-save-a-web-page-as-a-pdf-or-image">how to save a web page as a PDF or image</a>.</li>
 <li><strong>Reporting a problem?</strong> Pair the screenshot with clear steps. Here’s a template for <a href="/blog/better-bug-reports-with-screenshots-and-screen-recordings">better bug reports</a>.</li>
 </ul>
-${callout('Info', '<p>Chrome doesn’t let any extension capture its own pages, such as <code>chrome://settings</code>, the Chrome Web Store or other extensions’ pages. Your system shortcut still works there.</p>')}`,
+${callout('Info', '<p>On Chrome’s own pages, such as <code>chrome://settings</code>, and on other extensions’ pages, extensions can only take a screenshot of what’s on screen, not a full page. The Chrome Web Store can’t be captured by any extension; your system shortcut still works there.</p>')}`,
       },
       {
         id: 'faq',

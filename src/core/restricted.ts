@@ -2,7 +2,15 @@
  * Chrome does not allow extensions to capture or script some pages. Detecting
  * them up front lets us show an honest message instead of a confusing error.
  */
-const RESTRICTED_PROTOCOLS = [
+/**
+ * Browser pages where Chrome lets FrameShot take a screenshot of the screen
+ * (captureVisibleTab, granted by activeTab when the user starts the capture)
+ * but never lets it run a script: other extensions' pages, chrome:// pages and
+ * the like. Full page, area, element and scrolling-panel captures need a script
+ * on the page, so on these pages FrameShot saves what is on screen instead and
+ * says why.
+ */
+const SCREEN_ONLY_PROTOCOLS = [
   'chrome:',
   'chrome-extension:',
   'chrome-search:',
@@ -14,29 +22,51 @@ const RESTRICTED_PROTOCOLS = [
   'vivaldi:',
   'about:',
   'view-source:',
-  'javascript:',
 ];
 
-const RESTRICTED_HOSTS = ['chrome.google.com', 'chromewebstore.google.com', 'microsoftedge.microsoft.com'];
+/** Pages Chrome does not let any extension capture. */
+const BLOCKED_PROTOCOLS = ['javascript:'];
+const BLOCKED_HOSTS = ['chrome.google.com', 'chromewebstore.google.com', 'microsoftedge.microsoft.com'];
 
-export type PageAccess = { allowed: true } | { allowed: false; reason: string };
+export type PageKind = 'normal' | 'screen-only' | 'blocked';
 
-export function checkPageAccess(url: string | undefined): PageAccess {
-  if (!url) return { allowed: true }; // Unknown: let the capture attempt report precisely.
+export function pageKind(url: string | undefined): PageKind {
+  if (!url) return 'normal'; // Unknown: let the capture attempt find out.
   let parsed: URL;
   try {
     parsed = new URL(url);
   } catch {
-    return { allowed: true };
+    return 'normal';
   }
-  if (RESTRICTED_PROTOCOLS.includes(parsed.protocol)) {
-    return { allowed: false, reason: 'Chrome does not allow extensions to capture browser pages like this one.' };
-  }
-  if (parsed.hostname === 'chrome.google.com' && !parsed.pathname.startsWith('/webstore')) return { allowed: true };
-  if (RESTRICTED_HOSTS.includes(parsed.hostname)) {
-    return { allowed: false, reason: 'Chrome does not allow extensions to capture the Web Store.' };
-  }
-  return { allowed: true };
+  if (BLOCKED_PROTOCOLS.includes(parsed.protocol)) return 'blocked';
+  if (SCREEN_ONLY_PROTOCOLS.includes(parsed.protocol)) return 'screen-only';
+  if (parsed.hostname === 'chrome.google.com' && !parsed.pathname.startsWith('/webstore')) return 'normal';
+  if (BLOCKED_HOSTS.includes(parsed.hostname)) return 'blocked';
+  return 'normal';
+}
+
+export type PageAccess = { allowed: true } | { allowed: false; reason: string };
+
+export function checkPageAccess(url: string | undefined): PageAccess {
+  if (pageKind(url) !== 'blocked') return { allowed: true };
+  return { allowed: false, reason: 'Chrome does not allow extensions to capture the Web Store.' };
+}
+
+/** Shown on a capture that fell back to the visible part of a browser page. */
+export const SCREEN_ONLY_NOTE =
+  'Chrome does not let extensions scroll or select on this page (another extension’s page or a browser page), so FrameShot saved what was on screen. You can crop it in the editor.';
+
+/** True when a scripting error means Chrome protects the page from scripts (but may still allow a screenshot). */
+export function isScriptBlockedError(raw: string): boolean {
+  const m = raw.toLowerCase();
+  return (
+    m.includes('cannot access a chrome') ||
+    m.includes('chrome-extension://') ||
+    m.includes('cannot be scripted') ||
+    m.includes('cannot access contents of') ||
+    m.includes('cannot access a chrome:// url') ||
+    m.includes('of different extension')
+  );
 }
 
 export function domainOf(url: string | undefined): string {
@@ -62,7 +92,7 @@ export function isSafeLink(url: string | undefined): boolean {
 }
 
 const PROTECTED_PAGE_MESSAGE =
-  'Chrome does not allow extensions to capture this page. Browser pages (chrome://), the Chrome Web Store, and some built-in pages are protected.';
+  'Chrome does not allow extensions to capture this page. The Chrome Web Store and some built-in pages are protected.';
 
 /**
  * Converts raw Chrome API errors into user-facing explanations. `urlKnown`

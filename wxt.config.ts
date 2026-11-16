@@ -1,5 +1,7 @@
 import { defineConfig } from 'wxt';
 import tailwindcss from '@tailwindcss/vite';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * E2E builds are identical to production builds except for two things, both
@@ -38,6 +40,17 @@ export default defineConfig({
   ...(E2E ? { outDirTemplate: '{{browser}}-mv{{manifestVersion}}-e2e' } : {}),
   imports: false,
   modules: ['@wxt-dev/module-react'],
+  hooks: {
+    // pdf.js needs its standard fonts and character maps (for PDFs that don't embed their fonts).
+    'build:publicAssets': (_wxt, files) => {
+      for (const dir of ['standard_fonts', 'cmaps']) {
+        const src = path.resolve('node_modules/pdfjs-dist', dir);
+        // Font and character-map license files are shipped with them.
+        for (const name of fs.readdirSync(src)) files.push({ absoluteSrc: path.join(src, name), relativeDest: `pdfjs/${dir}/${name}` });
+      }
+      files.push({ absoluteSrc: path.resolve('node_modules/pdfjs-dist/LICENSE'), relativeDest: 'pdfjs/LICENSE' });
+    },
+  },
   zip: {
     artifactTemplate: 'frameshot-{{version}}-chrome.zip',
   },

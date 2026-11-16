@@ -23,7 +23,8 @@ import { defaultItemName } from '../core/filename';
 import { intersect, isEmpty } from '../core/geometry';
 import type { AgentSelection, FixedVisibility, FrameGeometry, ScrollerRef } from '../core/messages';
 import { CAPTURE_CSS, FREEZE_CSS } from '../core/page-css';
-import { checkPageAccess, domainOf, friendlyCaptureError } from '../core/restricted';
+import { checkPageAccess, domainOf, friendlyCaptureError, isScriptBlockedError, pageKind, SCREEN_ONLY_NOTE } from '../core/restricted';
+import { probePdf, startPdfCapture } from './pdf-capture';
 import { loadSettings, type Settings } from '../core/settings';
 import type { CaptureErrorCode, CaptureMode, CaptureSource, LibraryItem, Rect } from '../core/types';
 import { newId } from '../core/format';
@@ -53,6 +54,8 @@ interface ActiveCapture {
   cancelled: boolean;
   stopRequested: boolean;
   delayTimer?: ReturnType<typeof setTimeout>;
+  /** Notes saved with the capture (e.g. why only the visible part was captured). */
+  notes: string[];
 }
 
 let active: ActiveCapture | null = null;
@@ -124,13 +127,30 @@ export async function startCapture(opts: StartOptions): Promise<void> {
     mode: opts.mode,
     cancelled: false,
     stopRequested: false,
+    notes: [],
   };
+
+  // Other extensions' pages and browser pages: Chrome allows a screenshot of
+  // the screen but no script, so every mode saves the visible part.
+  if (opts.mode !== 'visible' && pageKind(tab.url) === 'screen-only') return startScreenOnly(capture);
+
+  if (opts.mode === 'full') {
+    const kind = await probePdf(tab.id);
+    if (kind === 'script-blocked') return startScreenOnly(capture);
+    if (kind === 'pdf') {
+      // Chrome's PDF viewer scrolls inside itself, so the pages are rendered from the PDF instead.
+      await startPdfCapture(tab);
+      return;
+    }
+  }
 
   if (opts.mode === 'area' || opts.mode === 'element' || opts.mode === 'scrollable') {
     try {
       await ensureAgent(tab.id);
     } catch (err) {
-      throw new CaptureError(friendlyCaptureError(String((err as Error)?.message ?? err), !!tab.url), 'permission');
+      const message = String((err as Error)?.message ?? err);
+      if (isScriptBlockedError(message)) return startScreenOnly(capture);
+      throw new CaptureError(friendlyCaptureError(message, !!tab.url), 'permission');
     }
     const pending: PendingPick = {
       session: capture.id,
@@ -152,6 +172,15 @@ export async function startCapture(opts: StartOptions): Promise<void> {
     return;
   }
   setStatus({ phase: 'preparing', mode: opts.mode, message: 'Preparing capture…' });
+  void runCapture(capture, null);
+}
+
+/** Captures the visible part instead, with a note saying why. */
+function startScreenOnly(capture: ActiveCapture): void {
+  capture.mode = 'visible';
+  capture.notes.push(SCREEN_ONLY_NOTE);
+  active = capture;
+  setStatus({ phase: 'preparing', mode: 'visible', message: 'Preparing capture…' });
   void runCapture(capture, null);
 }
 
@@ -188,6 +217,7 @@ export async function onSelection(
     mode: stored.mode,
     cancelled: false,
     stopRequested: false,
+    notes: [],
   };
   active = capture;
   setStatus({ phase: 'preparing', mode: capture.mode, message: 'Preparing capture…' });
@@ -241,7 +271,16 @@ async function runCapture(capture: ActiveCapture, selection: AgentSelection | nu
     const outcome =
       capture.mode === 'visible'
         ? await captureVisible(capture)
-        : await captureMultiFrame(capture, settings, selection);
+        : await captureMultiFrame(capture, settings, selection).catch(async (err: unknown) => {
+            // A page that turned out to block scripts (its address was hidden from us): keep what is on screen.
+            if (err instanceof CaptureError && err.code === 'permission' && isScriptBlockedError(err.message)) {
+              capture.notes.push(SCREEN_ONLY_NOTE);
+              capture.mode = 'visible';
+              return captureVisible(capture);
+            }
+            throw err;
+          });
+    outcome.warnings.unshift(...capture.notes);
 
     if (capture.cancelled) throw new CaptureError('Capture cancelled.', 'cancelled');
 

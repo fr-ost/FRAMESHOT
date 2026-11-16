@@ -24,6 +24,10 @@ export type BgRequest =
   | { kind: 'capture.stop' }
   | { kind: 'capture.status' }
   | { kind: 'studio.open'; route?: string }
+  | { kind: 'pdf.info'; token: string }
+  | { kind: 'pdf.piece'; token: string; offset: number }
+  | { kind: 'pdf.progress'; page: number; pages: number }
+  | { kind: 'pdf.finished'; token: string; ids?: string[]; warnings?: string[]; error?: string; cancelled?: boolean }
   | AgentEvent;
 
 export interface BgResponses {
@@ -32,6 +36,10 @@ export interface BgResponses {
   'capture.stop': { stopping: boolean };
   'capture.status': CaptureStatus;
   'studio.open': { tabId?: number };
+  'pdf.info': import('../background/pdf-capture').PdfJob | null;
+  'pdf.piece': string | null;
+  'pdf.progress': { ok: true };
+  'pdf.finished': { ok: true };
   'agent.selection': { accepted: boolean };
   'agent.cancelled': { acknowledged: true };
   'agent.escape': { acknowledged: true };

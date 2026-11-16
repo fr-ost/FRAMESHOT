@@ -1,11 +1,14 @@
 /** Page and article metadata shared by the build and the social-image renderer. */
 import { META_A } from './content/posts-a.mjs';
 import { META_B } from './content/posts-b.mjs';
+import { META_C } from './content/posts-c.mjs';
+import { META_D } from './content/posts-d.mjs';
 
 /** The first six guides (2026-11-08). Newer guides live in content/posts-a.mjs and posts-b.mjs. */
 const FIRST = [
   {
     slug: 'how-to-take-a-full-page-screenshot-in-chrome',
+    updated: '2026-11-16',
     keywords: ['full page screenshot chrome', 'capture entire web page', 'full page screenshot extension', 'devtools full size screenshot', 'screenshot whole page'],
     title: 'How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)',
     description: 'Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.',
@@ -68,7 +71,7 @@ const FIRST = [
 ];
 
 /** Every guide, newest first (the order used on the blog, the home page and in the feed). */
-export const POSTS = [...META_A, ...META_B, ...FIRST].sort((a, b) => (b.updated || b.date).localeCompare(a.updated || a.date) || 0);
+export const POSTS = [...META_C, ...META_D, ...META_A, ...META_B, ...FIRST].sort((a, b) => (b.updated || b.date).localeCompare(a.updated || a.date) || 0);
 
 /** Blog categories, in the order of the filter on /blog. */
 export const TAGS = ['Guide', 'Recording', 'Tips', 'Workflow', 'Privacy'];

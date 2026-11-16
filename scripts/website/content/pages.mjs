@@ -190,7 +190,7 @@ export function aboutPage() {
 <header class="art-head">${aurora}<div class="wrap">
 ${crumbs([['Home', '/'], ['About', '/about']])}
 <h1>About FrameShot</h1>
-<p class="lead">FrameShot is a Chrome extension for recording your screen and capturing whole web pages, then annotating, blurring and sharing them. It is made by ${esc(SITE.company)} and developed by ${esc(SITE.developer)}.</p>
+<p class="lead">FrameShot is a Chrome extension for recording your screen and capturing whole web pages, then annotating, blurring and sharing them. It is made by <a href="${SITE.organizationUrl}" rel="noopener" target="_blank">${esc(SITE.company)}</a> and developed by ${esc(SITE.developer)}.</p>
 </div></header>
 <div class="wrap">
 <div class="art-layout" style="margin-top:20px">

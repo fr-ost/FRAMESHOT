@@ -180,7 +180,7 @@ ${fig('popup', 'FrameShot popup', 'The FrameShot popup listing Visible area, Ful
 <li><strong>Cookie banners and chat bubbles.</strong> Close them first, or they may sit right on top of the part you want.</li>
 <li><strong>Private details.</strong> A partial screenshot can still include a name or an email address at its edge. Check before you share, and see our guide to <a href="/blog/how-to-blur-or-redact-sensitive-information-in-screenshots">blurring and redacting screenshots</a>.</li>
 </ul>
-${callout('Info', '<p>No extension can capture Chrome’s own pages, such as <code>chrome://settings</code>, the Chrome Web Store or other extensions’ pages. Chrome blocks them for security. A system snipping tool still works there.</p>')}`,
+${callout('Info', '<p>On Chrome’s own pages, such as <code>chrome://settings</code>, and on other extensions’ pages, Chrome lets extensions capture only what’s on screen, so area and element selection aren’t available there: take a visible screenshot and crop it in the editor. The Chrome Web Store can’t be captured by extensions at all; a system snipping tool still works there.</p>')}`,
       },
       {
         id: 'sharpness',

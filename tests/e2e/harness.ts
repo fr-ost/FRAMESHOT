@@ -40,6 +40,11 @@ export function startServer(): Promise<{ url: string; close: () => Promise<void>
       res.end('not found');
       return;
     }
+    if (file.endsWith('.pdf')) {
+      res.writeHead(200, { 'content-type': 'application/pdf' });
+      fs.createReadStream(file).pipe(res);
+      return;
+    }
     const type = file.endsWith('.html') ? 'text/html' : file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : 'application/octet-stream';
     res.writeHead(200, { 'content-type': `${type}; charset=utf-8` });
     fs.createReadStream(file).pipe(res);

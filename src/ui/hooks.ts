@@ -68,6 +68,7 @@ export type Route =
   | { name: 'compare'; a: string; b: string }
   | { name: 'record' }
   | { name: 'play'; id: string; gif?: boolean }
+  | { name: 'pdf'; token: string }
   | { name: 'test' };
 
 export function parseRoute(hash: string): Route {
@@ -100,6 +101,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'record' };
     case 'play':
       return parts[1] ? { name: 'play', id: parts[1], gif: query.get('gif') === '1' } : { name: 'library' };
+    case 'pdf':
+      return parts[1] ? { name: 'pdf', token: parts[1] } : { name: 'library' };
     case '__test':
       return { name: 'test' };
     default:

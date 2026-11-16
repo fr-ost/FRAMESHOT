@@ -17,6 +17,8 @@ export const SITE = {
     'Free Chrome extension to record your screen with sound and webcam, or capture a whole web page in one click. Annotate, blur and share. No watermark, no sign-up.',
   tagline: 'Capture the web. Edit every detail. Free forever.',
   company: 'Unique Labs',
+  /** The organization's own website (Organization.url in the structured data). */
+  organizationUrl: 'https://www.uniquelabs.org',
   developer: 'Shahriar Ahmed',
   developerUrl: 'https://www.shahriarahmed.net',
   telegram: 'https://t.me/igfrostt',

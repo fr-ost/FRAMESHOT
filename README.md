@@ -257,7 +257,8 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 ## Current limitations
 
 **Unsupported because of browser restrictions**
-- Chrome doesn't allow extensions to capture `chrome://` pages, other extensions' pages, the Chrome Web Store, or some built-in pages. FrameShot explains this instead of failing silently.
+- **PDFs** open in Chrome: Visible area works as on any page. **Full page** renders every page of the PDF (with pdf.js, bundled) into one tall image, split at page boundaries if it is very long. Chrome never lets extensions read PDF files from your computer (`file://`), so for those FrameShot asks you to choose the same file once. Password-protected PDFs ask for the password, which is only used on your device.
+- **Other extensions' pages and `chrome://` pages**: Chrome allows a screenshot of what's on screen but no scripts, so Full page, Area, Element and Scrolling panel save the visible part, with a note saying why (crop it in the editor). The Chrome Web Store can't be captured at all. FrameShot explains this instead of failing silently.
 - Local `file://` pages require **Allow access to file URLs** to be turned on for FrameShot in `chrome://extensions`.
 - Chrome limits screenshots to **two per second** per extension. A full-page capture therefore takes about half a second per screen of content.
 - Canvas size is limited (up to 32,767 px per side, with a memory budget of about 100 megapixels per image). Larger pages are split into parts or scaled down, depending on your settings.

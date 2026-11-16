@@ -1,6 +1,6 @@
 # FrameShot Privacy Policy
 
-*Last updated: 2026-11-10. Applies to FrameShot: Screen Recorder & Full Page Screenshot, by Unique Labs.*
+*Last updated: 2026-11-16. Applies to FrameShot: Screen Recorder & Full Page Screenshot, by Unique Labs.*
 
 ## The short version
 
@@ -30,6 +30,7 @@ None of this is sent anywhere, apart from the random ID as described below. Chro
 - **Pages you capture.** FrameShot reads a page only when you start a capture on it: by clicking the toolbar button, using the right-click menu, or pressing a FrameShot shortcut. Chrome grants this one-time access through the `activeTab` permission. FrameShot has **no permanent access to any website**.
 - During a capture, FrameShot temporarily scrolls the page and adjusts sticky and fixed elements so the screenshot comes out right. Afterwards it restores your scroll position and removes every temporary change.
 - FrameShot does not read the text of pages, your form inputs, passwords, cookies, or browsing history.
+- **PDFs.** For a full-page capture of a PDF open in Chrome, FrameShot reads that PDF from its address, on your device, and draws its pages into an image with a PDF renderer that is part of the extension. For PDFs on your computer, you choose the file yourself. The PDF is never sent anywhere, and a PDF password you type is used only to open the file and is not stored.
 - **Screen recording.** FrameShot records only what you choose in **Chrome's own share picker** (a tab, a window, or your screen), and only until you stop. Chrome shows that the screen is being shared for the whole time. FrameShot's own recorder tab is never offered as a source.
 - **Microphone and camera.** Used only when you switch them on in the recorder, and Chrome asks for your permission the first time. While switched on, the recorder shows a live preview and level meter; the sound and camera images go only into your recording, on your device. They are turned off when the recording ends or you switch them off.
 

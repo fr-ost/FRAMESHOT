@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildFilename, defaultItemName, renderTemplate, sanitizeBasename, uniquifyNames, withFolder } from '../../src/core/filename';
-import { checkPageAccess, domainOf, friendlyCaptureError, isSafeLink } from '../../src/core/restricted';
+import { checkPageAccess, domainOf, friendlyCaptureError, isSafeLink, isScriptBlockedError, pageKind } from '../../src/core/restricted';
 import { DEFAULT_SETTINGS, mergeSettings, sanitizeFolder, sanitizeSettings } from '../../src/core/settings';
 import { formatBytes, formatDimensions } from '../../src/core/format';
 
@@ -88,9 +88,20 @@ describe('settings validation', () => {
 });
 
 describe('page access', () => {
-  it('refuses browser and store pages', () => {
-    expect(checkPageAccess('chrome://settings').allowed).toBe(false);
-    expect(checkPageAccess('chrome-extension://abc/page.html').allowed).toBe(false);
+  it('refuses only the Web Store; browser and extension pages are screen-only', () => {
+    expect(checkPageAccess('chrome://settings').allowed).toBe(true);
+    expect(checkPageAccess('chrome-extension://abc/page.html').allowed).toBe(true);
+    expect(pageKind('chrome://settings')).toBe('screen-only');
+    expect(pageKind('chrome-extension://abc/page.html')).toBe('screen-only');
+    expect(pageKind('about:blank')).toBe('screen-only');
+    expect(pageKind('https://example.com/file.pdf')).toBe('normal');
+    expect(pageKind('file:///home/me/doc.pdf')).toBe('normal');
+    expect(pageKind('https://chromewebstore.google.com/detail/x')).toBe('blocked');
+    expect(pageKind('javascript:alert(1)')).toBe('blocked');
+    expect(pageKind(undefined)).toBe('normal');
+    expect(isScriptBlockedError('Cannot access a chrome-extension:// URL of different extension')).toBe(true);
+    expect(isScriptBlockedError('Cannot access a chrome:// URL')).toBe(true);
+    expect(isScriptBlockedError('No tab with id: 4')).toBe(false);
     expect(checkPageAccess('https://chromewebstore.google.com/detail/x').allowed).toBe(false);
     expect(checkPageAccess('https://example.com').allowed).toBe(true);
     expect(checkPageAccess(undefined).allowed).toBe(true);

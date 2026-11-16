@@ -2,6 +2,8 @@
 import { icon, windowFrame } from '../layout.mjs';
 import { BODIES_A } from './posts-a.mjs';
 import { BODIES_B } from './posts-b.mjs';
+import { BODIES_C } from './posts-c.mjs';
+import { BODIES_D } from './posts-d.mjs';
 
 const k = (keys) => keys.split('+').map((x) => `<kbd>${x}</kbd>`).join('+');
 const callout = (ic, html) => `<div class="callout">${icon(ic, 20)}<div>${html}</div></div>`;
@@ -75,7 +77,7 @@ ${fig('editor', 'FrameShot Studio — Editor', 'A long web page captured in one 
 <li><strong>Stay on the tab.</strong> Switching tabs, minimising the window or changing the zoom during a capture interrupts it. FrameShot notices and tells you, so you never save a broken image without knowing.</li>
 <li><strong>Huge file sizes.</strong> A long page on a high-resolution screen is a lot of pixels. Export as JPEG or WebP, or as a compact PDF, when the file needs to be small.</li>
 </ul>
-${callout('Lightbulb', '<p>Some pages can’t be captured by any extension: Chrome’s own pages such as <code>chrome://settings</code>, the Chrome Web Store and other extensions’ pages. Chrome blocks them for security.</p>')}`,
+${callout('Lightbulb', '<p>Chrome doesn’t let extensions scroll its own pages, such as <code>chrome://settings</code>, or other extensions’ pages, so on those FrameShot saves what’s on screen instead of the full page. The Chrome Web Store can’t be captured at all. PDFs are different: on a PDF open in Chrome, <strong>Full page</strong> captures every page of the document.</p>')}`,
       },
       {
         id: 'faq',
@@ -449,4 +451,4 @@ ${fig('editor', 'FrameShot Studio — Editor', 'A screenshot annotated with arro
 };
 
 // Newer guides (2026-11-14) are written in their own files.
-Object.assign(BODIES, BODIES_A, BODIES_B);
+Object.assign(BODIES, BODIES_A, BODIES_B, BODIES_C, BODIES_D);

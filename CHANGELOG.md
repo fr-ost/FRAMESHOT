@@ -2,6 +2,17 @@
 
 All notable changes to FrameShot (formerly Frameora) are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] — 2026-11-16
+
+### Added
+- **Full-page screenshots of PDFs.** On a PDF open in Chrome, **Full page** now captures every page, not just the screen: FrameShot draws the pages with pdf.js (bundled in the extension, nothing is downloaded) into one tall image on a light backdrop, split at page boundaries when it would be too tall, and opens it in the editor like any capture. Chrome never lets extensions read PDF files from your computer, so for local PDFs FrameShot asks you to choose the same file once. Password-protected PDFs ask for the password, used only on your device. Up to 300 pages.
+
+### Fixed
+- **Other extensions' pages and `chrome://` pages** were refused. Chrome does allow a screenshot of what's on screen there (when you start the capture from FrameShot), but no scripts, so Visible area now works, and Full page, Area, Element and Scrolling panel save the visible part with a note explaining why. Only the Chrome Web Store stays off limits.
+
+### Changed
+- The bundle check now also scans `.mjs` files and allows pdf.js's inert strings (license links, XML namespace names, and an eval path that FrameShot switches off and its security policy blocks) only inside the two pdf.js files.
+
 ## [1.0.2] — 2026-11-11
 
 ### Changed

@@ -32,6 +32,8 @@ const DonatePage = lazy(() => loaders.donate().then((m) => ({ default: m.DonateP
 const ComparePage = lazy(() => loaders.compare().then((m) => ({ default: m.ComparePage })));
 const RecorderPage = lazy(() => loaders.recorder().then((m) => ({ default: m.RecorderPage })));
 const PlayerPage = lazy(() => loaders.player().then((m) => ({ default: m.PlayerPage })));
+// Not preloaded: it pulls in the PDF renderer, which only PDF captures need.
+const PdfCapturePage = lazy(() => import('../pdf/PdfCapturePage').then((m) => ({ default: m.PdfCapturePage })));
 
 function preloadScreens(): void {
   const idle = (cb: () => void) => ((window as unknown as { requestIdleCallback?: (f: () => void) => void }).requestIdleCallback ?? ((f: () => void) => setTimeout(f, 600)))(cb);
@@ -84,6 +86,7 @@ export function StudioApp() {
     compare: 'Compare',
     record: 'Screen recorder',
     play: 'Recording',
+    pdf: 'PDF capture',
     test: 'Studio',
   };
   const title = `${titles[route.name] ?? 'Studio'} · FrameShot`;
@@ -117,6 +120,9 @@ export function StudioApp() {
       break;
     case 'play':
       page = <PlayerPage id={route.id} settings={settings} openGif={route.gif} />;
+      break;
+    case 'pdf':
+      page = <PdfCapturePage token={route.token} settings={settings} />;
       break;
     default:
       page = <LibraryPage settings={settings} />;

@@ -45,20 +45,32 @@ if (/unsafe-eval|https?:/.test(csp.replace("'wasm-unsafe-eval'", '').replace(TEL
 // (a normal <a target="_blank"> the user may click; it opens a new tab).
 // Links opened only when the user clicks: the developer credit and the Web Store review page.
 const ALLOWED_URL = [/^https:\/\/frameshot\.shahriarahmed614\.workers\.dev;?$/, /^https:\/\/www\.shahriarahmed\.net$/, /^https:\/\/t\.me\/igfrostt$/, /^https:\/\/chromewebstore\.google\.com\/detail\//, /^https:\/\/tailwindcss\.com$/, /^https?:\/\/www\.w3\.org\//, /^https:\/\/react\.dev\/errors\//, /^https:\/\/reactjs\.org\/docs\/error-decoder/, /^https:\/\/github\.com\/radix-ui\//];
+// pdf.js (renders PDFs for full-page PDF captures, src/pdf/) carries a few inert strings:
+// core-js license links, a template that adds "http://" to bare "www." links inside a
+// PDF, and a PostScript-function compiler that uses `new Function`. That compiler is
+// switched off (isEvalSupported: false in src/pdf/render.ts) and the extension CSP
+// forbids eval anyway. These are allowed only inside the pdf.js files.
+const PDFJS_FILE = /^(chunks\/pdf-[\w-]+\.js|assets\/pdf\.worker\.min-[\w-]+\.mjs)$/;
+// …plus XML namespace names (xfa.org, ns.adobe.com) used by its form parser, and the Apache license link.
+const PDFJS_URL = [/^https:\/\/github\.com\/zloirock\/core-js/, /^http:\/\/\$\{/, /^https:\/\/github\.com\/mozilla\/pdf\.js/, /^http:\/\/www\.xfa\.org\/schema\//, /^http:\/\/ns\.adobe\.com\//, /^http:\/\/www\.apache\.org\/licenses\//];
+let pdfjsFiles = 0;
 for (const f of files) {
   const rel = path.relative(dir, f);
+  const isPdfjs = PDFJS_FILE.test(rel);
+  if (isPdfjs) pdfjsFiles++;
   if (rel.endsWith('.map')) problems.push(`source map shipped: ${rel}`);
-  if (!/\.(js|html|css|json)$/.test(f)) continue;
+  if (!/\.(m?js|html|css|json)$/.test(f)) continue;
   const text = fs.readFileSync(f, 'utf8');
   for (const m of text.matchAll(/https?:\/\/[^\s"'`)<>\\]+/g)) {
-    if (!ALLOWED_URL.some((re) => re.test(m[0]))) problems.push(`remote URL in ${rel}: ${m[0]}`);
+    if (!ALLOWED_URL.some((re) => re.test(m[0])) && !(isPdfjs && PDFJS_URL.some((re) => re.test(m[0])))) problems.push(`remote URL in ${rel}: ${m[0]}`);
     else notes.push(`allowed inert URL string in ${rel}: ${m[0].slice(0, 60)}`);
   }
-  if (/\beval\s*\(|new Function\s*\(/.test(text)) problems.push(`dynamic code execution in ${rel}`);
+  if (/\beval\s*\(/.test(text) || (/new Function\s*\(/.test(text) && !isPdfjs)) problems.push(`dynamic code execution in ${rel}`);
   if (/__frameshotTest|__frameshotEditor|__frameshotRecorder|frameshot\.e2e\.limits/.test(text)) problems.push(`test hook present in ${rel}`);
   if (/<script(?![^>]*\bsrc=)[^>]*>\s*\S/.test(text) && rel.endsWith('.html')) problems.push(`inline script in ${rel}`);
   if (/importScripts\(\s*['"]https?:/.test(text)) problems.push(`remote importScripts in ${rel}`);
 }
+if (pdfjsFiles !== 2) problems.push(`expected the pdf.js library and worker (2 files), found ${pdfjsFiles}`);
 const total = files.reduce((s, f) => s + fs.statSync(f).size, 0);
 console.log(`Checked ${files.length} files (${(total / 1024).toFixed(0)} KB) in ${path.relative(process.cwd(), dir)}`);
 for (const n of [...new Set(notes)]) console.log('  note:', n);

@@ -162,6 +162,9 @@ Make an animated GIF
 Change the keyboard shortcuts
 Visit the shortcuts page of your browser's extension settings (chrome://extensions/shortcuts). There you can change the capture shortcuts and set one to start and stop recording.
 
+Whole documents
+Open a PDF in Chrome and choose Full page. FrameShot draws every page into one tall image. For a file on your computer, you pick it once.
+
 ━━━━━━━━━━━━━━━━━━━━
 FREQUENTLY ASKED QUESTIONS
 ━━━━━━━━━━━━━━━━━━━━
@@ -209,7 +212,7 @@ TIPS
 • For the clearest voice-overs, use a headset microphone and record a tab rather than the whole screen.
 
 ━━━━━━━━━━━━━━━━━━━━
-FrameShot is made by Unique Labs and developed by Shahriar Ahmed (www.shahriarahmed.net). If it helps you, a short review on this page is very much appreciated, and it helps other people find a tool that respects their privacy.
+FrameShot is made by Unique Labs and developed by Shahriar Ahmed (www.shahriarahmed.net). If it helps you, a short review on this page helps other people find it.
 ```
 
 ## Screenshots (1280×800)

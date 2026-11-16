@@ -17,6 +17,7 @@ import {
   stopCapture,
 } from './capture-session';
 import { initReviewState } from '../core/review';
+import { pdfFinished, pdfInfo, pdfPiece, pdfProgress } from './pdf-capture';
 import { onSettingsChanged } from '../core/settings';
 import { onInstalledTelemetry, onShareStatsChanged, onStartupTelemetry } from '../core/telemetry';
 import { askStudioToOpen, findStudioPages, isLibraryRoute, isRecorderRoute, type StudioPresence } from '../core/studio-channel';
@@ -117,6 +118,21 @@ async function handleMessage(msg: BgRequest, sender: chrome.runtime.MessageSende
       return ok(getStatus());
     case 'studio.open':
       return ok({ tabId: await openStudio(msg.route) });
+    case 'pdf.info':
+    case 'pdf.piece':
+    case 'pdf.progress':
+    case 'pdf.finished': {
+      // Only FrameShot's own Studio pages render PDFs; scripts on web pages can't ask for these.
+      if (!sender.url?.startsWith(chrome.runtime.getURL('/studio.html'))) return fail('Not allowed.');
+      if (msg.kind === 'pdf.info') return ok(await pdfInfo(msg.token));
+      if (msg.kind === 'pdf.piece') return ok(await pdfPiece(msg.token, msg.offset));
+      if (msg.kind === 'pdf.progress') {
+        pdfProgress(msg.page, msg.pages);
+        return ok({ ok: true });
+      }
+      await pdfFinished(msg.token, msg);
+      return ok({ ok: true });
+    }
     case 'agent.selection':
       return ok({ accepted: await onSelection(msg.session, msg.selection, sender.tab?.id) });
     case 'agent.cancelled':

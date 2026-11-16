@@ -39,13 +39,15 @@ Every implemented feature is free and available to every user. There are no tier
 | Selected area extended by scrolling (multi-frame) | ✅ | `capture.spec` area extend |
 | Element capture with hover highlight, ↑/↓ parent/child | ✅ | `capture.spec` element (click); ↑/↓ keys 🟡 |
 | Scrolling-panel capture (inner scroll container) | ✅ | `capture.spec` scrollable |
-| Restricted pages refused with a clear message | ✅ | `capture.spec` chrome:// |
+| Chrome Web Store refused with a clear message | ✅ | Unit `pageKind` |
+| Other extensions’ pages and chrome:// pages: visible screenshot; other modes save the visible part with a note | ✅ | Unit `pageKind`; checked with real shortcuts (activeTab) in Chromium |
+| Full page of a PDF in Chrome’s viewer: every page rendered with pdf.js into one tall image (split at page boundaries when too tall); local PDFs are chosen once by the user; password prompt | ✅ | `pdf.spec` (3 pages, pixels); unit `pdf-layout`; local file checked by hand with real shortcuts |
 | Tab switch / minimize / zoom change detection | 🟡 | Implemented checks; not simulated in E2E |
 | Context menu (all modes plus open library) | 🟡 | Same code path as commands; menu clicks not automated |
 | Keyboard commands (visible, full, area, element, open Studio/library, cancel) | ✅ | Declared plus handler tested via hook; physical key presses need a manual check |
 | Toolbar badge progress | 🟡 | Visual only |
 | Capture of cross-origin iframe internals' sticky/fixed elements | ⛔ | Not reachable from the top frame |
-| Capture of chrome://, other extensions, Chrome Web Store | ⛔ | Chrome policy |
+| Scrolling, selecting or full-page capture of chrome:// and other extensions’ pages; anything on the Chrome Web Store | ⛔ | Chrome policy (no scripts allowed there) |
 | Faster than 2 frames per second | ⛔ | Chrome's `captureVisibleTab` quota |
 
 ## Screen recorder
