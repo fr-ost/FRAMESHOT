@@ -1,1 +1,1 @@
-9457b22ab3f68e5d6d4b28cacef7f198806a930a3de0a49041bde6d5cfa7463b  frameshot-1.0.2-chrome.zip
+dd6ddf7c0989d45299e6ce16700c6b6c2187f93e566a3181f88a8ec5cd561b4e  frameshot-1.0.3-chrome.zip

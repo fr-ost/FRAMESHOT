@@ -111,6 +111,94 @@
       1200
     ]
   },
+  "og-how-to-screenshot-on-windows": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-screenshot-on-a-mac": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-delayed-screenshot": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-copy-a-screenshot-to-the-clipboard": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-make-screenshots-look-professional": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-record-a-google-meet-call": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-record-a-presentation": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-mp4-vs-webm-for-screen-recordings": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-reduce-screen-recording-file-size": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-organize-screenshots": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-full-page-screenshot-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
   "og-how-to-take-a-screenshot-in-chrome": {
     "w": 1200,
     "h": 630,
@@ -192,14 +280,6 @@
     ]
   },
   "og-why-frameshot-keeps-your-screenshots-on-your-device": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
-  "og-how-to-take-a-full-page-screenshot-in-chrome": {
     "w": 1200,
     "h": 630,
     "widths": [

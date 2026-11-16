@@ -6,7 +6,106 @@
 <atom:link href="https://frameshot.uniquelabs.org/feed.xml" rel="self" type="application/rss+xml"/>
 <description>Guides for screenshots and screen recording in Chrome.</description>
 <language>en</language>
-<lastBuildDate>Sat, 14 Nov 2026 09:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 16 Nov 2026 09:00:00 GMT</lastBuildDate>
+<item>
+<title>How to Screenshot on Windows 10 and 11: Every Shortcut</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-windows</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-windows</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>How to screenshot on Windows with PrtScn, Win+Shift+S, Snipping Tool and Game Bar, where each one saves, and how to capture a full web page in Chrome.</description>
+</item>
+<item>
+<title>How to Screenshot on a Mac: Shortcuts, Options and Tips</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-a-mac</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-a-mac</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>How to screenshot on Mac with Cmd+Shift+3, 4 and 5, copy to the clipboard, change where screenshots are saved, and capture a full web page in Chrome.</description>
+</item>
+<item>
+<title>How to Take a Delayed Screenshot With a Timer</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-delayed-screenshot</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-delayed-screenshot</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Tips</category>
+<description>How to take a screenshot with a timer or delay on Windows, Mac and in Chrome, so open menus, hover states and tooltips stay in the picture.</description>
+</item>
+<item>
+<title>How to Copy a Screenshot to the Clipboard and Paste It</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-copy-a-screenshot-to-the-clipboard</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-copy-a-screenshot-to-the-clipboard</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Workflow</category>
+<description>How to copy a screenshot to the clipboard on Windows, Mac and Chromebook, paste it into chats, docs and email, and keep clipboard history private.</description>
+</item>
+<item>
+<title>How to Make Screenshots Look Professional and Polished</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-make-screenshots-look-professional</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-make-screenshots-look-professional</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Workflow</category>
+<description>Make screenshots look professional: crop tightly, keep sizes consistent, and beautify them with a background, padding, rounded corners and a browser frame.</description>
+</item>
+<item>
+<title>How to Record a Google Meet Call With Sound</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-record-a-google-meet-call</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-record-a-google-meet-call</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Recording</category>
+<description>How to record Google Meet calls with everyone’s voices: get consent, check Meet’s own recording, or record the Meet tab and your microphone in Chrome.</description>
+</item>
+<item>
+<title>How to Record a Presentation With Your Webcam</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-record-a-presentation</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-record-a-presentation</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Recording</category>
+<description>Record a presentation with webcam and voice in Chrome: Google Slides presenter view or slideshow, a camera bubble, pauses between sections and an MP4 file.</description>
+</item>
+<item>
+<title>MP4 vs WebM for Screen Recordings: Which to Use</title>
+<link>https://frameshot.uniquelabs.org/blog/mp4-vs-webm-for-screen-recordings</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/mp4-vs-webm-for-screen-recordings</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>MP4 vs WebM explained for screen recordings: codecs, where each file plays and uploads, quality and size, when Chrome records MP4, and how to convert.</description>
+</item>
+<item>
+<title>How to Reduce Screen Recording File Size: What Works</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-reduce-screen-recording-file-size</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-reduce-screen-recording-file-size</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Tips</category>
+<description>Reduce screen recording file size with the right resolution, frame rate, length and format, plus simple presets for chat, email and documentation.</description>
+</item>
+<item>
+<title>How to Organize Screenshots: Names, Folders, Tags</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-organize-screenshots</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-organize-screenshots</guid>
+<pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Workflow</category>
+<description>Organize screenshots so you can find them again: file naming conventions, automatic name templates, folders, tags, collections and a weekly clean-up.</description>
+</item>
+<item>
+<title>How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.</description>
+</item>
 <item>
 <title>How to Screenshot in Chrome on Windows, Mac and Chromebook</title>
 <link>https://frameshot.uniquelabs.org/blog/how-to-take-a-screenshot-in-chrome</link>
@@ -105,15 +204,6 @@
 <dc:creator>Shahriar Ahmed</dc:creator>
 <category>Privacy</category>
 <description>How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.</description>
-</item>
-<item>
-<title>How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)</title>
-<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</link>
-<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</guid>
-<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
-<dc:creator>Shahriar Ahmed</dc:creator>
-<category>Guide</category>
-<description>Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.</description>
 </item>
 <item>
 <title>How to Record Your Screen With Audio in Chrome</title>

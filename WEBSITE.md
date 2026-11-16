@@ -8,7 +8,7 @@ The marketing site for FrameShot is a set of static pages in [`website/`](websit
 |---|---|
 | `/` | Hero, features, an interactive tour, full-page capture, the screen recorder, a before/after redaction slider, why FrameShot, three steps, privacy, FAQ, guides and a closing call to action |
 | `/blog` | All guides: the newest as a featured card, a topic filter (Guide, Recording, Tips, Workflow, Privacy), and every guide grouped by topic |
-| `/blog/<slug>` | 16 guides: screenshots in Chrome, on a Chromebook, of part of a page, scrolling and full-page screenshots; screen recording on Windows, on a Mac with sound, in Chrome with audio, and tutorials with a webcam; annotating, blurring and redacting; saving pages as PDF or image; GIFs; choosing a recorder extension; privacy; bug reports |
+| `/blog/<slug>` | 26 guides, including screenshots on Windows and Mac, delayed screenshots, copying to the clipboard, polished screenshots, recording Google Meet calls and presentations, MP4 vs WebM, smaller recordings and organising screenshots, plus: screenshots in Chrome, on a Chromebook, of part of a page, scrolling and full-page screenshots; screen recording on Windows, on a Mac with sound, in Chrome with audio, and tutorials with a webcam; annotating, blurring and redacting; saving pages as PDF or image; GIFs; choosing a recorder extension; privacy; bug reports |
 | `/about` | What FrameShot is, how it is built, who makes it, contact |
 | `/privacy` | The privacy policy, rendered from [`PRIVACY.md`](PRIVACY.md), plus a note about the website itself |
 | `/support` | Free ways to help and the donation addresses (read from `src/core/donate.ts`) |
@@ -60,8 +60,8 @@ The quickest way to point the buttons at the store, without a rebuild, is to cha
 |---|---|
 | Site name, default title and description, developer details | `scripts/website/config.mjs` |
 | Home page sections and the FAQ | `scripts/website/content/home.mjs` |
-| Article titles, descriptions, tags, keywords and dates | `scripts/website/meta.mjs` (first six guides), `content/posts-a.mjs` and `content/posts-b.mjs` (`META_A`, `META_B`) |
-| Article text | `scripts/website/content/posts.mjs`, `posts-a.mjs`, `posts-b.mjs` |
+| Article titles, descriptions, tags, keywords and dates | `scripts/website/meta.mjs` (first six guides), `content/posts-a.mjs` … `posts-d.mjs` (`META_A` … `META_D`) |
+| Article text | `scripts/website/content/posts.mjs`, `posts-a.mjs` … `posts-d.mjs` |
 | Blog index, privacy, support, coming soon, 404 | `scripts/website/content/pages.mjs` |
 | Styles (the extension's colours, light and dark) | `scripts/website/styles.css` |
 | Interactions | `scripts/website/site.js` |

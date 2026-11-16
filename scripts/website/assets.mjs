@@ -98,7 +98,8 @@ if (ico.status !== 0) throw new Error(ico.stderr);
 
 // ── Social preview images ──
 const font = pathToFileURL(path.join(ROOT, 'store-assets/promo/inter.woff2')).href;
-const shot = (name) => pathToFileURL(path.join(IMG, `${name}-1440.webp`)).href;
+// The largest encoded size of each screenshot (the popup only has 360 and 720).
+const shot = (name) => pathToFileURL(path.join(IMG, `${name}-${Math.max(...(JOBS.find((j) => j.name === name)?.widths ?? [1440]))}.webp`)).href;
 function ogHtml({ title, kicker, image }) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:Inter;src:url('${font}') format('woff2');font-weight:100 900}

@@ -1,9 +1,11 @@
-# FrameShot 1.0.2 — release package
+# FrameShot 1.0.3 — release package
 
-`frameshot-1.0.2-chrome.zip` is the production Manifest V3 build produced by
-`npm run build && npm run zip` (identical to `.output/frameshot-1.0.2-chrome.zip`).
+`frameshot-1.0.3-chrome.zip` is the production Manifest V3 build produced by
+`npm run build && npm run zip` (identical to `.output/frameshot-1.0.3-chrome.zip`).
 
-New in 1.0.2: the store name is **FrameShot: Screen Recorder & Full Page
+New in 1.0.3: **Full page on a PDF** open in Chrome captures every page (rendered with pdf.js, bundled; local PDFs are chosen once by the user), and **other extensions' pages and `chrome://` pages** can be captured (the visible part; Chrome allows no scripts there). No new permissions.
+
+Since 1.0.2: the store name is **FrameShot: Screen Recorder & Full Page
 Screenshot** (no "Free"), and the store images and popup no longer show
 "Free", "Unlimited" or "new", after the store rejected 1.0.1 (violation
 "Red Nickel"). Upload the new images from `store-kit/images/` together with
