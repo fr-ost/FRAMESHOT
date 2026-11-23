@@ -1,7 +1,7 @@
 /**
  * Checks the built website in a real browser:
  *   npm run website:check
- * - every page in the sitemap, plus the 404 and coming-soon pages, loads without console errors,
+ * - every page in the sitemap, plus the 404 page, loads without console errors,
  *   CSP violations or failed requests, and every image decodes after scrolling the page
  * - every internal link and #anchor resolves
  * - structured data parses; one <h1> per page; every <img> has alt text
@@ -23,7 +23,6 @@ const server = await serve(PORT);
 const sitemap = fs.readFileSync(path.join(ROOT, 'website/sitemap.xml'), 'utf8');
 const site = /<loc>(https?:\/\/[^/<]+)/.exec(sitemap)[1];
 const pages = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace(site, '') || '/');
-if (fs.existsSync(path.join(ROOT, 'website/coming-soon.html'))) pages.push('/coming-soon');
 pages.push('/does-not-exist');
 
 const errors = [];
@@ -153,7 +152,6 @@ if (!process.env.NO_SHOTS) {
   await shoot('blog-desktop', '/blog', desktop, false);
   await shoot('support-desktop', '/support', desktop, false);
   await shoot('privacy-phone', '/privacy', phone, true);
-  if (fs.existsSync(path.join(ROOT, 'website/coming-soon.html'))) await shoot('coming-soon-desktop', '/chrome', desktop, false, false);
   await shoot('404-phone', '/nope', phone, false, false);
   console.log(`screenshots in ${path.relative(ROOT, SHOTS)}/`);
 }

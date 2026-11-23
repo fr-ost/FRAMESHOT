@@ -6,7 +6,52 @@
 <atom:link href="https://frameshot.uniquelabs.org/feed.xml" rel="self" type="application/rss+xml"/>
 <description>Guides for screenshots and screen recording in Chrome.</description>
 <language>en</language>
-<lastBuildDate>Mon, 16 Nov 2026 09:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 23 Nov 2026 09:00:00 GMT</lastBuildDate>
+<item>
+<title>How to Screenshot in Chrome on Windows, Mac and Chromebook</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-screenshot-in-chrome</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-screenshot-in-chrome</guid>
+<pubDate>Sat, 14 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>How to screenshot in Chrome on Windows, Mac, ChromeOS and Linux: keyboard shortcuts, the hidden DevTools commands, and full-page, area and element captures.</description>
+</item>
+<item>
+<title>Screen Recorder Extensions for Chrome: What to Check</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-choose-a-screen-recorder-extension-for-chrome</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-choose-a-screen-recorder-extension-for-chrome</guid>
+<pubDate>Sat, 14 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>What to check in a screen recorder extension for Chrome before you install: watermarks, time limits, uploads, permissions, sound, formats and privacy.</description>
+</item>
+<item>
+<title>How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.</description>
+</item>
+<item>
+<title>How to Record Your Screen With Audio in Chrome</title>
+<link>https://frameshot.uniquelabs.org/blog/how-to-record-your-screen-with-audio-in-chrome</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-record-your-screen-with-audio-in-chrome</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Guide</category>
+<description>Record a tab, a window or your whole screen with sound, your microphone and a webcam bubble. What to tick in Chrome’s dialog, and how to fix a silent video.</description>
+</item>
+<item>
+<title>Private by Design: Why FrameShot Keeps Your Files Local</title>
+<link>https://frameshot.uniquelabs.org/blog/why-frameshot-keeps-your-screenshots-on-your-device</link>
+<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/why-frameshot-keeps-your-screenshots-on-your-device</guid>
+<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+<dc:creator>Shahriar Ahmed</dc:creator>
+<category>Privacy</category>
+<description>How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.</description>
+</item>
 <item>
 <title>How to Screenshot on Windows 10 and 11: Every Shortcut</title>
 <link>https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-windows</link>
@@ -98,24 +143,6 @@
 <description>Organize screenshots so you can find them again: file naming conventions, automatic name templates, folders, tags, collections and a weekly clean-up.</description>
 </item>
 <item>
-<title>How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)</title>
-<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</link>
-<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-full-page-screenshot-in-chrome</guid>
-<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
-<dc:creator>Shahriar Ahmed</dc:creator>
-<category>Guide</category>
-<description>Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.</description>
-</item>
-<item>
-<title>How to Screenshot in Chrome on Windows, Mac and Chromebook</title>
-<link>https://frameshot.uniquelabs.org/blog/how-to-take-a-screenshot-in-chrome</link>
-<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-take-a-screenshot-in-chrome</guid>
-<pubDate>Sat, 14 Nov 2026 09:00:00 GMT</pubDate>
-<dc:creator>Shahriar Ahmed</dc:creator>
-<category>Guide</category>
-<description>How to screenshot in Chrome on Windows, Mac, ChromeOS and Linux: keyboard shortcuts, the hidden DevTools commands, and full-page, area and element captures.</description>
-</item>
-<item>
 <title>How to Screenshot on a Chromebook: Shortcuts and Tools</title>
 <link>https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-a-chromebook</link>
 <guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-screenshot-on-a-chromebook</guid>
@@ -186,33 +213,6 @@
 <dc:creator>Shahriar Ahmed</dc:creator>
 <category>Recording</category>
 <description>Record screen and webcam for a tutorial video: plan a short script, set up your mic and camera, choose what to share, record in Chrome and export MP4.</description>
-</item>
-<item>
-<title>Screen Recorder Extensions for Chrome: What to Check</title>
-<link>https://frameshot.uniquelabs.org/blog/how-to-choose-a-screen-recorder-extension-for-chrome</link>
-<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-choose-a-screen-recorder-extension-for-chrome</guid>
-<pubDate>Sat, 14 Nov 2026 09:00:00 GMT</pubDate>
-<dc:creator>Shahriar Ahmed</dc:creator>
-<category>Guide</category>
-<description>What to check in a screen recorder extension for Chrome before you install: watermarks, time limits, uploads, permissions, sound, formats and privacy.</description>
-</item>
-<item>
-<title>Private by Design: Why FrameShot Keeps Your Files Local</title>
-<link>https://frameshot.uniquelabs.org/blog/why-frameshot-keeps-your-screenshots-on-your-device</link>
-<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/why-frameshot-keeps-your-screenshots-on-your-device</guid>
-<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
-<dc:creator>Shahriar Ahmed</dc:creator>
-<category>Privacy</category>
-<description>How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.</description>
-</item>
-<item>
-<title>How to Record Your Screen With Audio in Chrome</title>
-<link>https://frameshot.uniquelabs.org/blog/how-to-record-your-screen-with-audio-in-chrome</link>
-<guid isPermaLink="true">https://frameshot.uniquelabs.org/blog/how-to-record-your-screen-with-audio-in-chrome</guid>
-<pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
-<dc:creator>Shahriar Ahmed</dc:creator>
-<category>Guide</category>
-<description>Record a tab, a window or your whole screen with sound, your microphone and a webcam bubble. What to tick in Chrome’s dialog, and how to fix a silent video.</description>
 </item>
 <item>
 <title>How to Blur or Redact Sensitive Information in Screenshots</title>

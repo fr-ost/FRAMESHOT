@@ -56,7 +56,10 @@ for (const s of [16, 32, 48]) await renderIcon(s, path.join(TMP, `fav-${s}.png`)
 // ── Encode screenshots (AVIF + WebP) with Pillow ──
 const JOBS = [
   { name: 'editor', src: 'raw:editor.png', widths: [720, 1440] },
-  { name: 'popup', src: 'raw:popup.png', widths: [360, 720] },
+  // Shown at most 240 px wide on the home page (480 and 720 for high-density screens).
+  { name: 'popup', src: 'raw:popup.png', widths: [240, 480, 720] },
+  // The developer's photo: 44 px in bylines and the footer, 88–96 px on About and Support.
+  { name: 'developer', src: 'pub:developer.webp', widths: [44, 88, 192] },
   { name: 'recorder', src: 'raw:recorder.png', widths: [720, 1440] },
   { name: 'redact', src: 'raw:redact.png', widths: [720, 1440] },
   { name: 'gif', src: 'raw:gif.png', widths: [720, 1440] },
@@ -64,7 +67,7 @@ const JOBS = [
   { name: 'library-dark', src: 'raw:library-dark.png', widths: [720, 1440] },
   { name: 'composer', src: 'raw:composer.png', widths: [720, 1440] },
   { name: 'fullpage', src: `tmp:fullpage.png`, widths: [380, 760] },
-].map((j) => ({ ...j, src: j.src.startsWith('raw:') ? path.join(RAW, j.src.slice(4)) : path.join(TMP, j.src.slice(4)) }));
+].map((j) => ({ ...j, src: j.src.startsWith('raw:') ? path.join(RAW, j.src.slice(4)) : j.src.startsWith('pub:') ? path.join(ROOT, 'public', j.src.slice(4)) : path.join(TMP, j.src.slice(4)) }));
 for (const j of JOBS) if (!fs.existsSync(j.src)) throw new Error(`Missing ${j.src}. Run \`npm run store:assets\` first.`);
 
 const PY = `

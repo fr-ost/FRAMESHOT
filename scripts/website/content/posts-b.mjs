@@ -45,6 +45,7 @@ export const META_B = [
   },
   {
     slug: 'how-to-save-a-web-page-as-a-pdf-or-image',
+    seoTitle: 'Save a Web Page as a PDF or Image in Chrome | FrameShot',
     title: 'How to Save a Web Page as a PDF or Image in Chrome',
     description: 'Save a web page as a PDF with Chrome’s print dialog, or as a PDF or image that looks exactly like the screen. Which to pick, plus PNG, JPEG and WebP compared.',
     tag: 'Guide',
@@ -81,6 +82,7 @@ export const META_B = [
   },
   {
     slug: 'how-to-choose-a-screen-recorder-extension-for-chrome',
+    updated: '2026-11-23',
     title: 'Screen Recorder Extensions for Chrome: What to Check',
     description: 'What to check in a screen recorder extension for Chrome before you install: watermarks, time limits, uploads, permissions, sound, formats and privacy.',
     tag: 'Guide',
@@ -695,7 +697,8 @@ ${callout('ShieldCheck', '<p>A good rule: every permission should match a featur
 </tbody>
 </table>
 <p>The honest limits: there are no share links or cloud sync, so you share by downloading the file. FrameShot doesn’t edit or trim videos, except choosing a range when you export a GIF. The recorder runs in a FrameShot tab that must stay open while you record. The full details are in the <a href="/privacy">privacy policy</a>.</p>
-<p>FrameShot is also a screenshot tool, with <a href="/blog/how-to-take-a-full-page-screenshot-in-chrome">full-page capture</a> and an editor, so screenshots and recordings share one library.</p>`,
+<p>FrameShot is also a screenshot tool, with <a href="/blog/how-to-take-a-full-page-screenshot-in-chrome">full-page capture</a> and an editor, so screenshots and recordings share one library.</p>
+<p>The full list is on the <a href="/features">FrameShot features page</a>.</p>`,
       },
       {
         id: 'faq',

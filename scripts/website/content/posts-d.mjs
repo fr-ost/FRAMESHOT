@@ -80,6 +80,7 @@ export const META_D = [
   },
   {
     slug: 'how-to-organize-screenshots',
+    seoTitle: 'How to Organize Screenshots: Names, Folders and Tags',
     title: 'How to Organize Screenshots: Names, Folders, Tags',
     description: 'Organize screenshots so you can find them again: file naming conventions, automatic name templates, folders, tags, collections and a weekly clean-up.',
     tag: 'Workflow',
@@ -117,10 +118,10 @@ ${callout('TriangleAlert', '<p><strong>Ask first, every time.</strong> Laws on r
         html: `<p>Meet has a built-in recorder, but whether you can use it depends on your account:</p>
 <ul>
 <li><strong>It’s tied to Google Workspace.</strong> Recording is included in some Workspace editions and not others, and it generally isn’t available on personal Google accounts. Google changes which plans include it from time to time, so check Google’s current Meet help pages for your plan.</li>
-<li><strong>An administrator may need to turn it on.</strong> Even on a plan that includes it, your organisation’s admin can switch recording off.</li>
-<li><strong>The host may control it.</strong> Usually the meeting organiser, co-hosts, or people in the organiser’s organisation can record. Guests from outside often can’t.</li>
+<li><strong>An administrator may need to turn it on.</strong> Even on a plan that includes it, your organization’s admin can switch recording off.</li>
+<li><strong>The host may control it.</strong> Usually the meeting organizer, co-hosts, or people in the organizer’s organization can record. Guests from outside often can’t.</li>
 </ul>
-<p>If you can use it, you’ll find recording among Meet’s activities or in the three-dot menu, depending on your version. Recordings are typically saved to the organiser’s Google Drive, and Meet emails a link when the file is ready.</p>
+<p>If you can use it, you’ll find recording among Meet’s activities or in the three-dot menu, depending on your version. Recordings are typically saved to the organizer’s Google Drive, and Meet emails a link when the file is ready.</p>
 <p>If the option isn’t there, greyed out, or you’re a guest in someone else’s meeting, the alternative is to record the Meet tab on your own computer, with everyone’s consent, as described below.</p>`,
       },
       {
@@ -200,7 +201,7 @@ ${callout('Lightbulb', '<p>Recordings are saved in small pieces while you record
         id: 'faq',
         h: 'Common questions',
         html: `<h3>Can I record Google Meet if I’m not the host?</h3>
-<p>Meet’s own recorder is usually limited to the organiser, co-hosts or people in the organiser’s organisation. You can still record the Meet tab on your own computer with a screen recorder, but only with everyone’s consent and in line with local law and your organisation’s rules.</p>
+<p>Meet’s own recorder is usually limited to the organizer, co-hosts or people in the organizer’s organization. You can still record the Meet tab on your own computer with a screen recorder, but only with everyone’s consent and in line with local law and your organization’s rules.</p>
 <h3>Why is Google Meet recording not available for me?</h3>
 <p>Built-in recording is only included in some Google Workspace plans, it isn’t generally offered on personal accounts, and an administrator can turn it off. Check Google’s Meet help for your plan, or ask your admin.</p>
 <h3>Does Google Meet notify others when I screen record?</h3>

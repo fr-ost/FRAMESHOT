@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as Icons from 'lucide-react';
-import { INSTALL_HREF, SITE, SITE_URL, STORE_URL } from './config.mjs';
+import { SITE, SITE_URL, STORE_URL } from './config.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const IMAGES = JSON.parse(fs.readFileSync(path.join(HERE, 'images.json'), 'utf8'));
@@ -72,37 +72,62 @@ export function windowFrame(name, { title, alt, sizes, eager, priority, cls = ''
   return `<div class="win ${cls}"><div class="win-bar" aria-hidden="true"><i></i><i></i><i></i><span class="win-url"><img src="${asset('/assets/img/logo.svg')}" alt="" width="13" height="13">${esc(title)}</span></div>${shots}</div>`;
 }
 
+/** The developer's photo at its display size, from 44w/88w variants (decorative next to the name unless alt is given). */
+export function avatar(size = 44, alt = '') {
+  const im = IMAGES.developer;
+  if (!im) return `<img src="${asset('/assets/img/developer.webp')}" alt="${esc(alt)}" width="${size}" height="${size}" loading="lazy" decoding="async">`;
+  const set = (ext) => im.widths.map((w) => `${asset(`/assets/img/developer-${w}.${ext}`)} ${w}w`).join(', ');
+  return `<picture><source type="image/avif" srcset="${set('avif')}" sizes="${size}px"><img src="${asset(`/assets/img/developer-${im.widths[0]}.webp`)}" srcset="${set('webp')}" sizes="${size}px" alt="${esc(alt)}" width="${size}" height="${size}" loading="lazy" decoding="async"></picture>`;
+}
+
 export function chip(ic, big, small, grad, cls = '') {
   return `<div class="chip ${cls}"><span class="ci ${grad}">${icon(ic, 22)}</span><span><b>${big}</b><small>${small}</small></span></div>`;
 }
 
-/** The "Add to Chrome" button (store link once approved, else the coming-soon page). */
+/** The "Add to Chrome" button: always the Chrome Web Store listing. */
 export function installButton({ size = '', label = 'Add to Chrome — it’s free', note = false, light = false } = {}) {
-  const external = STORE_URL ? ' rel="noopener" target="_blank"' : '';
+  // The small header button hides its text on narrow screens, so its name comes from aria-label (once).
+  const named = size === 'btn-sm' ? ` aria-label="${esc(label)}"` : '';
   // Emerald on light and dark surfaces alike: the one filled call to action.
   const cls = ['btn', 'btn-primary', size].filter(Boolean).join(' ');
-  return `<a class="${cls}" href="${esc(INSTALL_HREF)}"${external} data-install>${icon('Puzzle', size === 'btn-sm' ? 17 : 20)}<span class="lbl"><span class="lbl-long">${label}</span>${size === 'btn-sm' ? '<span class="lbl-short sr-only">Add to Chrome</span>' : ''}</span></a>${note ? '<span class="btn-note">Free forever · No account · Works in Google Chrome</span>' : ''}`;
+  return `<a class="${cls}" href="${esc(STORE_URL)}" rel="noopener" target="_blank"${named} data-install>${icon('Puzzle', size === 'btn-sm' ? 17 : 20)}<span class="lbl"><span class="lbl-long">${label}</span></span></a>${note ? '<span class="btn-note">Free forever · No account · Works in Google Chrome</span>' : ''}`;
 }
 
 // ── Structured data ──
-export const ORG = { '@type': 'Organization', '@id': `${SITE_URL}/#org`, name: SITE.company, url: SITE.organizationUrl, sameAs: [SITE.organizationUrl], logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/icon-512.png`, width: 512, height: 512 }, founder: { '@id': `${SITE_URL}/#developer` }, contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', url: SITE.telegram } };
+export const ORG = { '@type': 'Organization', '@id': `${SITE_URL}/#org`, name: SITE.company, url: SITE.organizationUrl, sameAs: [SITE.organizationUrl], logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/icon-512.png`, width: 512, height: 512 }, founder: { '@id': `${SITE_URL}/#developer` }, contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', url: SITE.telegram, email: SITE.email } };
 export const PERSON = { '@type': 'Person', '@id': `${SITE_URL}/#developer`, name: SITE.developer, url: SITE.developerUrl, image: `${SITE_URL}/assets/img/developer.webp`, jobTitle: 'Developer of FrameShot', sameAs: [SITE.developerUrl, SITE.telegram], worksFor: { '@id': `${SITE_URL}/#org` } };
 export function softwareLd() {
   return {
     '@type': 'SoftwareApplication',
     '@id': `${SITE_URL}/#app`,
     name: 'FrameShot',
-    alternateName: 'FrameShot: Screen Recorder & Full Page Screenshot',
+    alternateName: ['FrameShot: Screen Recorder & Full Page Screenshot', 'FrameShot by Unique Labs'],
+    softwareVersion: SITE.version,
     description: SITE.description,
     applicationCategory: 'BrowserApplication',
     applicationSubCategory: 'Screen recorder and screenshot tool',
     operatingSystem: 'Windows, macOS, Linux, ChromeOS',
     browserRequirements: 'Requires Google Chrome',
     url: SITE_URL,
-    ...(STORE_URL ? { installUrl: STORE_URL, downloadUrl: STORE_URL } : {}),
+    installUrl: STORE_URL,
+    downloadUrl: STORE_URL,
+    sameAs: [STORE_URL],
     image: `${SITE_URL}/og/home.jpg`,
-    screenshot: `${SITE_URL}/assets/img/editor-1440.webp`,
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    // The largest encoded size of each screenshot that exists (the popup tops out at 720).
+    screenshot: ['editor', 'recorder', 'popup', 'library-light'].filter((n) => IMAGES[n]).map((n) => `${SITE_URL}/assets/img/${n}-${Math.max(...IMAGES[n].widths)}.webp`),
+    featureList: [
+      'Record a tab, window or whole screen',
+      'Microphone, tab and system sound',
+      'Webcam bubble',
+      'Up to 4K at 15, 30 or 60 fps',
+      'MP4 or WebM recordings',
+      'GIF export',
+      'Full-page, visible area, selected area, element and scrolling panel screenshots',
+      'Annotate, blur, pixelate and redact',
+      'Export PNG, JPEG, WebP or PDF',
+      'No watermark, no account, works offline',
+    ],
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
     author: { '@id': `${SITE_URL}/#developer` },
     publisher: { '@id': `${SITE_URL}/#org` },
     isAccessibleForFree: true,
@@ -114,10 +139,10 @@ export function breadcrumbLd(items) {
 }
 
 const NAV = [
-  ['/#features', 'Features'],
-  ['/#recorder', 'Screen recorder'],
-  ['/#privacy', 'Privacy'],
-  ['/#faq', 'FAQ'],
+  ['/features', 'Features'],
+  ['/screen-recorder', 'Screen recorder'],
+  ['/full-page-screenshot', 'Full-page screenshots'],
+  ['/faq', 'FAQ'],
   ['/blog', 'Blog'],
 ];
 
@@ -138,8 +163,8 @@ function footer() {
 <div class="ftr-grid">
 <div><a class="brand" href="/"><img src="${asset('/assets/img/logo.svg')}" alt="" width="34" height="34" loading="lazy">FrameShot</a>
 <p>The free screen recorder and full-page screenshot extension for Chrome. No watermark, no account, nothing uploaded.</p>
-<a class="dev" href="${SITE.developerUrl}" rel="noopener" target="_blank"><img src="${asset('/assets/img/developer.webp')}" alt="Shahriar Ahmed" width="44" height="44" loading="lazy"><span><b>Shahriar Ahmed</b><small>Developer · Unique Labs · www.shahriarahmed.net</small></span></a></div>
-<div><h2>Product</h2><ul><li><a href="/#features">Features</a></li><li><a href="/#recorder">Screen recorder</a></li><li><a href="/#full-page">Full-page screenshots</a></li><li><a href="/#why">Why FrameShot</a></li><li><a href="/#faq">FAQ</a></li></ul></div>
+<a class="dev" href="${SITE.developerUrl}" rel="noopener" target="_blank">${avatar(44)}<span><b>Shahriar Ahmed</b><small>Developer · Unique Labs · www.shahriarahmed.net</small></span></a></div>
+<div><h2>Product</h2><ul><li><a href="/features">Features</a></li><li><a href="/screen-recorder">Screen recorder</a></li><li><a href="/full-page-screenshot">Full-page screenshots</a></li><li><a href="/alternatives">Compared with built-in tools</a></li><li><a href="/faq">FAQ</a></li></ul></div>
 <div><h2>Guides</h2><ul><li><a href="/blog/how-to-take-a-screenshot-in-chrome">Screenshot in Chrome</a></li><li><a href="/blog/how-to-take-a-full-page-screenshot-in-chrome">Full-page screenshots</a></li><li><a href="/blog/how-to-record-your-screen-with-audio-in-chrome">Record with audio</a></li><li><a href="/blog/how-to-screen-record-on-windows">Screen record on Windows</a></li><li><a href="/blog/how-to-screen-record-on-a-mac-with-sound">Screen record on a Mac</a></li><li><a href="/blog/how-to-screenshot-on-a-chromebook">Screenshot on a Chromebook</a></li><li><a href="/blog">All guides</a></li></ul></div>
 <div><h2>FrameShot</h2><ul><li><a href="/about">About</a></li><li><a href="/privacy">Privacy policy</a></li><li><a href="/support">Support FrameShot</a></li><li><a href="${SITE.telegram}" rel="noopener" target="_blank">Contact (Telegram)</a></li><li><a href="/feed.xml">RSS feed</a></li></ul></div>
 </div>

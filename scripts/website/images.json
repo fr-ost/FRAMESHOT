@@ -11,8 +11,18 @@
     "w": 720,
     "h": 1120,
     "widths": [
-      360,
+      240,
+      480,
       720
+    ]
+  },
+  "developer": {
+    "w": 256,
+    "h": 256,
+    "widths": [
+      44,
+      88,
+      192
     ]
   },
   "recorder": {
@@ -103,7 +113,87 @@
       1200
     ]
   },
+  "og-features": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-screen-recorder": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-full-page-screenshot": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-faq": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-alternatives": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
   "og-support": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-screenshot-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-choose-a-screen-recorder-extension-for-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-take-a-full-page-screenshot-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-how-to-record-your-screen-with-audio-in-chrome": {
+    "w": 1200,
+    "h": 630,
+    "widths": [
+      600,
+      1200
+    ]
+  },
+  "og-why-frameshot-keeps-your-screenshots-on-your-device": {
     "w": 1200,
     "h": 630,
     "widths": [
@@ -191,22 +281,6 @@
       1200
     ]
   },
-  "og-how-to-take-a-full-page-screenshot-in-chrome": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
-  "og-how-to-take-a-screenshot-in-chrome": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
   "og-how-to-screenshot-on-a-chromebook": {
     "w": 1200,
     "h": 630,
@@ -264,30 +338,6 @@
     ]
   },
   "og-how-to-record-a-video-tutorial-with-your-webcam": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
-  "og-how-to-choose-a-screen-recorder-extension-for-chrome": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
-  "og-why-frameshot-keeps-your-screenshots-on-your-device": {
-    "w": 1200,
-    "h": 630,
-    "widths": [
-      600,
-      1200
-    ]
-  },
-  "og-how-to-record-your-screen-with-audio-in-chrome": {
     "w": 1200,
     "h": 630,
     "widths": [

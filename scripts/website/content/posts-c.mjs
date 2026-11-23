@@ -23,7 +23,7 @@ export const META_C = [
     description: 'How to screenshot on Mac with Cmd+Shift+3, 4 and 5, copy to the clipboard, change where screenshots are saved, and capture a full web page in Chrome.',
     tag: 'Guide',
     image: 'library-light',
-    alt: 'Screenshots taken on a Mac, organised in the FrameShot library',
+    alt: 'Screenshots taken on a Mac, organized in the FrameShot library',
     date: '2026-11-16',
     keywords: ['how to screenshot on mac', 'mac screenshot shortcut', 'cmd shift 4', 'cmd shift 5 options', 'where do screenshots go on mac', 'screenshot a window on mac', 'change screenshot location mac', 'full page screenshot mac'],
   },
@@ -500,7 +500,7 @@ ${callout('Lightbulb', '<p>Capturing a menu as part of a how-to? Take a delayed 
 <li><strong>Image editors.</strong> Paste into an editor to crop or mark it up. On a Mac, Preview’s <strong>File → New from Clipboard</strong> turns the clipboard into a new image you can save.</li>
 <li><strong>Bug trackers and web forms.</strong> Many let you paste straight into a comment box. Others only accept an uploaded file, in which case you need to save it first.</li>
 </ul>
-<p>What you can’t do is paste a screenshot into File Explorer or Finder to create a file. To turn a clipboard image into a file, paste it into an image app and save it, or paste it into the FrameShot library, which imports pasted images so you can edit, organise and export them.</p>`,
+<p>What you can’t do is paste a screenshot into File Explorer or Finder to create a file. To turn a clipboard image into a file, paste it into an image app and save it, or paste it into the FrameShot library, which imports pasted images so you can edit, organize and export them.</p>`,
       },
       {
         id: 'chrome',

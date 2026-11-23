@@ -9,6 +9,7 @@ const fig = (name, title, alt, caption, dark) =>
 export const META_A = [
   {
     slug: 'how-to-take-a-screenshot-in-chrome',
+    updated: '2026-11-23',
     title: 'How to Screenshot in Chrome on Windows, Mac and Chromebook',
     description: 'How to screenshot in Chrome on Windows, Mac, ChromeOS and Linux: keyboard shortcuts, the hidden DevTools commands, and full-page, area and element captures.',
     tag: 'Guide',
@@ -23,12 +24,13 @@ export const META_A = [
     description: 'How to screenshot on a Chromebook with keyboard shortcuts, the Screen capture tool or tablet buttons, where files are saved, and how to capture a full page.',
     tag: 'Guide',
     image: 'library-light',
-    alt: 'Screenshots taken on a Chromebook, organised in the FrameShot library',
+    alt: 'Screenshots taken on a Chromebook, organized in the FrameShot library',
     date: '2026-11-14',
     keywords: ['how to screenshot on chromebook', 'chromebook screenshot shortcut', 'screenshot on chromebook', 'where do screenshots go on chromebook', 'chromebook partial screenshot', 'chromebook screen capture', 'full page screenshot chromebook'],
   },
   {
     slug: 'how-to-screen-record-on-windows',
+    seoTitle: 'How to Screen Record on Windows 11 (4 Simple Ways)',
     title: 'How to Screen Record on Windows 11 (4 Simple Ways)',
     description: 'How to screen record on Windows 11 with Snipping Tool, Xbox Game Bar, PowerPoint or a Chrome extension, with sound, mic and webcam, and which to pick.',
     tag: 'Recording',
@@ -152,7 +154,8 @@ ${fig('editor', 'FrameShot Studio — Editor', 'A captured web page in the Frame
 <tr><th>Annotate and blur</th><td>Basic markup on some systems</td><td>No</td><td>Arrows, text, steps, blur and redaction</td></tr>
 </tbody>
 </table>
-<p>A simple rule: use the system shortcut for a quick grab of anything on your screen, DevTools when you can’t install anything, and an extension when you need the whole page, a precise element, or a screenshot you’ll mark up and share.</p>`,
+<p>A simple rule: use the system shortcut for a quick grab of anything on your screen, DevTools when you can’t install anything, and an extension when you need the whole page, a precise element, or a screenshot you’ll mark up and share.</p>
+<p>For recording as well as screenshots, see how FrameShot <a href="/alternatives">compares with the built-in tools</a> on Windows, macOS and ChromeOS.</p>`,
       },
       {
         id: 'after',

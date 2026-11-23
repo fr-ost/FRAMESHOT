@@ -4,18 +4,21 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE, SITE_URL, STORE_URL } from '../config.mjs';
 import { POSTS, TAGS } from '../meta.mjs';
-import { asset, breadcrumbLd, esc, icon, installButton, softwareLd, windowFrame } from '../layout.mjs';
+import { asset, avatar, breadcrumbLd, esc, icon, installButton, softwareLd, windowFrame } from '../layout.mjs';
 import { BODIES } from './posts.mjs';
 import { formatDate, postCard, readingMinutes, wordCount } from './shared.mjs';
+
+/** Shown on /about and answered on /faq: other extensions share a similar name. */
+export const DISAMBIGUATION = `This FrameShot is made by ${SITE.company} and developed by ${SITE.developer}. Its Chrome Web Store ID is adcgjmghjagflmmndoajdidcopodacac. Other extensions with a similar name are made by different developers and are not affiliated with it.`;
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
 // The white canvas is the design: no backdrop behind page headers.
 const aurora = '';
-const crumbs = (items) =>
+export const crumbs = (items) =>
   `<nav aria-label="Breadcrumb"><ol class="crumbs">${items.map(([name, url], i) => (i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${url}">${esc(name)}</a></li>`)).join('')}</ol></nav>`;
 const byline = (date, minutes, updated) =>
-  `<div class="byline"><a class="dev" href="/about" rel="author"><img src="${asset('/assets/img/developer.webp')}" alt="" width="44" height="44"><span><b>${SITE.developer}</b><small>Developer of FrameShot</small></span></a><span class="bl-item">${icon('CalendarDays', 16)}<time datetime="${date}">${formatDate(date)}</time></span>${updated && updated !== date ? `<span class="bl-item">${icon('RefreshCw', 16)}Updated <time datetime="${updated}">${formatDate(updated)}</time></span>` : ''}${minutes ? `<span class="bl-item">${icon('Clock', 16)}${minutes} min read</span>` : ''}</div>`;
+  `<div class="byline"><a class="dev" href="/about" rel="author">${avatar(44)}<span><b>${SITE.developer}</b><small>Developer of FrameShot</small></span></a><span class="bl-item">${icon('CalendarDays', 16)}<time datetime="${date}">${formatDate(date)}</time></span>${updated && updated !== date ? `<span class="bl-item">${icon('RefreshCw', 16)}Updated <time datetime="${updated}">${formatDate(updated)}</time></span>` : ''}${minutes ? `<span class="bl-item">${icon('Clock', 16)}${minutes} min read</span>` : ''}</div>`;
 
 const strip = (html) => html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 
@@ -111,7 +114,8 @@ ${tryCard()}
     return {
       path: url,
       file: `blog/${post.slug}.html`,
-      title: `${post.title} | FrameShot`.length <= 62 ? `${post.title} | FrameShot` : post.title,
+      // At most 60 characters: the brand is added only when it fits; seoTitle overrides long headlines.
+      title: post.seoTitle || (`${post.title} | FrameShot`.length <= 60 ? `${post.title} | FrameShot` : post.title),
       description: post.description,
       og: post.slug,
       type: 'article',
@@ -196,17 +200,17 @@ ${crumbs([['Home', '/'], ['About', '/about']])}
 <div class="art-layout" style="margin-top:20px">
 <div class="prose">
 <h2 id="what">What FrameShot does</h2>
-<p>FrameShot records a browser tab, a window or your whole screen with sound, your microphone and a webcam bubble, and it captures the visible part of a page, a full page, a selected area, a single element or a scrolling panel. Everything opens in FrameShot Studio, where you can annotate, blur and redact, make a GIF from part of a recording, and export images, PDFs and videos. Read <a href="/#features">the full feature list</a> or start with <a href="/blog">the guides</a>.</p>
+<p>FrameShot records a browser tab, a window or your whole screen with sound, your microphone and a webcam bubble, and it captures the visible part of a page, a full page, a selected area, a single element or a scrolling panel. Everything opens in FrameShot Studio, where you can annotate, blur and redact, make a GIF from part of a recording, and export images, PDFs and videos. Read <a href="/features">the full feature list</a> or start with <a href="/blog">the guides</a>.</p>
 <h2 id="principles">How it is built</h2>
 <ul>
 <li><strong>Your files stay on your device.</strong> Screenshots and recordings are saved in your browser and leave it only when you download or copy them. FrameShot has no accounts and no cloud. The only thing it sends is an anonymous install count, which you can turn off. The details are in the <a href="/privacy">privacy policy</a>.</li>
 <li><strong>No watermark and no paid tier.</strong> Every feature is available to everyone.</li>
 <li><strong>Few permissions.</strong> FrameShot reads a page only when you start a capture on it, and records only what you choose in Chrome’s own share dialog.</li>
-<li><strong>Tested in a real browser.</strong> Captures, recordings and exports are checked by automated tests that run the extension in Chromium and compare the results pixel by pixel.</li>
 </ul>
 <p>The idea behind FrameShot is simple: useful technology, accessible to everyone.</p>
 <h2 id="developer">Who makes FrameShot</h2>
-<div class="card about-dev"><img src="${asset('/assets/img/developer.webp')}" alt="${esc(SITE.developer)}" width="88" height="88" loading="lazy"><div><b>${esc(SITE.developer)}</b><span>Developer of FrameShot · ${esc(SITE.company)}</span><p>Shahriar designs, builds and maintains FrameShot, and publishes the guides on this site.</p><p><a href="${SITE.developerUrl}" rel="noopener me" target="_blank">www.shahriarahmed.net</a></p></div></div>
+<div class="card about-dev">${avatar(88)}<div><b>${esc(SITE.developer)}</b><span>Developer of FrameShot · ${esc(SITE.company)}</span><p>Shahriar designs, builds and maintains FrameShot, and publishes the guides on this site.</p><p><a href="${SITE.developerUrl}" rel="noopener me" target="_blank">www.shahriarahmed.net</a></p></div></div>
+<p><strong>Other extensions called Frameshot?</strong> ${DISAMBIGUATION}</p>
 <h2 id="contact">Contact and feedback</h2>
 <p>Found a bug, or missing a feature? Send a message on <a href="${SITE.telegram}" rel="noopener" target="_blank">Telegram</a>. If FrameShot helps you, a rating on the Chrome Web Store or sharing it with a colleague helps others find it; see <a href="/support">ways to support FrameShot</a>.</p>
 </div>
@@ -363,7 +367,7 @@ ${crumbs([['Home', '/'], ['Support FrameShot', '/support']])}
 </section>
 <section class="section-tight">
 <div class="wrap">
-<a class="card dev-card reveal" href="${SITE.developerUrl}" rel="noopener" target="_blank"><img src="${asset('/assets/img/developer.webp')}" alt="Shahriar Ahmed" width="96" height="96" loading="lazy"><span><small>Made by</small><b>${SITE.developer}</b><span class="muted">Developer at ${SITE.company} · www.shahriarahmed.net</span></span>${icon('ArrowUpRight', 22)}</a>
+<a class="card dev-card reveal" href="${SITE.developerUrl}" rel="noopener" target="_blank">${avatar(96)}<span><small>Made by</small><b>${SITE.developer}</b><span class="muted">Developer at ${SITE.company} · www.shahriarahmed.net</span></span>${icon('ArrowUpRight', 22)}</a>
 </div>
 </section>`;
   return {
@@ -377,22 +381,6 @@ ${crumbs([['Home', '/'], ['Support FrameShot', '/support']])}
   };
 }
 
-// ── Coming soon (where "Add to Chrome" points until the store link is set) ──
-export function comingSoonPage() {
-  const body = `
-<section class="hero center" style="padding:96px 0">
-${aurora}
-<div class="wrap" style="max-width:760px">
-<span class="kicker"><b>SOON</b>Chrome Web Store</span>
-<h1 style="margin-top:22px;font-size:clamp(38px,5vw,60px);letter-spacing:-.045em">FrameShot is <span class="grad">almost here</span></h1>
-<p class="lead" style="margin-inline:auto">The Chrome Web Store listing is on its way. As soon as it’s live, every Add to Chrome button on this site takes you straight to it.</p>
-<div class="cta-row" style="justify-content:center"><a class="btn btn-primary btn-lg" href="/">${icon('House', 19)}Back to the home page</a><a class="btn btn-lg" href="/blog">${icon('BookOpen', 19)}Read the guides</a></div>
-<p class="subtle" style="margin-top:26px;font-size:15px">Questions in the meantime? Message the developer on <a href="${SITE.telegram}" rel="noopener" target="_blank">Telegram</a>.</p>
-</div>
-</section>`;
-  return { path: '/coming-soon', file: 'coming-soon.html', title: 'Coming Soon to the Chrome Web Store | FrameShot', description: 'FrameShot is on its way to the Chrome Web Store. Every Add to Chrome button on this site will open the listing as soon as it is live.', og: 'home', noindex: true, body, ld: [softwareLd()] };
-}
-
 export function notFoundPage() {
   const body = `
 <section class="hero center" style="padding:110px 0">
@@ -401,7 +389,7 @@ ${aurora}
 <p class="nf-code grad" aria-hidden="true">404</p>
 <h1 style="font-size:clamp(34px,4.6vw,52px);letter-spacing:-.04em">This page wasn’t captured</h1>
 <p class="lead" style="margin-inline:auto">The page you’re looking for doesn’t exist or has moved. Here are a few good places to start.</p>
-<div class="cta-row" style="justify-content:center"><a class="btn btn-primary btn-lg" href="/">${icon('House', 19)}Home</a><a class="btn btn-lg" href="/blog">${icon('BookOpen', 19)}Guides</a><a class="btn btn-lg" href="/#faq">${icon('CircleHelp', 19)}FAQ</a></div>
+<div class="cta-row" style="justify-content:center"><a class="btn btn-primary btn-lg" href="/">${icon('House', 19)}Home</a><a class="btn btn-lg" href="/features">${icon('Sparkles', 19)}Features</a><a class="btn btn-lg" href="/blog">${icon('BookOpen', 19)}Guides</a><a class="btn btn-lg" href="/faq">${icon('CircleHelp', 19)}FAQ</a></div>
 </div>
 </section>`;
   return { path: '/404', file: '404.html', title: 'Page Not Found | FrameShot', description: 'This page does not exist. Find FrameShot’s features, guides and answers to common questions from the home page.', og: 'home', noindex: true, body };

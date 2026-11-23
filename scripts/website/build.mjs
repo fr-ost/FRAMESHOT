@@ -3,17 +3,19 @@
  *   npm run website           (pages, sitemap, feed, vercel.json)
  *   npm run website:assets    (images, social cards and icons; run first, and when screenshots change)
  *
- * The "Add to Chrome" buttons point to STORE_URL once it is set (see scripts/website/config.mjs),
- * and to /chrome, which redirects to /coming-soon, until then.
+ * Every "Add to Chrome" button opens the Chrome Web Store listing (STORE_URL in config.mjs);
+ * /chrome and the old /coming-soon address redirect to it permanently.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { INSTALL_TARGET, SITE, SITE_URL, STORE_URL } from './config.mjs';
+import { execFileSync } from 'node:child_process';
+import { SITE, SITE_URL, STORE_URL } from './config.mjs';
 import { POSTS } from './meta.mjs';
 import { asset, esc, page, THEME_SCRIPT_HASH } from './layout.mjs';
 import { homePage } from './content/home.mjs';
-import { aboutPage, articlePages, blogPage, comingSoonPage, notFoundPage, privacyPage, supportPage } from './content/pages.mjs';
+import { aboutPage, articlePages, blogPage, notFoundPage, privacyPage, supportPage } from './content/pages.mjs';
+import { alternativesPage, faqPage, featuresPage, fullPagePage, screenRecorderPage } from './content/landing.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.resolve(HERE, '../../website');
@@ -43,10 +45,14 @@ const pages = [
   { ...homePage(), file: 'index.html' },
   blogPage(),
   ...articlePages(),
+  featuresPage(),
+  screenRecorderPage(),
+  fullPagePage(),
+  faqPage(),
+  alternativesPage(),
   aboutPage(),
   privacyPage(),
   supportPage(),
-  ...(STORE_URL ? [] : [comingSoonPage()]),
   notFoundPage(),
 ];
 const problems = [];
@@ -55,8 +61,8 @@ for (const p of pages) {
   const html = page(p).replace(/\n{2,}/g, '\n');
   write(p.file, html);
   if (!p.noindex) {
-    if (p.title.length > 65) problems.push(`title ${p.title.length} chars: ${p.path}`);
-    if (p.description.length < 110 || p.description.length > 160) problems.push(`description ${p.description.length} chars: ${p.path}`);
+    if (p.title.length > 60) problems.push(`title ${p.title.length} chars: ${p.path}`);
+    if (p.description.length < 120 || p.description.length > 160) problems.push(`description ${p.description.length} chars: ${p.path}`);
     for (const key of [p.title, p.description]) {
       if (seen.has(key)) problems.push(`duplicate "${key}" on ${p.path} and ${seen.get(key)}`);
       seen.set(key, p.path);
@@ -68,9 +74,26 @@ if (problems.length) console.warn(`SEO warnings:\n  ${problems.join('\n  ')}`);
 
 // ── Sitemap, robots, feed, manifest ──
 const indexed = pages.filter((p) => !p.noindex);
-// The blog and home page change whenever a guide is added.
+// lastmod is the date a page's content last changed: a guide's dateModified (the same value as its
+// BlogPosting), a page's own `modified` date, the newest guide for the blog index, the privacy
+// policy's "Last updated" date, or the date the page was last changed in git.
 const newest = POSTS.map((p) => p.updated || p.date).sort().at(-1);
-const lastmod = (p) => p.article?.modified || (p.path === '/' || p.path === '/blog' ? newest : SITE.published);
+const privacyDate = /Last updated: (\d{4}-\d{2}-\d{2})/.exec(fs.readFileSync(path.resolve(HERE, '../../PRIVACY.md'), 'utf8'))?.[1];
+function gitDate(file) {
+  try {
+    return execFileSync('git', ['log', '-1', '--format=%cs', '--', file], { cwd: HERE, encoding: 'utf8' }).trim() || null;
+  } catch {
+    return null;
+  }
+}
+const lastmod = (p) =>
+  p.article?.modified ||
+  p.modified ||
+  (p.path === '/blog' ? newest : null) ||
+  (p.path === '/privacy' ? privacyDate : null) ||
+  (p.path === '/support' ? gitDate('../../src/core/donate.ts') : null) ||
+  SITE.published;
+for (const p of pages) if (!p.noindex && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod(p))) problems.push(`no lastmod for ${p.path}`);
 write(
   'sitemap.xml',
   `<?xml version="1.0" encoding="UTF-8"?>
@@ -86,6 +109,15 @@ ${indexed
 );
 write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 
+// security.txt (RFC 9116): how to report a security problem. Expires one year after the build.
+const expires = new Date();
+expires.setUTCFullYear(expires.getUTCFullYear() + 1);
+expires.setUTCHours(0, 0, 0, 0);
+write(
+  '.well-known/security.txt',
+  `Contact: mailto:${SITE.email}\nExpires: ${expires.toISOString()}\nPreferred-Languages: en\nCanonical: ${SITE_URL}/.well-known/security.txt\n`,
+);
+
 // llms.txt: a plain summary of the site and its guides for AI assistants and answer engines (https://llmstxt.org).
 write(
   'llms.txt',
@@ -93,11 +125,16 @@ write(
 
 > ${SITE.description}
 
-FrameShot is a Chrome extension by ${SITE.company}, developed by ${SITE.developer}. It records a tab, a window or the whole screen with sound, microphone and a webcam bubble, and captures the visible area, a full page, a selected area, an element or a scrolling panel. Captures open in an editor with annotation, blur and redaction, GIF export from recordings, and image, PDF and video export. Files are stored in the browser on the user's device; there are no accounts or uploads. Install: ${STORE_URL || SITE_URL}
+FrameShot is a Chrome extension by ${SITE.company}, developed by ${SITE.developer}. It records a tab, a window or the whole screen with sound, microphone and a webcam bubble, and captures the visible area, a full page, a selected area, an element or a scrolling panel. Captures open in an editor with annotation, blur and redaction, GIF export from recordings, and image, PDF and video export. Files are stored in the browser on the user's device; there are no accounts or uploads. Install: ${STORE_URL}
 
 ## Pages
 
 - [Home](${SITE_URL}/): features, screen recorder, full-page capture, privacy, FAQ
+- [Features](${SITE_URL}/features): every FrameShot feature in one place
+- [Screen recorder](${SITE_URL}/screen-recorder): record a tab, a window or the whole screen with sound and a webcam bubble
+- [Full-page screenshots](${SITE_URL}/full-page-screenshot): full page, visible area, selected area, element and scrolling panel captures
+- [FAQ](${SITE_URL}/faq): answers about pricing, privacy, capturing, recording, files and compatibility
+- [Compared with built-in tools](${SITE_URL}/alternatives): FrameShot next to Chrome DevTools, Snipping Tool, Game Bar, macOS and ChromeOS tools
 - [About](${SITE_URL}/about): who makes FrameShot and how it is built
 - [Privacy policy](${SITE_URL}/privacy): what is stored on the device and the anonymous install counts
 - [Support](${SITE_URL}/support): ways to support the project
@@ -179,9 +216,9 @@ write(
       cleanUrls: true,
       trailingSlash: false,
       redirects: [
-        { source: '/chrome', destination: INSTALL_TARGET, permanent: false },
+        { source: '/chrome', destination: STORE_URL, permanent: true },
         // Old links to the pre-launch page go straight to the store.
-        ...(STORE_URL ? [{ source: '/coming-soon', destination: STORE_URL, permanent: true }] : []),
+        { source: '/coming-soon', destination: STORE_URL, permanent: true },
       ],
       headers: [
         {
@@ -198,6 +235,7 @@ write(
         { source: '/assets/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
         { source: '/og/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }] },
         { source: '/(favicon.ico|apple-touch-icon.png|site.webmanifest)', headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }] },
+        { source: '/.well-known/security.txt', headers: [{ key: 'Content-Type', value: 'text/plain; charset=utf-8' }] },
       ],
     },
     null,
@@ -205,4 +243,4 @@ write(
   )}\n`,
 );
 
-console.log(`\nWebsite built: ${pages.length} pages → website/  (SITE_URL ${SITE_URL}, Add to Chrome → ${STORE_URL || '/coming-soon (store link not set yet)'})`);
+console.log(`\nWebsite built: ${pages.length} pages → website/  (SITE_URL ${SITE_URL}, Add to Chrome → ${STORE_URL})`);

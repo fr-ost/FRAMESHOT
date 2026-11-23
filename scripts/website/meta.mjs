@@ -8,7 +8,7 @@ import { META_D } from './content/posts-d.mjs';
 const FIRST = [
   {
     slug: 'how-to-take-a-full-page-screenshot-in-chrome',
-    updated: '2026-11-16',
+    updated: '2026-11-23',
     keywords: ['full page screenshot chrome', 'capture entire web page', 'full page screenshot extension', 'devtools full size screenshot', 'screenshot whole page'],
     title: 'How to Take a Full-Page Screenshot in Chrome (3 Easy Ways)',
     description: 'Capture an entire web page in Chrome with an extension, the built-in DevTools command or Print to PDF, plus tips for sticky headers and very long pages.',
@@ -19,6 +19,7 @@ const FIRST = [
   },
   {
     slug: 'how-to-record-your-screen-with-audio-in-chrome',
+    updated: '2026-11-23',
     keywords: ['record screen with audio chrome', 'screen recorder with sound', 'record tab audio', 'record system audio', 'webcam screen recording'],
     title: 'How to Record Your Screen With Audio in Chrome',
     description: 'Record a tab, a window or your whole screen with sound, your microphone and a webcam bubble. What to tick in Chrome’s dialog, and how to fix a silent video.',
@@ -52,7 +53,7 @@ const FIRST = [
     keywords: ['private screenshot tool', 'screenshot extension privacy', 'local screen recorder', 'chrome extension permissions'],
     title: 'Private by Design: Why FrameShot Keeps Your Files Local',
     description: 'How FrameShot captures and records without uploads or accounts, what each permission is for, what it sends, and how to check it yourself in a minute.',
-    updated: '2026-11-10',
+    updated: '2026-11-23',
     tag: 'Privacy',
     image: 'library-light',
     alt: 'The FrameShot library with screenshots and a recording stored on the computer',
@@ -81,6 +82,11 @@ export const OG_PAGES = [
   { name: 'blog', title: 'Guides for screenshots and screen recording', kicker: 'FrameShot blog', image: 'library-light' },
   { name: 'privacy', title: 'Privacy policy: your captures stay on your device', kicker: 'Privacy', image: 'library-light' },
   { name: 'about', title: 'About FrameShot and its developer', kicker: 'About', image: 'library-light' },
+  { name: 'features', title: 'Everything FrameShot can do', kicker: 'Features', image: 'editor' },
+  { name: 'screen-recorder', title: 'Screen recorder for Chrome with sound and webcam', kicker: 'Screen recorder', image: 'recorder' },
+  { name: 'full-page-screenshot', title: 'Full-page screenshots in Chrome, in one click', kicker: 'Full-page screenshots', image: 'editor' },
+  { name: 'faq', title: 'FrameShot questions, answered', kicker: 'FAQ', image: 'popup' },
+  { name: 'alternatives', title: 'FrameShot compared with built-in tools', kicker: 'Compare', image: 'library-light' },
   { name: 'support', title: 'Support FrameShot and keep it free', kicker: 'Free forever', image: 'composer' },
   ...POSTS.map((p) => ({ name: p.slug, title: p.title.replace(/&/g, '&amp;'), kicker: p.tag, image: p.image })),
 ];

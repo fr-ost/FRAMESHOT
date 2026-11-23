@@ -1,0 +1,4 @@
+Contact: mailto:shahriar.bmb@gmail.com
+Expires: 2027-11-23T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://frameshot.uniquelabs.org/.well-known/security.txt

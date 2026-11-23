@@ -162,11 +162,13 @@ p{margin:0}
 .tab[aria-selected=true] .bar{animation:tabbar var(--dur,7s) linear forwards}
 .tabs.paused .tab .bar{animation-play-state:paused}
 @keyframes tabbar{to{transform:scaleX(1)}}
-.panels{display:grid}
+/* All panels share one grid cell, so the tour is as tall as its tallest panel from the first paint and switching tabs never changes its height. */
+.panels{display:grid;contain:layout}
 .panel{grid-area:1/1;display:grid;grid-template-columns:1.35fr 1fr;gap:40px;align-items:center}
 .panel[hidden]{display:grid;visibility:hidden;pointer-events:none}
-.panel.show{animation:panel-in .55s var(--ease)}
-@keyframes panel-in{from{opacity:0;transform:translateY(14px)}}
+.panel.show{animation:panel-in .45s var(--ease)}
+@keyframes panel-in{from{opacity:0}}
+.panel .win picture,.panel .win img{aspect-ratio:16/10}
 .panel h3{font-size:clamp(24px,2.4vw,28px);letter-spacing:-.015em;line-height:1.2}
 .panel p{margin-top:12px;color:var(--fg-muted);font-size:16.5px}
 .ticks{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:12px}
@@ -280,6 +282,10 @@ p{margin:0}
 .faq details[open]::details-content{block-size:auto}
 .faq .ans{padding:0 22px 20px;color:var(--fg-muted);font-size:15.5px;line-height:1.65}
 .faq .ans p+p{margin-top:10px}
+.faq summary h3{font:inherit;letter-spacing:normal;margin:0}
+.faq-inline{margin:1em 0}
+.faq-group+.faq-group{margin-top:36px}
+.faq-group h2{font-size:22px;margin-bottom:14px}
 
 /* ── Blog cards ── */
 .post-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -419,8 +425,10 @@ p.more{margin-top:20px}
 .dark .win .img-light{display:none}
 .uses{padding:10px 0 34px;overflow:hidden}
 .uses-label{text-align:center;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-subtle);margin-bottom:14px}
-.marquee{display:flex;width:max-content;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);max-width:100vw;margin-inline:auto}
-.marquee ul{display:flex;gap:12px;margin:0;padding:0 6px;list-style:none;animation:marquee 46s linear infinite;flex:none}
+/* Full width from the start, so the copy added by site.js (for the endless loop) moves nothing. */
+.marquee{display:flex;width:100%;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marquee ul{display:flex;gap:12px;margin:0;padding:0 6px;list-style:none;flex:none}
+.marquee.dup ul{animation:marquee 46s linear infinite}
 .marquee:hover ul{animation-play-state:paused}
 .marquee li{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:9999px;background:var(--surface-2);border:1px solid var(--border);font-size:14px;font-weight:400;color:var(--fg-muted);white-space:nowrap}
 .marquee li svg{color:var(--fg-muted)}
@@ -438,6 +446,7 @@ p.more{margin-top:20px}
 .dev-card:hover>svg{transform:translate(3px,-3px);color:var(--fg)}
 .nf-code{font-size:clamp(90px,16vw,170px);font-weight:500;letter-spacing:-.04em;line-height:1;margin-bottom:10px}
 .table-wrap{overflow-x:auto}
+.prose caption{caption-side:top;text-align:left;padding:0 0 10px;font-size:14px;color:var(--fg-muted)}
 .prose pre{margin:1.4em 0;padding:16px 18px;border-radius:6px;background:var(--night);border:1px solid var(--night-line);overflow-x:auto;font:400 14px/1.5 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#fff}
 .prose pre code{padding:0;background:none;font:inherit}
 .prose .art-cta{margin-top:2.6em}

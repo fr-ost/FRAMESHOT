@@ -31,7 +31,7 @@ const FEATURES = [
   ['EyeOff', 'g4', 'Blur, pixelate or redact', 'Hide emails, faces and card numbers before you share. A solid redaction box is flattened into the exported pixels, so it can’t be peeled back.'],
   ['Film', 'g2', 'Turn clips into GIFs', 'Pick the moment, choose a width and a frame rate, and get a small looping GIF, made entirely on your computer.'],
   ['Frame', 'g5', 'Backgrounds and browser frames', 'Place a capture on a gradient with padding, rounded corners, a soft shadow and a browser frame, sized for social posts or slides.'],
-  ['LibraryBig', 'g1', 'A library that stays organised', 'Search by page title, site or tag, sort captures into collections, mark favourites and find duplicates. Videos and screenshots live side by side.'],
+  ['LibraryBig', 'g1', 'A library that stays organized', 'Search by page title, site or tag, sort captures into collections, mark favourites and find duplicates. Videos and screenshots live side by side.'],
   ['Download', 'g5', 'Export the way you need', 'Download an image or a multi-page PDF, copy to the clipboard, or export a whole selection as a ZIP. Recordings are saved as MP4 or WebM.'],
 ];
 
@@ -120,7 +120,8 @@ export const FAQ = [
   ['How can I support FrameShot?', '<p>The best help is free: rate FrameShot on the Chrome Web Store and tell a friend or colleague about it. Bug reports and ideas are welcome on <a href="https://t.me/igfrostt" rel="noopener" target="_blank">Telegram</a>. If you’d like to donate, the <a href="/support">support page</a> has the details.</p>'],
 ];
 
-const strip = (html) => html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+/** The questions shown on the home page; all of them, with FAQPage markup, are on /faq. */
+const HOME_FAQ = ['Is FrameShot really free?', 'Does FrameShot upload my screenshots or recordings?', 'How do I take a full-page screenshot in Chrome?', 'Can I record my screen with sound?', 'Which file formats can I save?', 'Which browsers and systems are supported?'];
 
 export function homePage() {
   const tourTabs = TOUR.map(
@@ -136,7 +137,7 @@ export function homePage() {
   ).join('\n');
 
   const uses = USES.map(([ic, label]) => `<li>${icon(ic, 17)}${label}</li>`).join('');
-  const faq = FAQ.map(
+  const faq = FAQ.filter(([q]) => HOME_FAQ.includes(q)).map(
     ([q, a]) => `<details class="reveal"><summary>${q}<span class="pm" aria-hidden="true">${icon('Plus', 17, 2.4)}</span></summary><div class="ans">${a}</div></details>`,
   ).join('\n');
 
@@ -152,7 +153,7 @@ export function homePage() {
 </div>
 <div class="hero-art">
 ${windowFrame('editor', { title: 'FrameShot Studio — Editor', alt: 'The FrameShot editor showing a full-page screenshot with arrows, numbered steps and a note', sizes: '(max-width: 980px) 92vw, 600px', eager: true, priority: true })}
-<div class="popup">${picture('popup', { alt: 'The FrameShot popup with visible area, full page, selected area and element capture, plus a Record screen button', sizes: '240px', eager: true })}</div>
+<div class="popup">${picture('popup', { alt: 'The FrameShot popup with visible area, full page, selected area and element capture, plus a Record screen button', sizes: '(max-width: 620px) 39vw, 240px', eager: true })}</div>
 ${chip('Video', 'Up to 4K', 'Screen recording with sound', 'g2', 'chip-1')}
 ${chip('ShieldCheck', 'Nothing uploaded', 'Stays on your device', 'g3', 'chip-2')}
 </div>
@@ -161,15 +162,16 @@ ${chip('ShieldCheck', 'Nothing uploaded', 'Stays on your device', 'g3', 'chip-2'
 
 <section class="uses" aria-label="What people use FrameShot for">
 <p class="uses-label">Made for</p>
-<div class="marquee"><ul>${uses}</ul><ul aria-hidden="true">${uses}</ul></div>
+<div class="marquee" data-marquee><ul>${uses}</ul></div>
 </section>
 
 <section class="section" id="features">
 <div class="wrap">
-<div class="sec-head reveal"><span class="eyebrow">${icon('Sparkles', 16)}Features</span><h2>Everything you need to <span class="grad">show what you see</span></h2><p>A screen recorder, a screenshot tool and an image editor in one light extension, sharing one private library.</p></div>
+<div class="sec-head reveal"><span class="eyebrow">${icon('Sparkles', 16)}Features</span><h2>Everything you need to <span class="grad">show what you see</span></h2><p>A screen recorder for Chrome, a full page screenshot extension and an image editor in one, sharing one private library.</p></div>
 <div class="feat-grid">
 ${FEATURES.map(([ic, g, h, p], i) => `<article class="card feat spot lift reveal" style="--i:${i % 3}"><span class="fi ${g}">${icon(ic, 23)}</span><h3>${h}</h3><p>${p}</p></article>`).join('\n')}
 </div>
+<p class="center more" style="margin-top:28px"><a href="/features">See every feature ${icon('ArrowRight', 16)}</a></p>
 </div>
 </section>
 
@@ -188,9 +190,10 @@ ${FEATURES.map(([ic, g, h, p], i) => `<article class="card feat spot lift reveal
 <div class="reveal">
 <span class="eyebrow">${icon('ScrollText', 16)}Full-page screenshots</span>
 <h2 class="h2">The whole page, top to bottom, <span class="grad">in one image</span></h2>
-<p class="sub">Screenshot keys stop at the edge of your screen. FrameShot scrolls the page for you, captures each part at your screen’s full sharpness and stitches them into one seamless image.</p>
+<p class="sub">Screenshot keys stop at the edge of your screen. FrameShot scrolls the page for you, captures each part at your screen’s full sharpness and stitches them into one seamless image. It also takes a scrolling screenshot of a panel that scrolls on its own, like a chat or an inbox.</p>
 ${ticks(['Sticky and fixed headers shown once, not on every slice', 'Lazy images and endless feeds loaded before the capture', 'Pages that scroll inside a panel captured correctly', 'Very long pages split into full-resolution parts, or scaled into one', 'Your scroll position and the page restored afterwards'])}
 <div class="keys"><span>${k('Alt+Shift+F')} Full page</span><span>${k('Alt+Shift+V')} Visible area</span><span>${k('Alt+Shift+A')} Selected area</span><span>${k('Alt+Shift+E')} Element</span></div>
+<p class="more"><a href="/full-page-screenshot">More about the full page screenshot extension ${icon('ArrowRight', 16)}</a></p>
 </div>
 <div class="split-art reveal" style="--i:1">
 <div class="scan">
@@ -207,13 +210,14 @@ ${ticks(['Sticky and fixed headers shown once, not on every slice', 'Lazy images
 <div class="reveal">
 <span class="eyebrow">${icon('Video', 16)}Screen recorder</span>
 <h2 class="h2">Record your screen <span class="grad">with sound and camera</span></h2>
-<p class="sub">Make a walkthrough, a bug report or a lesson without installing an app. FrameShot records right in Chrome and keeps the video on your computer.</p>
+<p class="sub">Make a walkthrough, a bug report or a lesson without installing an app. FrameShot is a free screen recorder with no watermark: it records right in Chrome and keeps the video on your computer.</p>
 <div class="sound-grid">
 <div class="card sound"><b>${icon('PanelTop', 18)}A Chrome tab</b><p>Records the tab’s own sound on every system. Keep “Also share tab audio” on.</p></div>
 <div class="card sound"><b>${icon('Monitor', 18)}Entire screen</b><p>Records computer sound on Windows and ChromeOS, and on macOS 14.2+ with Chrome 141+.</p></div>
 <div class="card sound"><b>${icon('AppWindow', 18)}One window</b><p>Chrome never shares a window’s sound, so FrameShot tells you before you start.</p></div>
 </div>
 ${ticks(['Countdown of 3, 5 or 10 seconds, or none', 'Pause and resume, with the pauses left out', 'Saved in pieces as you go, so a crash doesn’t lose your take', 'Download as MP4 or WebM, or save a frame as a screenshot'])}
+<p class="more"><a href="/screen-recorder">More about the screen recorder for Chrome ${icon('ArrowRight', 16)}</a></p>
 </div>
 <div class="split-art rec-art reveal" style="--i:1">
 ${windowFrame('recorder', { title: 'FrameShot Studio — Recorder', alt: 'The FrameShot recorder with a tab selected, microphone and tab sound switched on, and a camera bubble', sizes: '(max-width: 900px) 92vw, 560px' })}
@@ -278,6 +282,7 @@ ${[
   .map(([ic, h, p], i) => `<article class="card why spot lift reveal" style="--i:${i % 3}"><h3><span>${icon(ic, 19)}</span>${h}</h3><p>${p}</p></article>`)
   .join('\n')}
 </div>
+<p class="center more reveal" style="margin:28px 0"><a href="/alternatives">How FrameShot compares with built-in screenshot tools ${icon('ArrowRight', 16)}</a></p>
 <div class="card never reveal"><b>What you’ll never get:</b><ul>${['Uploads', 'Accounts', 'Watermarks', 'Ads', 'Data selling', 'Paywalls'].map((x) => `<li>${icon('CircleX', 17)}${x}</li>`).join('')}</ul></div>
 </div>
 </section>
@@ -317,6 +322,7 @@ ${[
 <div class="faq">
 ${faq}
 </div>
+<p class="center more" style="margin-top:28px"><a href="/faq">See all questions and answers ${icon('ArrowRight', 16)}</a></p>
 </div>
 </section>
 
@@ -341,11 +347,11 @@ ${installButton({ size: 'btn-lg', light: true, note: true })}
   const ld = [
     softwareLd(),
     { '@type': 'WebPage', '@id': `${SITE_URL}/#webpage`, url: `${SITE_URL}/`, name: SITE.title, description: SITE.description, isPartOf: { '@id': `${SITE_URL}/#site` }, about: { '@id': `${SITE_URL}/#app` }, primaryImageOfPage: `${SITE_URL}/og/home.jpg`, inLanguage: 'en' },
-    { '@type': 'FAQPage', '@id': `${SITE_URL}/#faq`, mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: strip(q), acceptedAnswer: { '@type': 'Answer', text: strip(a) } })) },
     breadcrumbLd([['Home', '/']]),
   ];
   return {
     path: '/',
+    modified: '2026-11-23',
     title: SITE.title,
     description: SITE.description,
     og: 'home',

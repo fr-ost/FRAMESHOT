@@ -32,7 +32,8 @@ export const BODIES = {
 <li><strong>Edit and export.</strong> The capture opens in the editor, where you can crop, annotate and blur, then download it as an image or a PDF, or copy it to the clipboard.</li>
 </ol>
 ${fig('editor', 'FrameShot Studio — Editor', 'A long web page captured in one image and opened in the FrameShot editor', 'A full-page capture opens straight in the editor, ready to annotate.')}
-<p>While it captures, FrameShot shows sticky headers once instead of on every slice, waits for lazy images to load, follows pages that keep loading more content, and captures the main panel of app-style pages that scroll inside a box. When it’s done it puts the page back exactly as it was, scroll position included. Your screenshot is made at your screen’s full sharpness, so text stays crisp on high-resolution displays.</p>`,
+<p>While it captures, FrameShot shows sticky headers once instead of on every slice, waits for lazy images to load, follows pages that keep loading more content, and captures the main panel of app-style pages that scroll inside a box. When it’s done it puts the page back exactly as it was, scroll position included. Your screenshot is made at your screen’s full sharpness, so text stays crisp on high-resolution displays.</p>
+<p>Every capture mode, the shortcuts and the export formats are on the <a href="/full-page-screenshot">full-page screenshot page</a>.</p>`,
       },
       {
         id: 'devtools',
@@ -120,7 +121,8 @@ ${callout('Lightbulb', '<p>Chrome doesn’t let extensions scroll its own pages,
 <li><strong>Record.</strong> The toolbar icon shows <code>REC</code>. Pause and resume as often as you like: the pauses are left out of the video.</li>
 <li><strong>Stop</strong> from the recorder, the FrameShot popup or Chrome’s <strong>Stop sharing</strong> bar. The video opens in the player, ready to download.</li>
 </ol>
-${fig('recorder', 'FrameShot Studio — Recorder', 'The FrameShot recorder with a tab chosen, microphone and tab sound on, and a camera bubble preview', 'The recorder shows what will be recorded before you start.')}`,
+${fig('recorder', 'FrameShot Studio — Recorder', 'The FrameShot recorder with a tab chosen, microphone and tab sound on, and a camera bubble preview', 'The recorder shows what will be recorded before you start.')}
+<p>Sound sources, the webcam bubble and quality settings are summed up on the <a href="/screen-recorder">screen recorder page</a>.</p>`,
       },
       {
         id: 'sound',
@@ -347,7 +349,8 @@ ${callout('Lightbulb', '<p>If a GIF is still too big, the clip is probably too l
       {
         id: 'delete',
         h: 'Deleting your data',
-        html: `<p>Delete single screenshots, recordings or collections from the library. To remove everything at once, open <strong>Settings → Storage → Clear all local data</strong>. Uninstalling FrameShot also deletes all of its data from your browser. Files you already downloaded are yours and stay where you saved them.</p>`,
+        html: `<p>Delete single screenshots, recordings or collections from the library. To remove everything at once, open <strong>Settings → Storage → Clear all local data</strong>. Uninstalling FrameShot also deletes all of its data from your browser. Files you already downloaded are yours and stay where you saved them.</p>
+<p>More short answers about storage, uploads and deleting your data are in the <a href="/faq">FrameShot FAQ</a>.</p>`,
       },
       {
         id: 'trade-offs',

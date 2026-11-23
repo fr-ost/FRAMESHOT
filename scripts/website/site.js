@@ -36,6 +36,16 @@
     new IntersectionObserver(([e]) => hdr.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);
   }
 
+  // "Made for" marquee: the list is in the page once; a hidden copy makes the loop seamless.
+  $$('[data-marquee]').forEach((m) => {
+    const list = m.querySelector('ul');
+    if (!list) return;
+    const copy = list.cloneNode(true);
+    copy.setAttribute('aria-hidden', 'true');
+    m.appendChild(copy);
+    m.classList.add('dup');
+  });
+
   // Reveal on scroll.
   const reveal = $$('.reveal');
   if ('IntersectionObserver' in window && !reduced) {
