@@ -1,49 +1,87 @@
 <div align="center">
 
-<img width="100%" alt="FrameShot — Capture the web. Edit every detail." src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:6C2BD9,50:FF2E93,100:FFB703&amp;height=220&amp;section=header&amp;text=FrameShot&amp;fontSize=62&amp;fontColor=ffffff&amp;fontAlignY=32&amp;animation=fadeIn&amp;desc=Capture%20the%20web.%20Edit%20every%20detail.&amp;descAlignY=58&amp;descAlign=50&amp;descSize=18"/>
+<img width="100%" alt="FrameShot title card: charcoal cylinder, gold type. Screen recorder and full page screenshot." src="https://capsule-render.vercel.app/api?type=cylinder&amp;color=0:0B0B0B,42:161616,100:2C261C&amp;height=230&amp;section=header&amp;text=FRAMESHOT&amp;fontFamily=Georgia&amp;fontSize=70&amp;fontColor=E6D3A3&amp;fontAlignY=34&amp;desc=Screen%20Recorder%20and%20Full%20Page%20Screenshot&amp;descSize=16&amp;descAlignY=56&amp;animation=fadeIn"/>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=22&amp;duration=3600&amp;pause=700&amp;color=FFB703&amp;center=true&amp;vCenter=true&amp;width=820&amp;height=48&amp;lines=Capture+the+web.+Edit+every+detail.;Full-page+screenshots+for+Chrome;Screen+recorder+with+sound+and+camera;Annotate%2C+redact%2C+compose%2C+export;Local-first.+Free+forever.+No+watermark." />
-  <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=22&amp;duration=3600&amp;pause=700&amp;color=6C2BD9&amp;center=true&amp;vCenter=true&amp;width=820&amp;height=48&amp;lines=Capture+the+web.+Edit+every+detail.;Full-page+screenshots+for+Chrome;Screen+recorder+with+sound+and+camera;Annotate%2C+redact%2C+compose%2C+export;Local-first.+Free+forever.+No+watermark." />
-  <img width="820" alt="Capture the web. Edit every detail. Full-page screenshots, screen recorder, annotate, redact, compose, and export. Local-first and free forever." src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=22&amp;duration=3600&amp;pause=700&amp;color=6C2BD9&amp;center=true&amp;vCenter=true&amp;width=820&amp;height=48&amp;lines=Capture+the+web.+Edit+every+detail.;Full-page+screenshots+for+Chrome;Screen+recorder+with+sound+and+camera;Annotate%2C+redact%2C+compose%2C+export;Local-first.+Free+forever.+No+watermark." />
+  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Courier+New&amp;size=18&amp;duration=3200&amp;pause=800&amp;color=E6D3A3&amp;background=0B0B0B&amp;center=true&amp;vCenter=true&amp;width=780&amp;height=46&amp;lines=Capture+the+web.+Edit+every+detail.;Full-page+screenshots+for+Chrome;Screen+recorder+with+sound+and+camera;Annotate%2C+redact%2C+compose%2C+export;Local-first.+Free+forever.+No+watermark." />
+  <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=Courier+New&amp;size=18&amp;duration=3200&amp;pause=800&amp;color=5C4A1E&amp;background=F6EED6&amp;center=true&amp;vCenter=true&amp;width=780&amp;height=46&amp;lines=Capture+the+web.+Edit+every+detail.;Full-page+screenshots+for+Chrome;Screen+recorder+with+sound+and+camera;Annotate%2C+redact%2C+compose%2C+export;Local-first.+Free+forever.+No+watermark." />
+  <img width="780" alt="Typing slate: Capture the web. Edit every detail. Full-page screenshots for Chrome. Screen recorder with sound and camera. Annotate, redact, compose, export. Local-first. Free forever. No watermark." src="https://readme-typing-svg.demolab.com?font=Courier+New&amp;size=18&amp;duration=3200&amp;pause=800&amp;color=5C4A1E&amp;background=F6EED6&amp;center=true&amp;vCenter=true&amp;width=780&amp;height=46&amp;lines=Capture+the+web.+Edit+every+detail.;Full-page+screenshots+for+Chrome;Screen+recorder+with+sound+and+camera;Annotate%2C+redact%2C+compose%2C+export;Local-first.+Free+forever.+No+watermark." />
 </picture>
+
+<br/>
+
+<a href="https://frameshot.uniquelabs.org"><img alt="Website: frameshot.uniquelabs.org" src="https://img.shields.io/badge/website-frameshot.uniquelabs.org-E6D3A3?style=flat-square&amp;labelColor=161616"/></a>
+<a href="https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac"><img alt="Chrome Web Store listing" src="https://img.shields.io/badge/Chrome_Web_Store-listing-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=googlechrome&amp;logoColor=161616"/></a>
+<a href="https://www.uniquelabs.org"><img alt="Unique Labs" src="https://img.shields.io/badge/Unique_Labs-uniquelabs.org-E6D3A3?style=flat-square&amp;labelColor=161616"/></a>
+<a href="CHANGELOG.md"><img alt="Version 1.0.3" src="https://img.shields.io/badge/version-1.0.3-E6D3A3?style=flat-square&amp;labelColor=161616"/></a>
+
+<br/>
+
+<img alt="Chrome extension, Manifest V3" src="https://img.shields.io/badge/Chrome_Extension-Manifest_V3-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=googlechrome&amp;logoColor=161616"/>
+<img alt="WXT 0.21" src="https://img.shields.io/badge/WXT-0.21-E6D3A3?style=flat-square&amp;labelColor=161616"/>
+<img alt="TypeScript 5.9" src="https://img.shields.io/badge/TypeScript-5.9-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=typescript&amp;logoColor=161616"/>
+<img alt="React 19" src="https://img.shields.io/badge/React-19-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=react&amp;logoColor=161616"/>
+<img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=vite&amp;logoColor=161616"/>
+<img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=tailwindcss&amp;logoColor=161616"/>
+<img alt="Node.js 20 or newer" src="https://img.shields.io/badge/Node.js-20%2B-E6D3A3?style=flat-square&amp;labelColor=161616&amp;logo=nodedotjs&amp;logoColor=161616"/>
+
+<br/>
 
 **FrameShot: Screen Recorder & Full Page Screenshot** — by [Unique Labs](https://www.uniquelabs.org)
 
-*Useful technology. Accessible to everyone.*
-
-<br/>
-
-<img alt="Chrome extension, Manifest V3" src="https://img.shields.io/badge/Chrome_Extension-Manifest_V3-6C2BD9?style=for-the-badge&amp;logo=googlechrome&amp;logoColor=white"/>
-<img alt="Version 1.0.3" src="https://img.shields.io/badge/version-1.0.3-FFB703?style=for-the-badge&amp;labelColor=1A1024"/>
-<img alt="TypeScript 5.9" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"/>
-<img alt="React 19" src="https://img.shields.io/badge/React-19-FF2E93?style=for-the-badge&amp;logo=react&amp;logoColor=white"/>
-<img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&amp;logo=vite&amp;logoColor=white"/>
-<img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&amp;logo=tailwindcss&amp;logoColor=white"/>
-<img alt="Node.js 20 or newer" src="https://img.shields.io/badge/Node.js-20%2B-339933?style=for-the-badge&amp;logo=nodedotjs&amp;logoColor=white"/>
-
-<br/>
-
-<a href="https://frameshot.uniquelabs.org"><img alt="Website: frameshot.uniquelabs.org" src="https://img.shields.io/badge/frameshot.uniquelabs.org-FF2E93?style=for-the-badge"/></a>
-<a href="https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac"><img alt="Chrome Web Store listing" src="https://img.shields.io/badge/Chrome_Web_Store-6C2BD9?style=for-the-badge&amp;logo=googlechrome&amp;logoColor=white"/></a>
-<a href="https://www.uniquelabs.org"><img alt="Unique Labs" src="https://img.shields.io/badge/Unique_Labs-00A896?style=for-the-badge"/></a>
-<img alt="WXT 0.21" src="https://img.shields.io/badge/WXT-0.21-FFB703?style=for-the-badge&amp;labelColor=1A1024"/>
-
 </div>
 
----
+> Capture the web. Edit every detail. Free forever.
+>
+> *Useful technology. Accessible to everyone.*
+
+| Slate | Mark |
+|---|---|
+| Production | FrameShot, a local-first Chrome extension (Manifest V3) |
+| Studio | [Unique Labs](https://www.uniquelabs.org) |
+| Print | `package.json` version **1.0.3**. Minimum Chrome **116** |
+| House rule | Every feature is free. No plans, tiers, subscriptions, watermarks, time limits, accounts, ads, or locked features |
 
 > **Naming notice — please read before publishing.** The name "FrameShot" has **not** been legally cleared, and a check on 2026-11-08 found a **high** conflict risk: the Chrome Web Store already lists a screenshot extension named "FrameShot" and two other "Frameshot" capture extensions, a near-identical competitor is called "FramedShot", and a US trademark filing for FRAMESHOT (serial 87795731, photo software) exists. Expect search results for the brand to be shared, and possible IP complaints. Have trademark counsel run a clearance search, and consider a more distinctive name, **before public launch**. Details: [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md), addendum.
 
-## ✨ Overview
+## 01. The reel
+
+Stills already in this repository (`store-assets/screenshots/`). They are the Chrome Web Store frames: popup, recorder, editor, redaction and GIF export, and the library. Open a frame for the full 1280×800 still.
+
+<table>
+<tr>
+<td align="center" width="36"><b>●<br/>●<br/>●<br/>●<br/>●<br/>●</b></td>
+<td align="center">
+<p align="center"><b>● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ●</b></p>
+<a href="store-assets/screenshots/01-overview.png"><img width="100%" alt="FrameShot toolbar popup: full page, visible area, area, element, scrolling panel, and record screen. No sign-up and nothing uploaded." src="store-assets/screenshots/01-overview.png"/></a>
+<p align="center"><sub>FRAME 01 — Popup. Full page, visible area, area, element, scrolling panel, record screen.</sub></p>
+<p align="center"><b>● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ●</b></p>
+<a href="store-assets/screenshots/02-screen-recorder.png"><img width="100%" alt="Screen recorder in FrameShot Studio: tab, window, or screen, system audio and microphone, camera bubble, pause, and crash-safe saving while recording." src="store-assets/screenshots/02-screen-recorder.png"/></a>
+<p align="center"><sub>FRAME 02 — Recorder. Tab, window, or screen, with sound, microphone, camera bubble, and crash-safe saving.</sub></p>
+<p align="center"><b>● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ●</b></p>
+<a href="store-assets/screenshots/03-full-page-editor.png"><img width="100%" alt="Full-page screenshot in the editor, with arrows, text, step markers, crop, resize, and rotate." src="store-assets/screenshots/03-full-page-editor.png"/></a>
+<p align="center"><sub>FRAME 03 — Full page in the editor. Arrows, text, step markers, crop, resize, rotate.</sub></p>
+<p align="center"><b>● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ●</b></p>
+<a href="store-assets/screenshots/04-blur-gif-export.png"><img width="100%" alt="Solid redaction flattened into the export, and a GIF export dialog to trim width, frame rate, and looping." src="store-assets/screenshots/04-blur-gif-export.png"/></a>
+<p align="center"><sub>FRAME 04 — Redaction flattened into the export, and GIF trim, width, frame rate, and loop.</sub></p>
+<p align="center"><b>● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ●</b></p>
+<a href="store-assets/screenshots/05-private.png"><img width="100%" alt="FrameShot library: captures stay on the device, with search, collections, duplicates, bulk export, and light and dark themes." src="store-assets/screenshots/05-private.png"/></a>
+<p align="center"><sub>FRAME 05 — Library. Search, collections, duplicates, bulk export. Captures stay on the device.</sub></p>
+<p align="center"><b>● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ● &nbsp; ●</b></p>
+</td>
+<td align="center" width="36"><b>●<br/>●<br/>●<br/>●<br/>●<br/>●</b></td>
+</tr>
+</table>
+
+## 02. What FrameShot is
 
 FrameShot is a **local-first Chrome extension** (Manifest V3) for capturing, recording, editing, organizing, and exporting what's on your screen. It combines a quick-capture toolbar popup with **FrameShot Studio**, a full application that opens in its own tab: a library for screenshots and recordings, a **screen recorder**, an editor with annotation and privacy tools, a composer for polished visuals, and an export engine.
 
 Every feature is available to every user. There are no paid plans, premium tiers, subscriptions, watermarks, time limits, accounts, ads, or locked features. Screenshots and recordings stay on your device.
 
-The manifest requires **Chrome 116** or newer. MP4 recording needs Chrome 126 or newer (see [limitations](#-limitations)).
+The manifest requires **Chrome 116** or newer. MP4 recording needs Chrome 126 or newer (see [Limitations](#12-limitations)).
 
-| | |
+| Gate | What the print holds |
 |---|---|
 | **Capture** | Visible area, full page, selected area, element, scrolling panel, and PDFs open in Chrome |
 | **Record** | Tab, window, or entire screen, with tab or system sound, microphone, and a camera bubble |
@@ -53,27 +91,19 @@ The manifest requires **Chrome 116** or newer. MP4 recording needs Chrome 126 or
 
 The full matrix, with test status for each item, is in [FEATURES.md](FEATURES.md).
 
-## 📸 In the product
+## 03. How a session runs
 
-Store listing images already in this repository. They show the popup, recorder, editor, redaction, GIF export, and library.
+1. Click the FrameShot toolbar icon. Pick **Visible**, **Full page**, **Area**, **Element**, or **Scrolling panel**. For a visible capture you can set a 3, 5, or 10 second delay. The same modes are on the right-click menu and on the shortcuts below.
+2. Press **Esc** on the page to cancel. A full-page capture shows progress on the toolbar badge and offers **Stop & save**.
+3. Choose **Record screen** to open the recorder in FrameShot Studio. Chrome's share picker asks what to share. Turn on the microphone or camera bubble if you want them. Pause, mute, and stop from the recorder, the popup, the Studio pill, Chrome's **Stop sharing** bar, or your shortcut.
+4. Open **Studio** for the library. Edit a screenshot, compose a framed image, play a recording, save a frame, or export part of a recording as a GIF.
+5. Export PNG, JPEG, WebP, or PDF, copy a PNG to the clipboard, or bulk-export a ZIP or one combined PDF. Downloads are reported as saved only after Chrome confirms they finished.
 
-<div align="center">
+Press **?** in Studio for the full shortcut sheet.
 
-<img width="100%" alt="FrameShot toolbar popup: full page, visible area, area, element, scrolling panel, and record screen. No sign-up and nothing uploaded." src="store-assets/screenshots/01-overview.png"/>
+## 04. Scenes
 
-<img width="100%" alt="Screen recorder in FrameShot Studio: tab, window, or screen, system audio and microphone, camera bubble, pause, and crash-safe saving while recording." src="store-assets/screenshots/02-screen-recorder.png"/>
-
-<img width="100%" alt="Full-page screenshot in the editor, with arrows, text, step markers, crop, resize, and rotate." src="store-assets/screenshots/03-full-page-editor.png"/>
-
-<img width="100%" alt="Solid redaction flattened into the export, and a GIF export dialog to trim width, frame rate, and looping." src="store-assets/screenshots/04-blur-gif-export.png"/>
-
-<img width="100%" alt="FrameShot library: captures stay on the device, with search, collections, duplicates, bulk export, and light and dark themes." src="store-assets/screenshots/05-private.png"/>
-
-</div>
-
-## ⚡ Key features
-
-| Area | What you can do |
+| Scene | What you can do |
 |---|---|
 | **Capture** | Viewport, full page (scroll-and-stitch), selected area, element, scrolling panel, and every page of a PDF open in Chrome |
 | **Recorder** | Tab, window, or screen via Chrome's share picker. Sound, microphone, camera bubble, pause/resume, MP4 or WebM, crash recovery, GIF |
@@ -84,7 +114,7 @@ Store listing images already in this repository. They show the popup, recorder, 
 | **Studio** | Sounds, keyboard shortcuts, themes, and an optional review prompt that follows Chrome Web Store rules |
 
 <details>
-<summary><b>Capture</b></summary>
+<summary><b>Scene A — Capture</b></summary>
 
 - **Visible area**: the current viewport, with scrollbars trimmed. An optional 3, 5, or 10 second delay lets you capture hover menus.
 - **Full page**: scroll-and-stitch capture of the whole page:
@@ -103,7 +133,7 @@ Store listing images already in this repository. They show the popup, recorder, 
 </details>
 
 <details>
-<summary><b>Screen recorder</b></summary>
+<summary><b>Scene B — Screen recorder</b></summary>
 
 - Record a **browser tab, an app window, or the entire screen**, chosen in Chrome's own share picker (FrameShot's own tab is never offered, so it cannot record itself). Switch to another tab mid-recording from Chrome's sharing bar.
 - **Sound**: the shared tab's audio (and whole-screen system audio where Chrome offers it) plus your **microphone**, mixed into one track and recorded without voice-call processing. Mute and unmute the microphone while recording. Device picker, live level meters for the microphone and the shared sound, and guidance on what to tick in Chrome's dialog.
@@ -119,7 +149,7 @@ Store listing images already in this repository. They show the popup, recorder, 
 </details>
 
 <details>
-<summary><b>Editor, composer, and export</b></summary>
+<summary><b>Scene C — Editor, composer, and export</b></summary>
 
 **Editor**
 
@@ -149,7 +179,7 @@ Store listing images already in this repository. They show the popup, recorder, 
 </details>
 
 <details>
-<summary><b>Library, settings, sounds, and review prompt</b></summary>
+<summary><b>Scene D — Library, settings, sounds, and the review card</b></summary>
 
 **Library**
 
@@ -181,7 +211,7 @@ A calm, minimal design over a slowly drifting aurora background: glass surfaces,
 
 </details>
 
-## 🧰 Tech stack
+## 05. Stack
 
 | Layer | Choice |
 |---|---|
@@ -197,7 +227,7 @@ A calm, minimal design over a slowly drifting aurora background: glass surfaces,
 
 Production permissions: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**. Screen recording added none; `offscreen` only plays sound effects for background captures.
 
-## 🚀 Getting started
+## 06. Load a print
 
 Requirements: **Node.js 20 or newer** (developed on Node 22), npm, and Chrome 116+.
 
@@ -213,7 +243,7 @@ npm run build
 3. Click **Load unpacked** and choose the `.output/chrome-mv3` folder.
 4. Pin FrameShot: open the puzzle-piece menu and click the pin.
 
-`npm run dev` writes a development build to `.output/chrome-mv3-dev`. Load that folder the same way while you are iterating. See [Development](#-development).
+`npm run dev` writes a development build to `.output/chrome-mv3-dev`. Load that folder the same way while you are iterating. See [Develop](#07-develop).
 
 ### Packaged ZIP
 
@@ -225,7 +255,7 @@ This produces `.output/frameshot-<version>-chrome.zip` (for the current `package
 
 The published listing is [FrameShot on the Chrome Web Store](https://chromewebstore.google.com/detail/adcgjmghjagflmmndoajdidcopodacac). The marketing site is [frameshot.uniquelabs.org](https://frameshot.uniquelabs.org).
 
-### Keyboard shortcuts
+### Call sheet — keyboard shortcuts
 
 | Action | Suggested shortcut |
 |---|---|
@@ -238,17 +268,7 @@ The published listing is [FrameShot on the Chrome Web Store](https://chromewebst
 
 Chrome assigns suggested shortcuts only if they don't conflict with existing ones. You can view and change them at `chrome://extensions/shortcuts`, or from **Settings → Keyboard shortcuts → Customize shortcuts**. Pressing **Esc** on the page always cancels an active capture.
 
-## 🧭 Usage
-
-1. Click the FrameShot toolbar icon. Pick **Visible**, **Full page**, **Area**, **Element**, or **Scrolling panel**. For a visible capture you can set a 3, 5, or 10 second delay. The same modes are on the right-click menu and on the shortcuts above.
-2. Press **Esc** on the page to cancel. A full-page capture shows progress on the toolbar badge and offers **Stop & save**.
-3. Choose **Record screen** to open the recorder in FrameShot Studio. Chrome's share picker asks what to share. Turn on the microphone or camera bubble if you want them. Pause, mute, and stop from the recorder, the popup, the Studio pill, Chrome's **Stop sharing** bar, or your shortcut.
-4. Open **Studio** for the library. Edit a screenshot, compose a framed image, play a recording, save a frame, or export part of a recording as a GIF.
-5. Export PNG, JPEG, WebP, or PDF, copy a PNG to the clipboard, or bulk-export a ZIP or one combined PDF. Downloads are reported as saved only after Chrome confirms they finished.
-
-Press **?** in Studio for the full shortcut sheet.
-
-## 🛠️ Development
+## 07. Develop
 
 ```bash
 npm run dev
@@ -272,7 +292,7 @@ npm run dev
 
 How to contribute, and the rules that keep FrameShot free and local-first, are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## ⚙️ Configuration
+## 08. Slate marks
 
 The extension has no `.env` file and no API keys. These names are build flags, website overrides, and the install-count Worker. Never commit secret values.
 
@@ -287,7 +307,7 @@ The extension has no `.env` file and no API keys. These names are build flags, w
 
 The extension talks to one origin, `https://frameshot.shahriarahmed614.workers.dev`, and only for anonymous install counts. To point that at a different Worker, change `TELEMETRY_ORIGIN` in `src/core/telemetry.ts`, `wxt.config.ts`, and `scripts/check-bundle.mjs`, then rebuild. Setup steps are in [server/telemetry/README.md](server/telemetry/README.md).
 
-## 🗂️ Project structure
+## 09. Floor plan
 
 ```
 src/entrypoints/     WXT entrypoints: background, capture agent, popup, studio, options, offscreen
@@ -307,20 +327,19 @@ website/             Static marketing site
 tests/unit  tests/e2e
 ```
 
-## 🏗️ Architecture
+## 10. Continuity
 
-```
- ┌──────────────┐  capture.start   ┌──────────────────────────┐  executeScript (activeTab)  ┌────────────────┐
- │ Popup        │ ───────────────▶ │ Background service worker│ ──────────────────────────▶ │ Content agent  │
- │ Shortcuts    │                  │  capture orchestrator    │ ◀── agent.* messages ─────▶ │ (in the page)  │
- │ Context menu │ ◀── status port ─│  rate-limited capture    │                             │ scroll, pickers│
- └──────────────┘                  │  StitchPlanner + canvases│                             └────────────────┘
-                                   └────────────┬─────────────┘
-                                                │ IndexedDB (images, thumbnails, metadata)
-                                                ▼
-                                   ┌──────────────────────────┐   getDisplayMedia (Chrome's picker)
-                                   │ FrameShot Studio (tab)    │ ◀─ screen recorder: MediaRecorder → chunks → IndexedDB
-                                   └──────────────────────────┘   library · editor · composer · player · settings
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1C1C1C", "primaryTextColor": "#F6EED6", "primaryBorderColor": "#C9A227", "lineColor": "#8A7030", "secondaryColor": "#2C261C", "tertiaryColor": "#141210", "fontFamily": "Georgia, serif"}}}%%
+flowchart LR
+  gate["Popup, shortcuts, context menu"] -->|"capture.start"| worker["Service worker: orchestrator, rate limit, StitchPlanner"]
+  worker -->|"executeScript, activeTab"| agent["Content agent: scroll and pickers"]
+  agent -->|"agent messages"| worker
+  worker -->|"status port"| gate
+  worker --> idb[("IndexedDB: images, thumbnails, metadata")]
+  idb --> studio["Studio: library, editor, composer, player, settings"]
+  studio -->|"getDisplayMedia"| rec["Recorder: MediaRecorder chunks"]
+  rec --> idb
 ```
 
 | Path | Module |
@@ -343,7 +362,7 @@ tests/unit  tests/e2e
 
 Full details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## 🧪 Testing
+## 11. Dailies
 
 ```bash
 npm test
@@ -357,19 +376,7 @@ npm run test:e2e
 
 Details, coverage, and the latest results are in [TESTING.md](TESTING.md).
 
-## 🔒 Privacy
-
-- **Your captures never leave your device.** There are no accounts, ads, usage analytics or remote code.
-- **Anonymous install counts only.** On install and update FrameShot sends a random install ID, its version, the OS family and the browser language to its own Cloudflare Worker ([`server/telemetry/`](server/telemetry/)), and Chrome opens the Worker's uninstall page on removal. Users turn it off in **Settings → Privacy**; test builds never send anything.
-- Screenshots, recordings, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
-- The microphone and camera are used only while you record, after you switch them on, and Chrome asks for your permission. Screen recording uses Chrome's share picker, so you choose exactly what is recorded.
-- Extension pages run under a strict Content Security Policy that **blocks connections to every server except the install-count Worker** (`connect-src 'self' blob: data: https://frameshot.shahriarahmed614.workers.dev`). This is verified by an automated test.
-- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added no permissions; `offscreen` only plays sound effects for background captures and shows no install warning.
-- Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
-
-See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
-
-## ⚠️ Limitations
+## 12. Limitations
 
 <details open>
 <summary><b>Unsupported because of browser restrictions</b></summary>
@@ -414,7 +421,7 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 
 </details>
 
-## 🗺️ Roadmap
+## 13. Still in the can
 
 Nothing on the roadmap becomes a paid feature, and nothing there adds accounts, cloud storage, or tracking unless it is explicitly optional and local-first. The full list is in [ROADMAP.md](ROADMAP.md).
 
@@ -430,7 +437,19 @@ Nothing on the roadmap becomes a paid feature, and nothing there adds accounts, 
 
 Also still open: trademark clearance for the name (see the notice at the top), and a CI workflow running `npm test` and `npm run test:e2e` on every push. There is no CI workflow in this repository yet.
 
-## 📚 Documentation
+## 14. What stays on set
+
+- **Your captures never leave your device.** There are no accounts, ads, usage analytics or remote code.
+- **Anonymous install counts only.** On install and update FrameShot sends a random install ID, its version, the OS family and the browser language to its own Cloudflare Worker ([`server/telemetry/`](server/telemetry/)), and Chrome opens the Worker's uninstall page on removal. Users turn it off in **Settings → Privacy**; test builds never send anything.
+- Screenshots, recordings, edits, and settings are stored only in this browser (IndexedDB and `chrome.storage.local`).
+- The microphone and camera are used only while you record, after you switch them on, and Chrome asks for your permission. Screen recording uses Chrome's share picker, so you choose exactly what is recorded.
+- Extension pages run under a strict Content Security Policy that **blocks connections to every server except the install-count Worker** (`connect-src 'self' blob: data: https://frameshot.shahriarahmed614.workers.dev`). This is verified by an automated test.
+- **Minimal permissions**: `activeTab`, `scripting`, `storage`, `unlimitedStorage`, `downloads`, `contextMenus`, `offscreen`. There are **no host permissions**, so FrameShot can access a tab only when you start a capture on it. Screen recording added no permissions; `offscreen` only plays sound effects for background captures and shows no install warning.
+- Exported files contain only what you see. Privacy effects are flattened, and no watermark is added.
+
+See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
+
+## 15. Paper trail
 
 | Document | Contents |
 |---|---|
@@ -451,7 +470,7 @@ Also still open: trademark clearance for the name (see the notice at the top), a
 | [marketing/YOUTUBE.md](marketing/YOUTUBE.md) | YouTube upload kit: title, description with chapters, tags, thumbnails, upload settings |
 | [marketing/LINKEDIN.md](marketing/LINKEDIN.md) | LinkedIn kit: project fields, description, skills, media, profile banner, launch post |
 
-## 💜 Support FrameShot
+## 16. House lights
 
 FrameShot is free forever and nothing is locked. If it saves you time, the **Support FrameShot** page (library sidebar, popup footer, or Settings → About) lists donation addresses with QR codes and a Copy button, and free ways to help. The same page is on the website at [frameshot.uniquelabs.org/support](https://frameshot.uniquelabs.org/support).
 
@@ -464,7 +483,7 @@ FrameShot is free forever and nothing is locked. If it saves you time, the **Sup
 
 The QR codes are generated by `scripts/build-donate-qr.py`, which checks that each one decodes to the exact address. Donating unlocks nothing.
 
-## 👤 Credits
+## 17. End credits
 
 <div align="center">
 
@@ -474,6 +493,6 @@ A product of Unique Labs. Developed by [Shahriar Ahmed](https://github.com/fr-os
 
 Co-Founder & COO, Unique Labs
 
-<img width="100%" alt="Footer wave" src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:FFB703,50:FF2E93,100:6C2BD9&amp;height=120&amp;section=footer"/>
+<img width="100%" alt="End card: charcoal cylinder, gold type. Unique Labs. Shahriar Ahmed, Co-Founder and COO." src="https://capsule-render.vercel.app/api?type=cylinder&amp;color=0:2C261C,50:161616,100:0B0B0B&amp;height=160&amp;section=footer&amp;text=Unique%20Labs&amp;fontFamily=Georgia&amp;fontSize=32&amp;fontColor=E6D3A3&amp;fontAlignY=38&amp;desc=Shahriar%20Ahmed%20%C2%B7%20Co-Founder%20and%20COO&amp;descSize=15&amp;descAlignY=66&amp;animation=fadeIn"/>
 
 </div>
